@@ -7,3 +7,4 @@ Develop end-to-end features spanning Api, Application, and Domain layers.
 - Implement new Application queries/commands
 - Define missing Domain entities
 - Expose REST functions for the features
+

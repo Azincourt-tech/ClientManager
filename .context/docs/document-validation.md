@@ -34,3 +34,4 @@ Documents can have an optional `ExpiryDate`. If the current date is past the `Ex
 
 ## Manual Trigger
 The endpoint `POST /api/Customer/customers/{id}/verify` can be used to manually re-evaluate the verification status.
+

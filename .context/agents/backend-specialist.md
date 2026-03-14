@@ -7,3 +7,4 @@ Implement .NET API endpoints, CQRS logic, and DDD domain models. Handles integra
 - Build endpoints
 - Extend Domain services
 - Secure and authenticate APIs
+

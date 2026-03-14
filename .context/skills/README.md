@@ -2,7 +2,7 @@
 
 On-demand expertise for AI agents. Skills are task-specific procedures that get activated when relevant.
 
-> Project: ShopRavenDb
+> Project: ClientManager
 
 ## How Skills Work
 
@@ -71,3 +71,4 @@ mode: false        # Optional: mode command?
 | E | Execution | commit-message, test-generation, refactoring, bug-investigation |
 | V | Validation | pr-review, code-review, test-generation, security-audit |
 | C | Confirmation | commit-message, documentation |
+

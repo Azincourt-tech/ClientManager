@@ -15,3 +15,4 @@ Handled by `IFileValidator`:
 ## Data Integrity & Validation
 - **CPF/CNPJ Validation**: Custom logic implementing official checksum algorithms for Brazilian identity numbers.
 - **Rich Domain State**: State transitions (e.g., Verification Status) are controlled within the Domain entities to prevent invalid states.
+

@@ -1,4 +1,4 @@
-# ShopRavenDb - Gestão de Clientes e Documentos
+# ClientManager - Gestão de Clientes e Documentos
 
 Este projeto foi desenvolvido como um modelo de estudo para **Testes Unitários** e **Arquitetura Limpa (Clean Architecture)**, utilizando o banco de dados NoSQL **RavenDB**.
 
@@ -6,11 +6,11 @@ A API permite o cadastro completo de clientes (incluindo endereços) e o gerenci
 
 O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e alta testabilidade:
 
-*   **ShopRavenDb.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
-*   **ShopRavenDb.Application**: Orquestração da lógica, mapeamento de DTOs (AutoMapper) e Validações de entrada (**FluentValidation**).
-*   **ShopRavenDb.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado.
-*   **ShopRavenDb.Domain.Services**: Implementação das regras de negócio.
-*   **ShopRavenDb.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB e extensões.
+*   **ClientManager.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
+*   **ClientManager.Application**: Orquestração da lógica, mapeamento de DTOs (AutoMapper) e Validações de entrada (**FluentValidation**).
+*   **ClientManager.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado.
+*   **ClientManager.Domain.Services**: Implementação das regras de negócio.
+*   **ClientManager.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB e extensões.
 *   **Tests**: Projetos de testes unitários para cada camada lógica da aplicação.
 
 ## 🛠️ Tecnologias e Padrões Aplicados
@@ -44,7 +44,7 @@ docker run -d -p 8080:8080 -p 38888:38888 ravendb/ravendb
 ### 3. Execução da API
 No terminal, na raiz do projeto, execute:
 ```bash
-dotnet run --project src/ShopRavenDb.Api/ShopRavenDb.Api.csproj
+dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj
 ```
 
 ### 4. Acessando a Documentação
@@ -68,3 +68,4 @@ Os testes cobrem:
 
 ---
 Desenvolvido para fins de estudo de arquitetura e qualidade de software.
+

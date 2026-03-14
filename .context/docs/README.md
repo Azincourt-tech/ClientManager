@@ -17,7 +17,7 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 - `AGENTS.md/`
 - `LICENSE/`
 - `README.md/`
-- `ShopRavenDb.sln/`
+- `ClientManager.sln/`
 - `src/` — TypeScript source files and CLI entrypoints.
 - `tests/` — Automated tests and fixtures.
 
@@ -32,3 +32,4 @@ Welcome to the repository knowledge base. Start with the project overview, then 
 | Data Flow & Integrations | `data-flow.md` | System diagrams, integration specs, queue topics |
 | Security & Compliance Notes | `security.md` | Auth model, secrets management, compliance requirements |
 | Tooling & Productivity Guide | `tooling.md` | CLI scripts, IDE configs, automation workflows |
+

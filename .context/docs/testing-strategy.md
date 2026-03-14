@@ -8,3 +8,4 @@ Uses `xUnit` or `NUnit`, along with `Moq` or NSubstitute for mocking.
 - **Integration Tests**: Test the API and Infrastructure components using a test or embedded instance of RavenDB.
 
 Run tests via Command Line (`dotnet test`) or Test Explorer in Visual Studio.
+

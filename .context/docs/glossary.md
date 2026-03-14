@@ -11,3 +11,4 @@
 ## Personas / Actors
 - **End User / Customer**: Individuals (PF) or Companies (PJ) navigating shops and submitting documents.
 - **Admin**: Staff managing domain configurations and verifying data.
+

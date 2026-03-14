@@ -16,7 +16,7 @@ generatedAt: 2026-03-14T04:16:55.384Z
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd ShopRavenDb
+cd ClientManager
 
 ```
 

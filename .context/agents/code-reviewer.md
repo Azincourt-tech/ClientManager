@@ -7,3 +7,4 @@ Review Pull Requests, focusing on DDD separation of concerns and appropriate Rav
 - Ensure controllers are thin
 - Ensure domain entities encapsulate state
 - Run `dotnet test` before merging
+

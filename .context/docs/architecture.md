@@ -24,3 +24,4 @@ This is a .NET Core Monolith implementing Domain-Driven Design (DDD) patterns. I
 
 ## Key Decisions & Trade-offs
 Using RavenDB provides schema-less, transactional document storage tuned for .NET.
+

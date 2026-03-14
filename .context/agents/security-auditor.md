@@ -7,3 +7,4 @@ Ensure endpoints are safe against injections, XSS, and check token validation lo
 - Verify Auth policies in .NET API
 - Test for IDOR and permission escalation
 - Oversee secure secrets management
+

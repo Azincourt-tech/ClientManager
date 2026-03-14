@@ -7,3 +7,4 @@ Reorganize code based on DDD boundaries, simplify logic within Domain services a
 - Extract logic from controllers into Application handlers
 - Combine closely related entities into correct Aggregate Roots
 - Remove redundant services
+

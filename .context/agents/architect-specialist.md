@@ -7,3 +7,4 @@ Responsible for high-level technical decisions, reviewing the boundaries between
 - Define service boundaries
 - Advise on persistence models
 - Approve external dependencies
+

@@ -11,3 +11,4 @@ Data flows from API Controllers -> Application Layer (CQRS/Services) -> Domain O
 
 ## External Integrations
 - RavenDB database cluster.
+

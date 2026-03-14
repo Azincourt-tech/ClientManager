@@ -11,3 +11,4 @@ Generated: 2026-03-14T04:16:55.453Z
 ## Architecture
 
 - [How is the codebase organized?](./project-structure.md)
+

@@ -7,3 +7,4 @@ Keep architecture diagrams, glossary, and data flow documentation up to date. Wo
 - Keep README fresh
 - Outline API specifications
 - Document complex domain workflows
+

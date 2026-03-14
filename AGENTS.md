@@ -3,7 +3,7 @@
 ## Dev environment tips
 - Restore dependencies with `dotnet restore` before working on the project.
 - Use `dotnet build` to compile the solution.
-- Run the API locally using `dotnet run --project src/ShopRavenDb.Api/ShopRavenDb.Api.csproj`.
+- Run the API locally using `dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj`.
 - Store generated artefacts in `.context/` so reruns stay deterministic.
 
 ## Testing instructions
@@ -22,13 +22,14 @@
 ## Repository map
 - `LICENSE/` — explains the project's licensing terms.
 - `README.md/` — the entrypoint for developers summarizing the purpose of the application.
-- `ShopRavenDb.sln/` — the root .NET solution file referencing all projects.
-- `src/ShopRavenDb.Api/` — the presentation layer containing REST controllers and Global Exception Handling.
-- `src/ShopRavenDb.Application/` — the application layer containing application services and FluentValidation logic.
-- `src/ShopRavenDb.Domain/`, `src/ShopRavenDb.Domain.Core/`, `src/ShopRavenDb.Domain.Services/` — the core domain layers with entities, interfaces, value objects, and business logic.
-- `src/ShopRavenDb.Infrastructure/` — implementation of repositories and connection to RavenDB.
+- `ClientManager.sln/` — the root .NET solution file referencing all projects.
+- `src/ClientManager.Api/` — the presentation layer containing REST controllers and Global Exception Handling.
+- `src/ClientManager.Application/` — the application layer containing application services and FluentValidation logic.
+- `src/ClientManager.Domain/`, `src/ClientManager.Domain.Core/`, `src/ClientManager.Domain.Services/` — the core domain layers with entities, interfaces, value objects, and business logic.
+- `src/ClientManager.Infrastructure/` — implementation of repositories and connection to RavenDB.
 
 ## AI Context References
 - Documentation index: `.context/docs/README.md`
 - Agent playbooks: `.context/agents/README.md`
 - Contributor guide: `CONTRIBUTING.md`
+

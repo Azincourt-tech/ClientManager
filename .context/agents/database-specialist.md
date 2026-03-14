@@ -7,3 +7,4 @@ Manage RavenDB indexes, queries, database design, and query optimization for the
 - Optimize LINQ queries in repositories
 - Configure RavenDB mappings
 - Recommend Map-Reduce indexes
+

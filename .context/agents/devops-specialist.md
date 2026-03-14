@@ -7,3 +7,4 @@ Handle configuration of CI/CD pipelines, Docker containerization, and automated 
 - Automate build configurations
 - Containerize application components
 - Manage staging environments
+
