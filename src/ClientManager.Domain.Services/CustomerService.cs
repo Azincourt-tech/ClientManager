@@ -11,7 +11,6 @@ namespace ClientManager.Domain.Services
 
         public async Task AddCustomerAsync(Customer customer)
         {
-            customer.Activate();
             await _customerRepository.AddCustomerAsync(customer).ConfigureAwait(false);
         }
 

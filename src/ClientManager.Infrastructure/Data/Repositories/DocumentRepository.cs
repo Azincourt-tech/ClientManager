@@ -1,7 +1,6 @@
+using ClientManager.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Raven.Client.Documents.Operations.Attachments;
-
-using ClientManager.Domain.Enums;
 
 namespace ClientManager.Infrastructure.Data.Repositories;
 
@@ -17,7 +16,7 @@ public class DocumentRepository : IDocumentRepository
     public async Task<Guid> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
         using var session = _documentStore.OpenAsyncSession();
-        
+
         // Find existing or create new doc metadata for this customer, filename and type
         var document = await session.Query<Document>()
                                 .FirstOrDefaultAsync(d => d.Name == file.FileName && d.CustomerId == customerId && d.Type == type).ConfigureAwait(false);
@@ -36,8 +35,14 @@ public class DocumentRepository : IDocumentRepository
         await using var stream = file.OpenReadStream();
         session.Advanced.Attachments.Store(document.Id.ToString(), document.Name, stream, file.ContentType);
         await session.SaveChangesAsync().ConfigureAwait(false);
-        
+
         return document.Id;
+    }
+
+    public async Task<Document?> GetDocumentByIdAsync(Guid documentId)
+    {
+        using var session = _documentStore.OpenAsyncSession();
+        return await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
     }
 
     public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
@@ -46,7 +51,7 @@ public class DocumentRepository : IDocumentRepository
         var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
 
         if (document is null) return null;
-        
+
         var attachment = await session.Advanced.Attachments.GetAsync(document.Id.ToString(), document.Name).ConfigureAwait(false);
         return attachment;
     }
