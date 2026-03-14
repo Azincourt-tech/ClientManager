@@ -1,3 +1,7 @@
+using Microsoft.Extensions.Configuration;
+using Raven.Client.Documents;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using FluentValidation;
 using ShopRavenDb.Domain.Core.Interfaces.Validators;
 using ShopRavenDb.Infrastructure.CrossCutting.Validators;
@@ -6,14 +10,14 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
 {
     public static class ServicesCollectionExtensions
     {
-        public static IServiceCollection AddRavenDb(this IServiceCollection servicesCollection)
+        public static IServiceCollection AddRavenDb(this IServiceCollection servicesCollection, IConfiguration configuration)
         {
             servicesCollection.TryAddSingleton<IDocumentStore>(ctx =>
             {
                 var store = new DocumentStore
                 {
-                    Urls = new string[] { "http://172.17.0.2:8080/" },
-                    Database = "Shop"
+                    Urls = new string[] { configuration["RavenDbSettings:Url"] ?? "http://localhost:8080" },
+                    Database = configuration["RavenDbSettings:Database"] ?? "Shop"
                 };
 
                 store.Initialize();

@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddRavenDb();
+builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddAutoMapper();
 builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
