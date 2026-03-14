@@ -1,8 +1,6 @@
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
 using FluentValidation;
-using ClientManager.Application.Interfaces;
-using ClientManager.Domain.Core.Interfaces.Services;
 
 namespace ClientManager.Application;
 
@@ -14,9 +12,9 @@ public class DocumentApplication : IDocumentApplication
     private readonly IValidator<IFormFile> _fluentValidator;
 
     public DocumentApplication(
-        IDocumentService documentService, 
+        IDocumentService documentService,
         ICustomerService customerService,
-        IFileValidator fileValidator, 
+        IFileValidator fileValidator,
         IValidator<IFormFile> fluentValidator)
     {
         _documentService = documentService;
@@ -35,7 +33,7 @@ public class DocumentApplication : IDocumentApplication
         }
 
         var res = await _documentService.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-        
+
         // Re-evaluate customer status
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
 
@@ -60,7 +58,7 @@ public class DocumentApplication : IDocumentApplication
         var customerId = document.CustomerId;
 
         await _documentService.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        
+
         // Re-evaluate customer status
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
 

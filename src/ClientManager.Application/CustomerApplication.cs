@@ -1,7 +1,5 @@
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
-using ClientManager.Application.Interfaces;
-using ClientManager.Application.Dtos;
 
 namespace ClientManager.Application
 {
