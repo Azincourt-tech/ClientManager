@@ -12,7 +12,7 @@ public class DocumentRepository : IDocumentRepository
         _documentStore = documentStore;
     }
 
-    public async Task<string> AttachDocument(IFormFile file)
+    public async Task<string> AttachDocumentAsync(IFormFile file)
     {
         Document? document = null;
 
@@ -27,7 +27,7 @@ public class DocumentRepository : IDocumentRepository
         return "Document sucessfully attached !";
     }
 
-    public async Task<AttachmentResult?> GetAttachDocument(string documentId)
+    public async Task<AttachmentResult?> GetAttachDocumentAsync(string documentId)
     {
      
         using var session = _documentStore.OpenAsyncSession();
