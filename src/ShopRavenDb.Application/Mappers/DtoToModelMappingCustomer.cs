@@ -13,6 +13,7 @@ namespace ShopRavenDb.Application.Mappers
             CreateMap<Customer, CustomerDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(x => x.Status))
                 .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(x => x.Id))
                 .ConstructUsing(x => new Customer(x.Name, x.Email, x.BirthDate, x.Cpf, x.Type, null));
         }
 

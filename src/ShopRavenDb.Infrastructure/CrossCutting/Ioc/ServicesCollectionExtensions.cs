@@ -20,6 +20,8 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
                     Database = configuration["RavenDbSettings:Database"] ?? "Shop"
                 };
 
+                store.Conventions.FindCollectionName = type => type.Name; // Simpler collection names
+                
                 store.Initialize();
 
                 return store;

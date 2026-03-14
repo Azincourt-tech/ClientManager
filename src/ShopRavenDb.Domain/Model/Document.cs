@@ -15,6 +15,7 @@ public class Document
 
     public Document(string name, string customerId, DocumentType type, DateTimeOffset? expiryDate = null)
     {
+        Id = Guid.NewGuid().ToString();
         Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Name invalid", nameof(name)) : name;
         CustomerId = string.IsNullOrWhiteSpace(customerId) ? throw new ArgumentException("CustomerId invalid", nameof(customerId)) : customerId;
         Type = type;

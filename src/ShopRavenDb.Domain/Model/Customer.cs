@@ -18,6 +18,7 @@ namespace ShopRavenDb.Domain.Model
 
         public Customer(string name, string email, DateTimeOffset birthDate, string cpf, CustomerType type, Address? address = null)
         {
+            Id = Guid.NewGuid().ToString();
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
             BirthDate = birthDate;
