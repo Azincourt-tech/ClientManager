@@ -1,19 +1,25 @@
+using FluentValidation;
+
 namespace ShopRavenDb.Application
 {
     public class CustomerApplication : ICustomerApplication
     {
         private readonly ICustomerService _customerService;
         private readonly IMapper _mapper;
+        private readonly FluentValidation.IValidator<CustomerDto> _validator;
 
         public CustomerApplication(ICustomerService customerService,
-                                   IMapper mapper)
+                                   IMapper mapper,
+                                   FluentValidation.IValidator<CustomerDto> validator)
         {
             _customerService = customerService;
             _mapper = mapper;
+            _validator = validator;
         }
 
         public async Task AddCustomerAsync(CustomerDto customerDto)
         {
+            await _validator.ValidateAndThrowAsync(customerDto);
             var customer = _mapper.Map<Customer>(customerDto);
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
         }
@@ -39,6 +45,7 @@ namespace ShopRavenDb.Application
 
         public async Task UpdateCustomerAsync(CustomerDto customerDto)
         {
+            await _validator.ValidateAndThrowAsync(customerDto);
             var customer = _mapper.Map<Customer>(customerDto);
             await _customerService.UpdateCustomerAsync(customer).ConfigureAwait(false);
         }
