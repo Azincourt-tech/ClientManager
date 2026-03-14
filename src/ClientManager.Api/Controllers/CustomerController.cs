@@ -35,7 +35,7 @@ namespace ClientManager.Api.Controllers
         [HttpPost("customer", Name = "add-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
+        public async Task<IActionResult> AddCustomer(CreateCustomerDto customerDto)
         {
             var response = await _customerApplication.AddCustomerAsync(customerDto).ConfigureAwait(false);
             if (!response.Success)
@@ -55,7 +55,7 @@ namespace ClientManager.Api.Controllers
         [HttpPut("customer", Name = "update-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateCustomer(CustomerDto customerDto)
+        public async Task<IActionResult> UpdateCustomer(UpdateCustomerDto customerDto)
         {
             var response = await _customerApplication.UpdateCustomerAsync(customerDto).ConfigureAwait(false);
             if (!response.Success)

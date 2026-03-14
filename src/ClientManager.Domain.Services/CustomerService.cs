@@ -1,5 +1,3 @@
-using ClientManager.Domain.Core.Interfaces.Validators;
-
 namespace ClientManager.Domain.Services
 {
     public class CustomerService : ICustomerService

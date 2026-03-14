@@ -7,7 +7,7 @@ A API permite o cadastro completo de clientes (incluindo endereços) e o gerenci
 O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e alta testabilidade:
 
 *   **ClientManager.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
-*   **ClientManager.Application**: Orquestração da lógica, mapeamento de DTOs (AutoMapper) e Validações de entrada (**FluentValidation**).
+*   **ClientManager.Application**: Orquestração da lógica, mapeamento de DTOs e Validações de entrada (**FluentValidation**).
 *   **ClientManager.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado.
 *   **ClientManager.Domain.Services**: Implementação das regras de negócio.
 *   **ClientManager.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB e extensões.

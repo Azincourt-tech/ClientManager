@@ -1,4 +1,4 @@
-namespace ClientManager.Application.Dtos
+namespace ClientManager.Application.Dtos.Customer
 {
     public class AddressDto
     {
@@ -10,4 +10,3 @@ namespace ClientManager.Application.Dtos
         public string PostalCode { get; set; } = null!;
     }
 }
-

@@ -6,6 +6,6 @@ public enum CustomerStatus
     Inactive,
     Verified,
     Attention,
-    Blocked
+    Pending
 }
 

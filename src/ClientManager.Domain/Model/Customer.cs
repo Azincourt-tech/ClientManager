@@ -27,14 +27,14 @@ namespace ClientManager.Domain.Model
             Document = CleanDocument(document);
             Address = address;
             Type = type;
-            Status = CustomerStatus.Active;
+            Status = CustomerStatus.Pending;
         }
 
         public void Activate() => Status = CustomerStatus.Active;
         public void Deactivate() => Status = CustomerStatus.Inactive;
         public void SetAttention() => Status = CustomerStatus.Attention;
         public void SetVerified() => Status = CustomerStatus.Verified;
-        public void Block() => Status = CustomerStatus.Blocked;
+        public void SetPending() => Status = CustomerStatus.Pending;
 
         public void UpdateDetails(string name, string email, string document, Address? address)
         {
@@ -52,9 +52,17 @@ namespace ClientManager.Domain.Model
 
         public void EvaluateVerificationStatus(IEnumerable<Document> documents)
         {
-            if (Status == CustomerStatus.Blocked || Status == CustomerStatus.Inactive) return;
+            if (Status == CustomerStatus.Inactive) return;
 
             var docsList = documents?.ToList() ?? new List<Document>();
+            
+            // Se não tem nenhum documento, volta/mantém como Pendente
+            if (!docsList.Any())
+            {
+                SetPending();
+                return;
+            }
+
             var hasIdentity = docsList.Any(d => d.Type == DocumentType.Identity && !d.IsExpired());
             var hasAddressProof = docsList.Any(d => d.Type == DocumentType.AddressProof && !d.IsExpired());
             var hasSocialContract = docsList.Any(d => d.Type == DocumentType.SocialContract && !d.IsExpired());
@@ -75,13 +83,10 @@ namespace ClientManager.Domain.Model
             {
                 SetVerified();
             }
-            else if (docsList.Any(d => d.IsExpired()))
-            {
-                SetAttention();
-            }
             else
             {
-                Activate();
+                // Se tem documentos mas não cumpre os requisitos (faltando algum ou expirado), fica em Atenção
+                SetAttention();
             }
         }
     }

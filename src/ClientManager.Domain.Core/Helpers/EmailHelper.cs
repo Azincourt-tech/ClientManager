@@ -1,24 +1,19 @@
-using ClientManager.Domain.Core.Interfaces.Validators;
 using System.Text.RegularExpressions;
 
-namespace ClientManager.Infrastructure.CrossCutting.Validators
+namespace ClientManager.Domain.Core.Helpers
 {
-    public class EmailValidator : IEmailValidator
+    public static class EmailHelper
     {
-        // Regex para validação de email, conforme RFC 5322
         private static readonly Regex EmailRegex = new Regex(
             @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public bool IsValid(string email)
+        public static bool IsValid(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
-            {
                 return false;
-            }
 
             return EmailRegex.IsMatch(email);
         }
     }
 }
-

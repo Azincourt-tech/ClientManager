@@ -1,14 +1,12 @@
 using FluentValidation;
-using ClientManager.Domain.Core.Interfaces.Validators;
+using ClientManager.Domain.Core.Helpers;
 using ClientManager.Domain.Enums;
 
 namespace ClientManager.Application.Validators
 {
     public class CustomerDtoValidator : AbstractValidator<CustomerDto>
     {
-        public CustomerDtoValidator(
-            ICpfValidator cpfValidator,
-            ICnpjValidator cnpjValidator)
+        public CustomerDtoValidator()
         {
             RuleFor(x => x.Name).
                 NotEmpty().
@@ -17,7 +15,7 @@ namespace ClientManager.Application.Validators
             RuleFor(x => x.Email).
                 NotEmpty().
                 WithMessage("EmailRequired")
-                .EmailAddress().
+                .Must(EmailHelper.IsValid).
                 WithMessage("InvalidEmail");
 
             RuleFor(x => x.Document)
@@ -25,14 +23,12 @@ namespace ClientManager.Application.Validators
                 .WithMessage("DocumentRequired")
                 .Must((dto, doc) =>
                 {
-                    var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-                    return dto.Type == CustomerType.NaturalPerson ? cpfValidator.IsValid(cleaned) : true;
+                    return dto.Type == CustomerType.NaturalPerson ? DocumentHelper.IsCpf(doc) : true;
                 })
                 .WithMessage("InvalidCPF")
                 .Must((dto, doc) =>
                 {
-                    var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-                    return dto.Type == CustomerType.LegalEntity ? cnpjValidator.IsValid(cleaned) : true;
+                    return dto.Type == CustomerType.LegalEntity ? DocumentHelper.IsCnpj(doc) : true;
                 })
                 .WithMessage("InvalidCNPJ");
 

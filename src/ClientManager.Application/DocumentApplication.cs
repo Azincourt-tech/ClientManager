@@ -1,10 +1,6 @@
-using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using ClientManager.Application.Interfaces;
-using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
-using Raven.Client.Documents.Operations.Attachments;
+using FluentValidation;
 
 namespace ClientManager.Application;
 
@@ -24,7 +20,7 @@ public class DocumentApplication : IDocumentApplication
     public async Task<ServiceResponse<Guid>> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
         await _fluentValidator.ValidateAndThrowAsync(file);
-        
+
         if (!_fileValidator.IsValid(file, out string errorMessage))
         {
             return ServiceResponse<Guid>.Fail(errorMessage);
@@ -39,7 +35,7 @@ public class DocumentApplication : IDocumentApplication
         var res = await _documentService.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
         if (res == null)
             return ServiceResponse<AttachmentResult?>.Fail("DocumentNotFound");
-            
+
         return ServiceResponse<AttachmentResult?>.Ok(res);
     }
 

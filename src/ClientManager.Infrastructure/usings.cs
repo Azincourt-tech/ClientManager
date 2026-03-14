@@ -8,5 +8,4 @@ global using ClientManager.Application.Interfaces;
 global using ClientManager.Domain.Core.Interfaces.Services;
 global using ClientManager.Domain.Services;
 global using ClientManager.Infrastructure.Data.Repositories;
-global using AutoMapper;
 global using ClientManager.Application.Mappers;

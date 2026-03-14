@@ -36,7 +36,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddRavenDb(builder.Configuration);
-builder.Services.AddAutoMapper();
 builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();

@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
-using ClientManager.Domain.Core.Interfaces.Validators;
 using ClientManager.Infrastructure.CrossCutting.Validators;
 
 namespace ClientManager.Infrastructure.CrossCutting.Ioc
@@ -31,18 +30,10 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
             return servicesCollection;
         }
 
-        public static IServiceCollection AddAutoMapper(this IServiceCollection servicesCollection)
+        public static IServiceCollection AddRepositories(this IServiceCollection servicesCollection)
         {
-            servicesCollection.AddSingleton<IMapper>(sp =>
-            {
-                var loggerFactory = sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>();
-                var mappingConfig = new MapperConfiguration(mc =>
-                {
-                    mc.AddProfile(new DtoToModelMappingCustomer());
-                }, loggerFactory);
-
-                return mappingConfig.CreateMapper();
-            });
+            servicesCollection.TryAddSingleton<ICustomerRepository, CustomerRepository>();
+            servicesCollection.TryAddSingleton<IDocumentRepository, DocumentRepository>();
 
             return servicesCollection;
         }
@@ -63,19 +54,8 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
             return servicesCollection;
         }
 
-        public static IServiceCollection AddRepositories(this IServiceCollection servicesCollection)
-        {
-            servicesCollection.TryAddSingleton<ICustomerRepository, CustomerRepository>();
-            servicesCollection.TryAddSingleton<IDocumentRepository, DocumentRepository>();
-
-            return servicesCollection;
-        }
-
         public static IServiceCollection AddValidators(this IServiceCollection servicesCollection)
         {
-            servicesCollection.TryAddScoped<IEmailValidator, EmailValidator>();
-            servicesCollection.TryAddScoped<ICpfValidator, CpfValidator>();
-            servicesCollection.TryAddScoped<ICnpjValidator, CnpjValidator>();
             servicesCollection.TryAddScoped<IFileValidator, FileValidator>();
             servicesCollection.AddValidatorsFromAssemblyContaining<ClientManager.Application.Validators.CustomerDtoValidator>();
 
