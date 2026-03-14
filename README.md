@@ -46,8 +46,8 @@ dotnet run --project src/ShopRavenDb.Api/ShopRavenDb.Api.csproj
 
 ### 4. Acessando a Documentação
 Com a API rodando, você pode testar os endpoints através de:
-*   **Swagger UI:** `https://localhost:7139/swagger`
-*   **Scalar Docs:** `https://localhost:7139/api-docs` (Interface moderna)
+*   **Swagger UI:** `https://localhost:7023/swagger`
+*   **Scalar Docs:** `https://localhost:7023/api-docs` (Interface moderna)
 
 ## 🧪 Como Rodar os Testes
 
