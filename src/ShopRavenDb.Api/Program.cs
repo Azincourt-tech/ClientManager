@@ -27,7 +27,7 @@ if (app.Environment.IsDevelopment())
 
     app.UseScalar(options =>
     {
-        options.UseTheme(Theme.Default);
+        options.UseTheme(Theme.DeepSpace);
         options.RoutePrefix = "api-docs";
     });
 }
