@@ -11,50 +11,49 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
             _documentStore = documentStore;
         }
 
-        public void AddCustomer(Customer customer)
+        public async Task AddCustomerAsync(Customer customer)
         {
-            using IDocumentSession documentSession = _documentStore.OpenSession();
-            documentSession.Store(customer);
-            documentSession.SaveChanges();
+            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
+            await documentSession.StoreAsync(customer).ConfigureAwait(false);
+            await documentSession.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public void DeleteCustomerById(string id)
+        public async Task DeleteCustomerByIdAsync(string id)
         {
-            using IDocumentSession documentSession = _documentStore.OpenSession();
-            var customer = documentSession.Load<Customer>(id);
+            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
+            var customer = await documentSession.LoadAsync<Customer>(id).ConfigureAwait(false);
             if (customer is not null)
             {
                 documentSession.Delete(customer);
-                documentSession.SaveChanges();
+                await documentSession.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
-        public Customer GetCustomerById(string id)
+        public async Task<Customer?> GetCustomerByIdAsync(string id)
         {
-            using IDocumentSession documentSession = _documentStore.OpenSession();
-            var customer = documentSession.Load<Customer>(id);
+            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
+            var customer = await documentSession.LoadAsync<Customer>(id).ConfigureAwait(false);
             return customer;
         }
 
-        public IEnumerable<Customer> GetCustomers()
+        public async Task<IEnumerable<Customer>> GetCustomersAsync()
         {
-            using IDocumentSession documentSession = _documentStore.OpenSession();
-            var customers = documentSession.Query<Customer>().ToList();
+            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
+            var customers = await documentSession.Query<Customer>().ToListAsync().ConfigureAwait(false);
             return customers;
         }
 
-        public void UpdateCustomer(Customer customer)
+        public async Task UpdateCustomerAsync(Customer customer)
         {
-            using IDocumentSession documentSession = _documentStore.OpenSession();
-            var customerEntity = documentSession.Query<Customer>()
-                                                .FirstOrDefault(c => c.Name == customer.Name);
+            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
+            var customerEntity = await documentSession.LoadAsync<Customer>(customer.Id).ConfigureAwait(false);
 
             if (customerEntity is not null)
             {
                 customerEntity.UpdateDetails(customer.Name, customer.Email, customer.Cpf, customer.Address);
             }
 
-            documentSession.SaveChanges();
+            await documentSession.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

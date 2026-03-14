@@ -15,34 +15,34 @@ namespace ShopRavenDb.Domain.Services
 
         }
 
-        public void AddCustomer(Customer customer)
+        public async Task AddCustomerAsync(Customer customer)
         {
             if (!_emailValidator.IsValid(customer.Email))
             {
                 throw new Exception("Invalid email");
             }
             customer.Activate();
-            _customerRepository.AddCustomer(customer);
+            await _customerRepository.AddCustomerAsync(customer).ConfigureAwait(false);
         }
 
-        public void DeleteCustomerById(string id)
+        public async Task DeleteCustomerByIdAsync(string id)
         {
-            _customerRepository.DeleteCustomerById(id);
+            await _customerRepository.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
         }
 
-        public Customer GetCustomerById(string id)
+        public async Task<Customer?> GetCustomerByIdAsync(string id)
         {
-            return _customerRepository.GetCustomerById(id);
+            return await _customerRepository.GetCustomerByIdAsync(id).ConfigureAwait(false);
         }
 
-        public IEnumerable<Customer> GetCustomers()
+        public async Task<IEnumerable<Customer>> GetCustomersAsync()
         {
-            return _customerRepository.GetCustomers();
+            return await _customerRepository.GetCustomersAsync().ConfigureAwait(false);
         }
 
-        public void UpdateCustomer(Customer customer)
+        public async Task UpdateCustomerAsync(Customer customer)
         {
-            _customerRepository.UpdateCustomer(customer);
+            await _customerRepository.UpdateCustomerAsync(customer).ConfigureAwait(false);
         }
     }
 }

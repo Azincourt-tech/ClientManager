@@ -1,4 +1,4 @@
-﻿namespace ShopRavenDb.Application
+namespace ShopRavenDb.Application
 {
     public class CustomerApplication : ICustomerApplication
     {
@@ -12,35 +12,35 @@
             _mapper = mapper;
         }
 
-        public void AddCustomer(CustomerDto customerDto)
+        public async Task AddCustomerAsync(CustomerDto customerDto)
         {
             var customer = _mapper.Map<Customer>(customerDto);
-            _customerService.AddCustomer(customer);
+            await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
         }
 
-        public void DeleteCustomerById(string id)
+        public async Task DeleteCustomerByIdAsync(string id)
         {
-            _customerService.DeleteCustomerById(id);
+            await _customerService.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
         }
 
-        public CustomerDto GetCustomerById(string id)
+        public async Task<CustomerDto?> GetCustomerByIdAsync(string id)
         {
-            var customer = _customerService.GetCustomerById(id);
+            var customer = await _customerService.GetCustomerByIdAsync(id).ConfigureAwait(false);
             var customerDto = _mapper.Map<CustomerDto>(customer);
             return customerDto;
         }
 
-        public IEnumerable<CustomerDto> GetCustomers()
+        public async Task<IEnumerable<CustomerDto>> GetCustomersAsync()
         {
-            var customers = _customerService.GetCustomers();
+            var customers = await _customerService.GetCustomersAsync().ConfigureAwait(false);
             var customersDto = _mapper.Map<IEnumerable<CustomerDto>>(customers);
             return customersDto;
         }
 
-        public void UpdateCustomer(CustomerDto customerDto)
+        public async Task UpdateCustomerAsync(CustomerDto customerDto)
         {
             var customer = _mapper.Map<Customer>(customerDto);
-            _customerService.UpdateCustomer(customer);
+            await _customerService.UpdateCustomerAsync(customer).ConfigureAwait(false);
         }
     }
 }

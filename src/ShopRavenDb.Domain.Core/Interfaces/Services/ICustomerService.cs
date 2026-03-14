@@ -1,15 +1,15 @@
-﻿namespace ShopRavenDb.Domain.Core.Interfaces.Services
+namespace ShopRavenDb.Domain.Core.Interfaces.Services
 {
     public interface ICustomerService
     {
-        void AddCustomer(Customer customer);
+        Task AddCustomerAsync(Customer customer);
 
-        void UpdateCustomer(Customer customer);
+        Task UpdateCustomerAsync(Customer customer);
 
-        void DeleteCustomerById(string id);
+        Task DeleteCustomerByIdAsync(string id);
 
-        IEnumerable<Customer> GetCustomers();
+        Task<IEnumerable<Customer>> GetCustomersAsync();
 
-        Customer GetCustomerById(string id);
+        Task<Customer?> GetCustomerByIdAsync(string id);
     }
 }
