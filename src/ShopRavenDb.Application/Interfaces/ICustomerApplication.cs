@@ -1,15 +1,18 @@
+using ShopRavenDb.Application.Dtos;
+using ShopRavenDb.Domain.Core.Responses;
+
 namespace ShopRavenDb.Application.Interfaces
 {
     public interface ICustomerApplication
     {
-        Task AddCustomerAsync(CustomerDto customerDto);
+        Task<ServiceResponse<string>> AddCustomerAsync(CustomerDto customerDto);
 
-        Task UpdateCustomerAsync(CustomerDto customerDto);
+        Task<ServiceResponse<string>> UpdateCustomerAsync(CustomerDto customerDto);
 
-        Task DeleteCustomerByIdAsync(string id);
+        Task<ServiceResponse<string>> DeleteCustomerByIdAsync(string id);
 
-        Task<IEnumerable<CustomerDto>> GetCustomersAsync();
+        Task<ServiceResponse<IEnumerable<CustomerDto>>> GetCustomersAsync();
 
-        Task<CustomerDto?> GetCustomerByIdAsync(string id);
+        Task<ServiceResponse<CustomerDto?>> GetCustomerByIdAsync(string id);
     }
 }

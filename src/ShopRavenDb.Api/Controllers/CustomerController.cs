@@ -1,3 +1,9 @@
+using ShopRavenDb.Domain.Core.Responses;
+using Raven.Client.Documents.Operations.Attachments;
+using Microsoft.AspNetCore.Mvc;
+using ShopRavenDb.Application.Interfaces;
+using ShopRavenDb.Application.Dtos;
+
 namespace ShopRavenDb.Api.Controllers
 {
     [Route("api/[controller]")]
@@ -12,56 +18,53 @@ namespace ShopRavenDb.Api.Controllers
         }
 
         [HttpPost("customer", Name = "add-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CustomerDto>>> AddCustomer(CustomerDto customerDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
         {
-            await _customerApplication.AddCustomerAsync(customerDto).ConfigureAwait(false);
-            return Ok("Customer Inserted successfully!");
+            var response = await _customerApplication.AddCustomerAsync(customerDto).ConfigureAwait(false);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpPut("customer", Name = "update-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CustomerDto>>> UpdateCustomer(CustomerDto customerDto)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateCustomer(CustomerDto customerDto)
         {
-            await _customerApplication.UpdateCustomerAsync(customerDto).ConfigureAwait(false);
-            return Ok("Customer updated successfully!");
+            var response = await _customerApplication.UpdateCustomerAsync(customerDto).ConfigureAwait(false);
+            return response.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpDelete("customer/{customerId}", Name = "delete-customer-by-id")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CustomerDto>>> DeleteCustomerById(string customerId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteCustomerById(string customerId)
         {
             var formattedCustomerId = Uri.UnescapeDataString(customerId);
-            await _customerApplication.DeleteCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
-            return Ok("Customer deleted successfully!");
+            var response = await _customerApplication.DeleteCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
+            return response.Success ? Ok(response) : NotFound(response);
         }
 
-
         [HttpGet("customers", Name = "get-customers")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<IEnumerable<CustomerDto>>))]
+        public async Task<IActionResult> GetCustomers()
         {
-            return Ok(await _customerApplication.GetCustomersAsync().ConfigureAwait(false));
+            var response = await _customerApplication.GetCustomersAsync().ConfigureAwait(false);
+            return Ok(response);
         }
 
         [HttpGet("customers/{customerId}", Name = "get-customer-by-id")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<CustomerDto?>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomerById(string customerId)
+        public async Task<IActionResult> GetCustomerById(string customerId)
         {
-
             var formattedCustomerId = Uri.UnescapeDataString(customerId);
-            var customer = await _customerApplication.GetCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
+            var response = await _customerApplication.GetCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
 
-            if (customer is null)
-                return NotFound();
-            else
-                return Ok(customer);
+            if (!response.Success)
+                return NotFound(response);
+            
+            return Ok(response);
         }
-
     }
 }
