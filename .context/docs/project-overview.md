@@ -6,7 +6,7 @@ ClientManager is an application built with .NET Core and RavenDB, exploring Doma
 ## Key Technologies
 - .NET (C#)
 - RavenDB (NoSQL & Attachments)
-- AutoMapper
+- Manual Mapping (Extension Methods)
 - FluentValidation
 - ProblemDetails (Global Exception Handling)
 - xUnit & Moq

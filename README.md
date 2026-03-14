@@ -7,21 +7,22 @@ A API permite o cadastro completo de clientes (incluindo endereços) e o gerenci
 O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e alta testabilidade:
 
 *   **ClientManager.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
-*   **ClientManager.Application**: Orquestração da lógica, mapeamento de DTOs e Validações de entrada (**FluentValidation**).
-*   **ClientManager.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado.
-*   **ClientManager.Domain.Services**: Implementação das regras de negócio.
-*   **ClientManager.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB e extensões.
+*   **ClientManager.Application**: Orquestração da lógica, mapeamento manual de DTOs (Extension Methods) e Validações de entrada (**FluentValidation**).
+*   **ClientManager.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado e suporte a **Soft Delete**.
+*   **ClientManager.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB com suporte a exclusão lógica e extensões.
 *   **Tests**: Projetos de testes unitários para cada camada lógica da aplicação.
 
 ## 🛠️ Tecnologias e Padrões Aplicados
 
 *   **Framework:** .NET 9.0
 *   **Banco de Dados:** RavenDB (NoSQL com suporte a anexos).
+*   **Mapeamento:** Mapeamento manual de DTOs para maior performance e controle.
+*   **Exclusão Lógica:** Implementação de **Soft Delete** em todas as entidades principais.
 *   **Operações Assíncronas:** Uso extensivo de `async/await` e `IAsyncDocumentSession` para alta performance.
-*   **Validação de Identidade:** Validadores reais para **CPF** e **CNPJ**.
+*   **Validação de Identidade:** Helpers de domínio para **CPF** e **CNPJ**.
 *   **Gestão de Documentos:** Categorização por tipo e controle de **Data de Expiração**.
 *   **Segurança de Upload:** Políticas de extensão e tamanho via `IFileValidator`.
-*   **Status de Verificação:** Lógica automática para classificar clientes como `Verified`, `Attention` ou `Active` com base nos documentos.
+*   **Status de Verificação:** Lógica automática para classificar clientes como `Verified`, `Attention` ou `Pending` com base nos documentos.
 *   **Suporte Multi-perfil:** Tratamento diferenciado para **Pessoa Física (PF)** e **Pessoa Jurídica (PJ)**.
 *   **Documentação:** Swagger e Scalar (Modern API Docs).
 *   **Testes:** xUnit, Moq (Mocking) e FluentAssertions.

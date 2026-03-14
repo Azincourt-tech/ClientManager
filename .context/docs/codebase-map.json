@@ -1,107 +1,52 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-03-14T04:16:55.276Z",
+  "version": "1.1.0",
+  "generated": "2026-03-14T17:00:00.000Z",
   "stack": {
     "primaryLanguage": "csharp",
-    "languages": [
-      "csharp"
-    ],
-    "frameworks": [],
-    "buildTools": [],
-    "testFrameworks": [],
-    "packageManager": null,
-    "isMonorepo": false,
-    "hasDocker": false,
-    "hasCI": false
+    "languages": ["csharp"],
+    "frameworks": [".NET 9.0", "RavenDB"],
+    "testFrameworks": ["xUnit", "Moq", "FluentAssertions"]
   },
   "structure": {
-    "totalFiles": 372,
     "rootPath": ".",
     "topDirectories": [
       {
-        "name": "src",
-        "fileCount": 288,
-        "description": "Source code root"
+        "name": "src/ClientManager.Api",
+        "description": "Presentation layer (Controllers, Middlewares, Program.cs)"
       },
       {
-        "name": "tests",
-        "fileCount": 80,
-        "description": "Test files and fixtures"
-      }
-    ],
-    "languageDistribution": [
-      {
-        "extension": ".cache",
-        "count": 79
+        "name": "src/ClientManager.Application",
+        "description": "Application layer (Services, DTOs, Mappers, Validators)"
       },
       {
-        "extension": ".cs",
-        "count": 73
+        "name": "src/ClientManager.Domain",
+        "description": "Domain layer (Entities, Enums)"
       },
       {
-        "extension": ".dll",
-        "count": 58
+        "name": "src/ClientManager.Domain.Core",
+        "description": "Core Domain (Interfaces, Helpers, Shared Responses)"
       },
       {
-        "extension": ".json",
-        "count": 47
+        "name": "src/ClientManager.Domain.Services",
+        "description": "Domain Services implementation"
       },
       {
-        "extension": ".pdb",
-        "count": 26
-      },
-      {
-        "extension": ".editorconfig",
-        "count": 20
-      },
-      {
-        "extension": ".csproj",
-        "count": 10
-      },
-      {
-        "extension": ".targets",
-        "count": 10
-      },
-      {
-        "extension": ".props",
-        "count": 10
-      },
-      {
-        "extension": ".tests",
-        "count": 8
+        "name": "src/ClientManager.Infrastructure",
+        "description": "Infrastructure layer (Repositories, IoC, RavenDB config)"
       }
     ]
   },
   "architecture": {
-    "layers": [],
-    "patterns": [],
-    "entryPoints": [],
-    "mainEntryPoints": [],
-    "moduleExports": []
+    "layers": ["Api", "Application", "Domain", "Domain.Core", "Domain.Services", "Infrastructure"],
+    "patterns": ["DDD", "Onion Architecture", "Repository", "Manual Mapping", "Soft Delete", "FluentValidation"]
   },
-  "symbols": {
-    "classes": [],
-    "interfaces": [],
-    "functions": [],
-    "types": [],
-    "enums": []
-  },
-  "publicAPI": [],
-  "dependencies": {
-    "mostImported": []
-  },
-  "stats": {
-    "totalSymbols": 0,
-    "exportedSymbols": 0,
-    "analysisTimeMs": 84
-  },
-  "keyFiles": [],
-  "navigation": {
-    "tests": "src/**/*.test.ts",
-    "config": [],
-    "types": [],
-    "mainLogic": [
-      "src"
-    ]
-  }
+  "keyFiles": [
+    "src/ClientManager.Application/Mappers/CustomerMapper.cs",
+    "src/ClientManager.Application/Mappers/DocumentMapper.cs",
+    "src/ClientManager.Domain.Core/Helpers/DocumentHelper.cs",
+    "src/ClientManager.Domain/Model/Customer.cs",
+    "src/ClientManager.Domain/Model/Document.cs",
+    "src/ClientManager.Infrastructure/Data/Repositories/CustomerRepository.cs",
+    "src/ClientManager.Infrastructure/Data/Repositories/DocumentRepository.cs"
+  ]
 }

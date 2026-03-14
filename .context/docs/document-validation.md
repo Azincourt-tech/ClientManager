@@ -11,17 +11,17 @@ Documents are categorized using the `DocumentType` enum:
 - `Other`: General attachments.
 
 ## Customer Verification Rules
-The system automatically evaluates a customer's `Status` based on uploaded documents:
+The system automatically evaluates a customer's `Status` based on uploaded documents. This re-evaluation happens whenever a document is **attached** or **deleted**.
 
 ### Individual (PF)
 - **Verified**: Must have at least one `Identity` document AND one `AddressProof` document. No document should be expired.
-- **Attention**: If ANY document is expired.
-- **Active**: If documents are present but don't fulfill the "Verified" requirements.
+- **Attention**: If documents are present but ANY document is expired, or if required documents are missing but some other documents exist.
+- **Pending**: Initial state. No documents have been attached yet.
 
 ### Legal Entity (PJ)
 - **Verified**: Must have at least one `Identity` document AND one `AddressProof` document AND one `SocialContract` document. No document should be expired.
-- **Attention**: If ANY document is expired.
-- **Active**: If documents are present but don't fulfill the "Verified" requirements.
+- **Attention**: If documents are present but ANY document is expired, or if required documents are missing but some other documents exist.
+- **Pending**: Initial state. No documents have been attached yet.
 
 ## File Upload Policy
 All files attached via `DocumentApplication` undergo validation:
