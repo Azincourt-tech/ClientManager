@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-14T04:16:55.276Z",
+  "stack": {
+    "primaryLanguage": "csharp",
+    "languages": [
+      "csharp"
+    ],
+    "frameworks": [],
+    "buildTools": [],
+    "testFrameworks": [],
+    "packageManager": null,
+    "isMonorepo": false,
+    "hasDocker": false,
+    "hasCI": false
+  },
+  "structure": {
+    "totalFiles": 372,
+    "rootPath": ".",
+    "topDirectories": [
+      {
+        "name": "src",
+        "fileCount": 288,
+        "description": "Source code root"
+      },
+      {
+        "name": "tests",
+        "fileCount": 80,
+        "description": "Test files and fixtures"
+      }
+    ],
+    "languageDistribution": [
+      {
+        "extension": ".cache",
+        "count": 79
+      },
+      {
+        "extension": ".cs",
+        "count": 73
+      },
+      {
+        "extension": ".dll",
+        "count": 58
+      },
+      {
+        "extension": ".json",
+        "count": 47
+      },
+      {
+        "extension": ".pdb",
+        "count": 26
+      },
+      {
+        "extension": ".editorconfig",
+        "count": 20
+      },
+      {
+        "extension": ".csproj",
+        "count": 10
+      },
+      {
+        "extension": ".targets",
+        "count": 10
+      },
+      {
+        "extension": ".props",
+        "count": 10
+      },
+      {
+        "extension": ".tests",
+        "count": 8
+      }
+    ]
+  },
+  "architecture": {
+    "layers": [],
+    "patterns": [],
+    "entryPoints": [],
+    "mainEntryPoints": [],
+    "moduleExports": []
+  },
+  "symbols": {
+    "classes": [],
+    "interfaces": [],
+    "functions": [],
+    "types": [],
+    "enums": []
+  },
+  "publicAPI": [],
+  "dependencies": {
+    "mostImported": []
+  },
+  "stats": {
+    "totalSymbols": 0,
+    "exportedSymbols": 0,
+    "analysisTimeMs": 84
+  },
+  "keyFiles": [],
+  "navigation": {
+    "tests": "src/**/*.test.ts",
+    "config": [],
+    "types": [],
+    "mainLogic": [
+      "src"
+    ]
+  }
+}
