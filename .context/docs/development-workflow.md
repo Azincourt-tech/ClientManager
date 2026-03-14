@@ -8,3 +8,9 @@
 ## Branching & Releases
 Use feature branches and create Pull Requests targeting the `main` branch. 
 Ensure code passes all CI tests.
+
+### Commit Standards
+Follow **Conventional Commits**:
+- `feat(domain): add customer aggregate`
+- `fix(api): resolve route conflict`
+- `docs(context): update glossary`

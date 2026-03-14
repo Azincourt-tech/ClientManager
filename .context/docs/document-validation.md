@@ -16,10 +16,10 @@ The system automatically evaluates a customer's `Status` based on uploaded docum
 ### Individual (PF)
 - **Verified**: Must have at least one `Identity` document AND one `AddressProof` document. No document should be expired.
 - **Attention**: If ANY document is expired.
-- **Active`: If documents are present but don't fulfill the "Verified" requirements.
+- **Active**: If documents are present but don't fulfill the "Verified" requirements.
 
 ### Legal Entity (PJ)
-- **Verified**: Must have at least one `Identity` document AND one `SocialContract` document. No document should be expired.
+- **Verified**: Must have at least one `Identity` document AND one `AddressProof` document AND one `SocialContract` document. No document should be expired.
 - **Attention**: If ANY document is expired.
 - **Active**: If documents are present but don't fulfill the "Verified" requirements.
 

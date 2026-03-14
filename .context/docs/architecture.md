@@ -20,6 +20,7 @@ This is a .NET Core Monolith implementing Domain-Driven Design (DDD) patterns. I
 | Dependency Injection | Inversion of Control via .NET Core DI |
 | Async/Await | Non-blocking I/O operations throughout the stack |
 | ProblemDetails | Standardized API error responses |
+| Custom Validators | `ICpfValidator`, `ICnpjValidator`, `IFileValidator` for business and security rules |
 
 ## Key Decisions & Trade-offs
 Using RavenDB provides schema-less, transactional document storage tuned for .NET.
