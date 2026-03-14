@@ -12,36 +12,37 @@ namespace ShopRavenDb.Application.Validators
         {
             RuleFor(x => x.Name).
                 NotEmpty().
-                WithMessage("Name is required");
+                WithMessage("NameRequired");
 
             RuleFor(x => x.Email).
                 NotEmpty().
-                EmailAddress().
-                WithMessage("A valid email is required");
+                WithMessage("EmailRequired")
+                .EmailAddress().
+                WithMessage("InvalidEmail");
 
             RuleFor(x => x.Document)
                 .NotEmpty()
-                .WithMessage("Document is required")
+                .WithMessage("DocumentRequired")
                 .Must((dto, doc) =>
                 {
                     var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
                     return dto.Type == CustomerType.NaturalPerson ? cpfValidator.IsValid(cleaned) : true;
                 })
-                .WithMessage("Invalid CPF number")
+                .WithMessage("InvalidCPF")
                 .Must((dto, doc) =>
                 {
                     var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
                     return dto.Type == CustomerType.LegalEntity ? cnpjValidator.IsValid(cleaned) : true;
                 })
-                .WithMessage("Invalid CNPJ number");
+                .WithMessage("InvalidCNPJ");
 
             RuleFor(x => x.BirthDate).
                 NotEmpty().
-                WithMessage("Birth date is required");
+                WithMessage("BirthDateRequired");
 
             RuleFor(x => x.Type)
                 .IsInEnum()
-                .WithMessage("Invalid customer type");
+                .WithMessage("InvalidCustomerType");
         }
     }
 }

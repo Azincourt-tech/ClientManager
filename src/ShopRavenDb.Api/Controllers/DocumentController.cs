@@ -11,10 +11,12 @@ namespace ShopRavenDb.Api.Controllers;
 public class DocumentController : ControllerBase
 {
     private readonly IDocumentApplication _documentApplication;
+    private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
 
-    public DocumentController(IDocumentApplication documentApplication)
+    public DocumentController(IDocumentApplication documentApplication, Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
     {
         _documentApplication = documentApplication;
+        _localizer = localizer;
     }
 
     /// <summary>
@@ -31,7 +33,13 @@ public class DocumentController : ControllerBase
     public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
        var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-       return response.Success ? Ok(response) : BadRequest(response);
+       if (!response.Success)
+       {
+           response.Message = _localizer[response.Message];
+           return BadRequest(response);
+       }
+       response.Message = _localizer[response.Message];
+       return Ok(response);
     }
     
     /// <summary>
@@ -47,7 +55,10 @@ public class DocumentController : ControllerBase
         var response = await _documentApplication.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
 
         if (!response.Success || response.Data == null)
+        {
+            response.Message = _localizer[response.Message];
             return NotFound(response);
+        }
 
         return File(response.Data.Stream, response.Data.Details.ContentType);
     }
@@ -63,6 +74,12 @@ public class DocumentController : ControllerBase
     public async Task<IActionResult> DeleteDocument(Guid documentId)
     {
         var response = await _documentApplication.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        return response.Success ? Ok(response) : NotFound(response);
+        if (!response.Success)
+        {
+            response.Message = _localizer[response.Message];
+            return NotFound(response);
+        }
+        response.Message = _localizer[response.Message];
+        return Ok(response);
     }
 }

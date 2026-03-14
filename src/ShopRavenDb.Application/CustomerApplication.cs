@@ -28,7 +28,7 @@ namespace ShopRavenDb.Application
             await _validator.ValidateAndThrowAsync(customerDto);
             var customer = _mapper.Map<Customer>(customerDto);
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
-            return ServiceResponse<Guid>.Ok(customer.Id, "Customer inserted successfully!");
+            return ServiceResponse<Guid>.Ok(customer.Id, "CustomerInserted");
         }
 
         public async Task<ServiceResponse<string>> DeleteCustomerByIdAsync(Guid id)
@@ -36,18 +36,18 @@ namespace ShopRavenDb.Application
             var documentCount = await _documentService.GetDocumentCountByCustomerIdAsync(id).ConfigureAwait(false);
             if (documentCount > 0)
             {
-                return ServiceResponse<string>.Fail("Cannot delete customer with saved documents.");
+                return ServiceResponse<string>.Fail("DeleteCustomerWithDocsError");
             }
 
             await _customerService.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
-            return ServiceResponse<string>.Ok(id.ToString(), "Customer deleted successfully!");
+            return ServiceResponse<string>.Ok(id.ToString(), "CustomerDeleted");
         }
 
         public async Task<ServiceResponse<CustomerDto?>> GetCustomerByIdAsync(Guid id)
         {
             var customer = await _customerService.GetCustomerByIdAsync(id).ConfigureAwait(false);
             if (customer == null)
-                return ServiceResponse<CustomerDto?>.Fail("Customer not found.");
+                return ServiceResponse<CustomerDto?>.Fail("CustomerNotFound");
             
             // Re-evaluate status based on current documents
             var documents = await _documentService.GetDocumentsByCustomerIdAsync(id).ConfigureAwait(false);
@@ -77,13 +77,13 @@ namespace ShopRavenDb.Application
         public async Task<ServiceResponse<string>> UpdateCustomerAsync(CustomerDto customerDto)
         {
             if (string.IsNullOrEmpty(customerDto.Id) || !Guid.TryParse(customerDto.Id, out Guid customerGuid))
-                return ServiceResponse<string>.Fail("A valid Customer ID is required for update.");
+                return ServiceResponse<string>.Fail("CustomerNotFound");
 
             await _validator.ValidateAndThrowAsync(customerDto);
             
             var existingCustomer = await _customerService.GetCustomerByIdAsync(customerGuid).ConfigureAwait(false);
             if (existingCustomer == null)
-                return ServiceResponse<string>.Fail("Customer not found.");
+                return ServiceResponse<string>.Fail("CustomerNotFound");
 
             // Update details (Name, Email, Document, Address) via domain method
             var address = customerDto.Address != null ? _mapper.Map<Address>(customerDto.Address) : null;
@@ -94,19 +94,19 @@ namespace ShopRavenDb.Application
             existingCustomer.EvaluateVerificationStatus(documents);
 
             await _customerService.UpdateCustomerAsync(existingCustomer).ConfigureAwait(false);
-            return ServiceResponse<string>.Ok(existingCustomer.Id.ToString(), "Customer updated successfully!");
+            return ServiceResponse<string>.Ok(existingCustomer.Id.ToString(), "CustomerUpdated");
         }
 
         public async Task<ServiceResponse<string>> VerifyCustomerAsync(Guid id)
         {
             var customer = await _customerService.GetCustomerByIdAsync(id).ConfigureAwait(false);
-            if (customer == null) return ServiceResponse<string>.Fail("Customer not found.");
+            if (customer == null) return ServiceResponse<string>.Fail("CustomerNotFound");
 
             var documents = await _documentService.GetDocumentsByCustomerIdAsync(id).ConfigureAwait(false);
             customer.EvaluateVerificationStatus(documents);
             await _customerService.UpdateCustomerAsync(customer).ConfigureAwait(false);
 
-            return ServiceResponse<string>.Ok(customer.Status.ToString(), $"Customer status evaluated to: {customer.Status}");
+            return ServiceResponse<string>.Ok(customer.Status.ToString(), "CustomerStatusEvaluated");
         }
     }
 }

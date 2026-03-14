@@ -16,20 +16,20 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Validators
 
             if (file == null || file.Length == 0)
             {
-                errorMessage = "File is empty.";
+                errorMessage = "FileIsEmpty";
                 return false;
             }
 
             if (file.Length > MaxFileSize)
             {
-                errorMessage = "File size exceeds 5MB limit.";
+                errorMessage = "FileSizeExceeded";
                 return false;
             }
 
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!_allowedExtensions.Contains(extension))
             {
-                errorMessage = "Invalid file extension. Allowed: PDF, PNG, JPG.";
+                errorMessage = "InvalidFileExtension";
                 return false;
             }
 

@@ -31,14 +31,14 @@ public class DocumentApplication : IDocumentApplication
         }
 
         var res = await _documentService.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-        return ServiceResponse<Guid>.Ok(res, "Document successfully attached!");
+        return ServiceResponse<Guid>.Ok(res, "DocumentAttached");
     }
 
     public async Task<ServiceResponse<AttachmentResult?>> GetAttachDocumentAsync(Guid documentId)
     {
         var res = await _documentService.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
         if (res == null)
-            return ServiceResponse<AttachmentResult?>.Fail("Document not found.");
+            return ServiceResponse<AttachmentResult?>.Fail("DocumentNotFound");
             
         return ServiceResponse<AttachmentResult?>.Ok(res);
     }
@@ -46,7 +46,7 @@ public class DocumentApplication : IDocumentApplication
     public async Task<ServiceResponse<string>> DeleteDocumentAsync(Guid documentId)
     {
         await _documentService.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        return ServiceResponse<string>.Ok(documentId.ToString(), "Document successfully removed!");
+        return ServiceResponse<string>.Ok(documentId.ToString(), "DocumentRemoved");
     }
 
     public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId)

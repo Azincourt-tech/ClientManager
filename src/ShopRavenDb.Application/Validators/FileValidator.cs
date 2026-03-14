@@ -8,15 +8,15 @@ namespace ShopRavenDb.Application.Validators
         {
             RuleFor(x => x).
                 NotNull().
-                WithMessage("File cannot be null.");
+                WithMessage("FileNotFound");
 
             RuleFor(x => x.Length).
                 GreaterThan(0).
-                WithMessage("File size must be greater than 0 bytes.");
+                WithMessage("FileEmpty");
 
             RuleFor(x => x.FileName).
                 NotEmpty().
-                WithMessage("File name cannot be empty.");
+                WithMessage("FileNameEmpty");
         }
     }
 }
