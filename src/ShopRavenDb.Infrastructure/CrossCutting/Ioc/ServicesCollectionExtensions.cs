@@ -1,8 +1,5 @@
-using Microsoft.Extensions.Configuration;
-using Raven.Client.Documents;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using ShopRavenDb.Domain.Core.Interfaces.Validators;
 using ShopRavenDb.Infrastructure.CrossCutting.Validators;
 
@@ -21,7 +18,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
                 };
 
                 store.Conventions.FindCollectionName = type => type.Name; // Simpler collection names
-                
+
                 store.Initialize();
 
                 return store;
@@ -32,13 +29,16 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
 
         public static IServiceCollection AddAutoMapper(this IServiceCollection servicesCollection)
         {
-            var mappingConfig = new MapperConfiguration(mc =>
+            servicesCollection.AddSingleton<IMapper>(sp =>
             {
-                mc.AddProfile(new DtoToModelMappingCustomer());
-            });
+                var loggerFactory = sp.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>();
+                var mappingConfig = new MapperConfiguration(mc =>
+                {
+                    mc.AddProfile(new DtoToModelMappingCustomer());
+                }, loggerFactory);
 
-            IMapper mapper = mappingConfig.CreateMapper();
-            servicesCollection.AddSingleton(mapper);
+                return mappingConfig.CreateMapper();
+            });
 
             return servicesCollection;
         }
