@@ -22,11 +22,10 @@ namespace ClientManager.Infrastructure.Data.Repositories
         public async Task DeleteCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            // Buscamos pelo ID exato (Guid como string)
             var customer = await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
             if (customer is not null)
             {
-                documentSession.Delete(customer);
+                customer.Delete();
                 await documentSession.SaveChangesAsync().ConfigureAwait(false);
             }
         }
@@ -34,14 +33,16 @@ namespace ClientManager.Infrastructure.Data.Repositories
         public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            // Carregamos usando o Guid como string
-            return await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
+            var customer = await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
+            return customer is not null && !customer.IsDeleted ? customer : null;
         }
 
         public async Task<IEnumerable<Customer>> GetCustomersAsync()
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customers = await documentSession.Query<Customer>().ToListAsync().ConfigureAwait(false);
+            var customers = await documentSession.Query<Customer>()
+                                .Where(x => !x.IsDeleted)
+                                .ToListAsync().ConfigureAwait(false);
             return customers;
         }
 

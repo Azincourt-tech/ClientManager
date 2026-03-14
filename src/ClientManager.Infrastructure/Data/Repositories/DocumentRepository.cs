@@ -42,7 +42,8 @@ public class DocumentRepository : IDocumentRepository
     public async Task<Document?> GetDocumentByIdAsync(Guid documentId)
     {
         using var session = _documentStore.OpenAsyncSession();
-        return await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
+        var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
+        return document is not null && !document.IsDeleted ? document : null;
     }
 
     public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
@@ -50,7 +51,7 @@ public class DocumentRepository : IDocumentRepository
         using var session = _documentStore.OpenAsyncSession();
         var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
 
-        if (document is null) return null;
+        if (document is null || document.IsDeleted) return null;
 
         var attachment = await session.Advanced.Attachments.GetAsync(document.Id.ToString(), document.Name).ConfigureAwait(false);
         return attachment;
@@ -62,7 +63,7 @@ public class DocumentRepository : IDocumentRepository
         var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
         if (document != null)
         {
-            session.Delete(document); // This will also delete related attachments in RavenDB 
+            document.Delete();
             await session.SaveChangesAsync().ConfigureAwait(false);
         }
     }
@@ -70,12 +71,14 @@ public class DocumentRepository : IDocumentRepository
     public async Task<int> GetDocumentCountByCustomerIdAsync(Guid customerId)
     {
         using var session = _documentStore.OpenAsyncSession();
-        return await session.Query<Document>().CountAsync(d => d.CustomerId == customerId).ConfigureAwait(false);
+        return await session.Query<Document>().CountAsync(d => d.CustomerId == customerId && !d.IsDeleted).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<Document>> GetDocumentsByCustomerIdAsync(Guid customerId)
     {
         using var session = _documentStore.OpenAsyncSession();
-        return await session.Query<Document>().Where(d => d.CustomerId == customerId).ToListAsync().ConfigureAwait(false);
+        return await session.Query<Document>()
+                    .Where(d => d.CustomerId == customerId && !d.IsDeleted)
+                    .ToListAsync().ConfigureAwait(false);
     }
 }

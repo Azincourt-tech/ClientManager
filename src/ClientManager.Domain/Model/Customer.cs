@@ -12,6 +12,7 @@ namespace ClientManager.Domain.Model
         public string Document { get; private set; } = null!; // Can be CNPJ if LegalEntity
         public CustomerType Type { get; private set; }
         public CustomerStatus Status { get; private set; }
+        public bool IsDeleted { get; private set; }
         public string? Cpf => Type == CustomerType.NaturalPerson ? Document : null;
         public string? Cnpj => Type == CustomerType.LegalEntity ? Document : null;
 
@@ -35,6 +36,7 @@ namespace ClientManager.Domain.Model
         public void SetAttention() => Status = CustomerStatus.Attention;
         public void SetVerified() => Status = CustomerStatus.Verified;
         public void SetPending() => Status = CustomerStatus.Pending;
+        public void Delete() => IsDeleted = true;
 
         public void UpdateDetails(string name, string email, string document, Address? address)
         {

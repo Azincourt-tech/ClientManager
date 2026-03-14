@@ -10,6 +10,7 @@ public class Document
     public DocumentType Type { get; private set; }
     public DateTimeOffset CreateDate { get; private set; }
     public DateTimeOffset? ExpiryDate { get; private set; }
+    public bool IsDeleted { get; private set; }
 
     private Document() { }
 
@@ -24,6 +25,8 @@ public class Document
     }
 
     public void UpdateExpiryDate(DateTimeOffset? expiryDate) => ExpiryDate = expiryDate;
+
+    public void Delete() => IsDeleted = true;
 
     public bool IsExpired() => ExpiryDate.HasValue && ExpiryDate.Value < DateTimeOffset.UtcNow;
 }
