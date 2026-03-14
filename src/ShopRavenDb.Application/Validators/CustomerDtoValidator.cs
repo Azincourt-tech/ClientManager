@@ -17,12 +17,12 @@ namespace ShopRavenDb.Application.Validators
                 EmailAddress().
                 WithMessage("A valid email is required");
 
-            RuleFor(x => x.Cpf)
+            RuleFor(x => x.Document)
                 .NotEmpty()
                 .WithMessage("CPF/CNPJ is required")
-                .Must((dto, cpf) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.Individual ? cpfValidator.IsValid(cpf) : true)
+                .Must((dto, doc) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.Individual ? cpfValidator.IsValid(doc) : true)
                 .WithMessage("Invalid CPF number")
-                .Must((dto, cpf) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.LegalEntity ? cnpjValidator.IsValid(cpf) : true)
+                .Must((dto, doc) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.LegalEntity ? cnpjValidator.IsValid(doc) : true)
                 .WithMessage("Invalid CNPJ number");
 
             RuleFor(x => x.BirthDate).

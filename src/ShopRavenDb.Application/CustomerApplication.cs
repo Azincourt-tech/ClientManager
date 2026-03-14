@@ -85,9 +85,9 @@ namespace ShopRavenDb.Application
             if (existingCustomer == null)
                 return ServiceResponse<string>.Fail("Customer not found.");
 
-            // Update details (Name, Email, Cpf, Address) via domain method
+            // Update details (Name, Email, Document, Address) via domain method
             var address = customerDto.Address != null ? _mapper.Map<Address>(customerDto.Address) : null;
-            existingCustomer.UpdateDetails(customerDto.Name, customerDto.Email, customerDto.Cpf, address);
+            existingCustomer.UpdateDetails(customerDto.Name, customerDto.Email, customerDto.Document, address);
             
             // Re-evaluate status as types or documents might have changed (though documents didn't change here, Type might have)
             var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerDto.Id).ConfigureAwait(false);

@@ -9,20 +9,22 @@ namespace ShopRavenDb.Domain.Model
         public string Email { get; private set; }
         public DateTimeOffset BirthDate { get; private set; }
         public Address? Address { get; private set; }
-        public string Cpf { get; private set; } // Can be CNPJ if LegalEntity
+        public string Document { get; private set; } // Can be CNPJ if LegalEntity
         public CustomerType Type { get; private set; }
         public CustomerStatus Status { get; private set; }
+        public string? Cpf => Type == CustomerType.Individual ? Document : null;
+        public string? Cnpj => Type == CustomerType.LegalEntity ? Document : null;
 
         // Construtor vazio para o RavenDB (Desserialização)
         private Customer() { }
 
-        public Customer(string name, string email, DateTimeOffset birthDate, string cpf, CustomerType type, Address? address = null)
+        public Customer(string name, string email, DateTimeOffset birthDate, string document, CustomerType type, Address? address = null)
         {
             Id = Guid.NewGuid().ToString();
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
             BirthDate = birthDate;
-            Cpf = string.IsNullOrWhiteSpace(cpf) ? throw new ArgumentException("CPF/CNPJ invalido", nameof(cpf)) : cpf;
+            Document = string.IsNullOrWhiteSpace(document) ? throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document)) : document;
             Address = address;
             Type = type;
             Status = CustomerStatus.Active;
@@ -34,11 +36,11 @@ namespace ShopRavenDb.Domain.Model
         public void SetVerified() => Status = CustomerStatus.Verified;
         public void Block() => Status = CustomerStatus.Blocked;
 
-        public void UpdateDetails(string name, string email, string cpf, Address? address)
+        public void UpdateDetails(string name, string email, string document, Address? address)
         {
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
-            Cpf = string.IsNullOrWhiteSpace(cpf) ? throw new ArgumentException("CPF/CNPJ invalido", nameof(cpf)) : cpf;
+            Document = string.IsNullOrWhiteSpace(document) ? throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document)) : document;
             Address = address;
         }
 
