@@ -40,7 +40,7 @@ docker run -d -p 8080:8080 -p 38888:38888 ravendb/ravendb
 
 ### 2. Configuração do Banco de Dados
 1.  Acesse o painel do RavenDB em `http://localhost:8080`.
-2.  Crie um novo banco de dados chamado: **`Shop`**.
+2.  Crie um novo banco de dados chamado: **`ClientManagementDB`**.
 
 ### 3. Execução da API
 No terminal, na raiz do projeto, execute:
