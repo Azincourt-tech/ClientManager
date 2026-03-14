@@ -17,7 +17,11 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
                     Database = configuration["RavenDbSettings:Database"] ?? "Shop"
                 };
 
-                store.Conventions.FindCollectionName = type => type.Name; // Simpler collection names
+                // Remove a convenção automática que tenta mapear o ID do documento para a propriedade 'Id'
+                // Isso permite que o domínio use Guid Id sem que o RavenDB tente forçar um string lá
+                store.Conventions.FindIdentityProperty = member => member.Name == "NonExistentProperty";
+
+                store.Conventions.FindCollectionName = type => type.Name;
 
                 store.Initialize();
 

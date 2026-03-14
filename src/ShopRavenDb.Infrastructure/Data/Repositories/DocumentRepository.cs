@@ -31,9 +31,10 @@ public class DocumentRepository : IDocumentRepository
             document.UpdateExpiryDate(expiryDate);
         }
 
-        await session.StoreAsync(document).ConfigureAwait(false);
+        // Passamos o ID explicitamente como string
+        await session.StoreAsync(document, document.Id.ToString()).ConfigureAwait(false);
         await using var stream = file.OpenReadStream();
-        session.Advanced.Attachments.Store($"Document/{document.Id}", document.Name, stream, file.ContentType);
+        session.Advanced.Attachments.Store(document.Id.ToString(), document.Name, stream, file.ContentType);
         await session.SaveChangesAsync().ConfigureAwait(false);
         
         return document.Id;
@@ -42,18 +43,18 @@ public class DocumentRepository : IDocumentRepository
     public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
     {
         using var session = _documentStore.OpenAsyncSession();
-        var document = await session.LoadAsync<Document>($"Document/{documentId}").ConfigureAwait(false);
+        var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
 
         if (document is null) return null;
         
-        var attachment = await session.Advanced.Attachments.GetAsync($"Document/{document.Id}", document.Name).ConfigureAwait(false);
+        var attachment = await session.Advanced.Attachments.GetAsync(document.Id.ToString(), document.Name).ConfigureAwait(false);
         return attachment;
     }
 
     public async Task DeleteDocumentAsync(Guid documentId)
     {
         using var session = _documentStore.OpenAsyncSession();
-        var document = await session.LoadAsync<Document>($"Document/{documentId}").ConfigureAwait(false);
+        var document = await session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);
         if (document != null)
         {
             session.Delete(document); // This will also delete related attachments in RavenDB 

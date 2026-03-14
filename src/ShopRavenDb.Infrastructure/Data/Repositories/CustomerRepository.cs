@@ -14,15 +14,16 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
         public async Task AddCustomerAsync(Customer customer)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            await documentSession.StoreAsync(customer).ConfigureAwait(false);
+            // Passamos o ID explicitamente como string para o RavenDB
+            await documentSession.StoreAsync(customer, customer.Id.ToString()).ConfigureAwait(false);
             await documentSession.SaveChangesAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            // Try loading with prefix first (default RavenDB behavior)
-            var customer = await documentSession.LoadAsync<Customer>($"Customer/{id}").ConfigureAwait(false);
+            // Buscamos pelo ID exato (Guid como string)
+            var customer = await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
             if (customer is not null)
             {
                 documentSession.Delete(customer);
@@ -33,7 +34,8 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
         public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            return await documentSession.LoadAsync<Customer>($"Customer/{id}").ConfigureAwait(false);
+            // Carregamos usando o Guid como string
+            return await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<Customer>> GetCustomersAsync()
@@ -46,7 +48,8 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
         public async Task UpdateCustomerAsync(Customer customer)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customerEntity = await documentSession.LoadAsync<Customer>($"Customer/{customer.Id}").ConfigureAwait(false);
+            // Carregamos usando o Guid como string
+            var customerEntity = await documentSession.LoadAsync<Customer>(customer.Id.ToString()).ConfigureAwait(false);
 
             if (customerEntity is not null)
             {
