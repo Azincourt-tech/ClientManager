@@ -1,8 +1,8 @@
-﻿namespace ShopRavenDb.Application.Dtos;
+namespace ShopRavenDb.Application.Dtos;
 
 public class VersioningFileDto
 {
-    public DateTime CreateDate { get; set; }
+    public DateTimeOffset CreateDate { get; set; }
     public string Name { get; set; }
     public string Version { get; set; }
     public string Description { get; set; }

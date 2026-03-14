@@ -5,7 +5,7 @@ namespace ShopRavenDb.Domain.Model
         public string Id { get; private set; } = null!;
         public string Name { get; private set; }
         public string Email { get; private set; }
-        public DateTime BirthDate { get; private set; }
+        public DateTimeOffset BirthDate { get; private set; }
         public Address? Address { get; private set; }
         public string Cpf { get; private set; }
         public bool IsActive { get; private set; }
@@ -13,7 +13,7 @@ namespace ShopRavenDb.Domain.Model
         // Construtor vazio para o RavenDB (Desserialização)
         private Customer() { }
 
-        public Customer(string name, string email, DateTime birthDate, string cpf, Address? address = null)
+        public Customer(string name, string email, DateTimeOffset birthDate, string cpf, Address? address = null)
         {
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
