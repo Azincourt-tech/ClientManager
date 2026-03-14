@@ -11,7 +11,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
             {
                 var store = new DocumentStore
                 {
-                    Urls = new string[] {"http://127.0.0.1:8080/"},
+                    Urls = new string[] { "http://172.17.0.2:8080/" },
                     Database = "Shop"
                 };
 
@@ -48,7 +48,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerApplication, CustomerApplication>();
             servicesCollection.TryAddScoped<IDocumentApplication, DocumentApplication>();
-            
+
             return servicesCollection;
         }
 
@@ -63,7 +63,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
         public static IServiceCollection AddValidators(this IServiceCollection servicesCollection)
         {
             servicesCollection.TryAddScoped<IEmailValidator, EmailValidator>();
-            
+
             return servicesCollection;
         }
     }
