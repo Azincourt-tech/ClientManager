@@ -1,4 +1,4 @@
-﻿using Raven.Client.Documents.Operations.Attachments;
+using Raven.Client.Documents.Operations.Attachments;
 
 namespace ShopRavenDb.Domain.Services;
 
@@ -11,13 +11,13 @@ public class DocumentService : IDocumentService
         _documentRepository = documentRepository;
     }
 
-    public async Task<string> AttachDocument(IFormFile file)
+    public async Task<string> AttachDocumentAsync(IFormFile file)
     {
-        return await _documentRepository.AttachDocument(file).ConfigureAwait(false);
+        return await _documentRepository.AttachDocumentAsync(file).ConfigureAwait(false);
     }
 
-    public async Task<AttachmentResult?> GetAttachDocument(string documentId)
+    public async Task<AttachmentResult?> GetAttachDocumentAsync(string documentId)
     {
-        return await _documentRepository.GetAttachDocument(documentId).ConfigureAwait(false);
+        return await _documentRepository.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace ShopRavenDb.Domain.Core.Interfaces.Services;
+namespace ShopRavenDb.Domain.Core.Interfaces.Services;
 
 public interface IDocumentService
 {
-    Task<string> AttachDocument(IFormFile file);
-    Task<AttachmentResult?> GetAttachDocument(string documentId);
+    Task<string> AttachDocumentAsync(IFormFile file);
+    Task<AttachmentResult?> GetAttachDocumentAsync(string documentId);
 }
