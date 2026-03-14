@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShopRavenDb.Domain.Core\ShopRavenDb.Domain.Core.csproj" />
+    <ProjectReference Include="..\ShopRavenDb.Domain\ShopRavenDb.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Mappers\DtoToModelMappingBuild.cs" />
+    <Compile Remove="Mappers\DtoToModelMappingVersioningFile.cs" />
+  </ItemGroup>
+
+</Project>
