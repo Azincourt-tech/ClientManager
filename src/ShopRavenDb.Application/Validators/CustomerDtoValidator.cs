@@ -4,7 +4,7 @@ namespace ShopRavenDb.Application.Validators
 {
     public class CustomerDtoValidator : AbstractValidator<CustomerDto>
     {
-        public CustomerDtoValidator()
+        public CustomerDtoValidator(ShopRavenDb.Domain.Core.Interfaces.Validators.ICpfValidator cpfValidator)
         {
             RuleFor(x => x.Name).
                 NotEmpty().
@@ -17,7 +17,9 @@ namespace ShopRavenDb.Application.Validators
 
             RuleFor(x => x.Cpf).
                 NotEmpty().
-                WithMessage("CPF is required");
+                WithMessage("CPF is required")
+                .Must(cpfValidator.IsValid)
+                .WithMessage("Invalid CPF number");
 
             RuleFor(x => x.BirthDate).
                 NotEmpty().

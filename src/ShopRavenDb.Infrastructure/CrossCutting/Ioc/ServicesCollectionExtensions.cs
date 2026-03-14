@@ -68,6 +68,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
         public static IServiceCollection AddValidators(this IServiceCollection servicesCollection)
         {
             servicesCollection.TryAddScoped<IEmailValidator, EmailValidator>();
+            servicesCollection.TryAddScoped<ICpfValidator, CpfValidator>();
             servicesCollection.AddValidatorsFromAssemblyContaining<ShopRavenDb.Application.Validators.CustomerDtoValidator>();
 
             return servicesCollection;
