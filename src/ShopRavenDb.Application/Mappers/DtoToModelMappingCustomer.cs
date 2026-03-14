@@ -14,7 +14,7 @@ namespace ShopRavenDb.Application.Mappers
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(x => x.Status))
                 .ForMember(dest => dest.Document, opt => opt.MapFrom(x => x.Document))
                 .ReverseMap()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(x => x.Id))
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ConstructUsing(x => new Customer(x.Name, x.Email, x.BirthDate, x.Document, x.Type, null));
         }
 
