@@ -21,8 +21,8 @@
 - `LICENSE/` — explains the project's licensing terms.
 - `README.md/` — the entrypoint for developers summarizing the purpose of the application.
 - `ShopRavenDb.sln/` — the root .NET solution file referencing all projects.
-- `src/ShopRavenDb.Api/` — the presentation layer containing REST controllers.
-- `src/ShopRavenDb.Application/` — the application layer containing CQRS commands/queries and use cases.
+- `src/ShopRavenDb.Api/` — the presentation layer containing REST controllers and Global Exception Handling.
+- `src/ShopRavenDb.Application/` — the application layer containing application services and FluentValidation logic.
 - `src/ShopRavenDb.Domain/`, `src/ShopRavenDb.Domain.Core/`, `src/ShopRavenDb.Domain.Services/` — the core domain layers with entities, interfaces, value objects, and business logic.
 - `src/ShopRavenDb.Infrastructure/` — implementation of repositories and connection to RavenDB.
 

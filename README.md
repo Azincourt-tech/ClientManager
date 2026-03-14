@@ -4,24 +4,25 @@ Este projeto foi desenvolvido como um modelo de estudo para **Testes Unitários*
 
 A API permite o cadastro completo de clientes (incluindo endereços) e o gerenciamento de documentos anexos (como PDFs ou imagens) armazenados diretamente no banco de dados.
 
-## 🏗️ Arquitetura do Projeto
+O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e alta testabilidade:
 
-O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)**, garantindo desacoplamento e alta testabilidade:
-
-*   **ShopRavenDb.Api**: Camada de entrada, contém os Controllers e configurações de injeção de dependência.
-*   **ShopRavenDb.Application**: Orquestração da lógica, mapeamento de DTOs (AutoMapper) e interfaces.
-*   **ShopRavenDb.Domain**: Entidades de negócio (Customer, Address, Document).
-*   **ShopRavenDb.Domain.Services**: Implementação das regras de negócio e validações.
-*   **ShopRavenDb.Infrastructure**: Detalhes técnicos, persistência no RavenDB e extensões.
+*   **ShopRavenDb.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
+*   **ShopRavenDb.Application**: Orquestração da lógica, mapeamento de DTOs (AutoMapper) e Validações de entrada (**FluentValidation**).
+*   **ShopRavenDb.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado.
+*   **ShopRavenDb.Domain.Services**: Implementação das regras de negócio.
+*   **ShopRavenDb.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB e extensões.
 *   **Tests**: Projetos de testes unitários para cada camada lógica da aplicação.
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias e Padrões Aplicados
 
 *   **Framework:** .NET 9.0
 *   **Banco de Dados:** RavenDB (NoSQL com suporte a anexos).
+*   **Operações Assíncronas:** Uso extensivo de `async/await` e `IAsyncDocumentSession` para alta performance.
+*   **Validação:** **FluentValidation** para garantir a integridade dos dados na camada de aplicação.
+*   **Resiliência:** **Global Exception Handling** via `IExceptionHandler` para respostas padronizadas (**ProblemDetails**).
 *   **Mapeamento:** AutoMapper.
 *   **Documentação:** Swagger e Scalar (Modern API Docs).
-*   **Testes:** xUnit, Moq (Mocking) e FluentAssertions (Asserções legíveis).
+*   **Testes:** xUnit, Moq (Mocking) e FluentAssertions.
 
 ## 🚀 Como Rodar o Projeto
 

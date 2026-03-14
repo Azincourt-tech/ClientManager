@@ -5,8 +5,11 @@ ShopRavenDb is an application built with .NET Core and RavenDB, exploring Domain
 
 ## Key Technologies
 - .NET (C#)
-- RavenDB
-- standard REST APIs
+- RavenDB (NoSQL & Attachments)
+- AutoMapper
+- FluentValidation
+- ProblemDetails (Global Exception Handling)
+- xUnit & Moq
 
 ## Getting Started
 Load `ShopRavenDb.sln` in VS, ensure a local or cloud RavenDB instance is available, and set the connection string in the Api project's `appsettings.json`.
