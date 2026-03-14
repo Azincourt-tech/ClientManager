@@ -4,12 +4,12 @@ namespace ShopRavenDb.Domain.Model
 {
     public class Customer
     {
-        public string Id { get; private set; } = null!;
-        public string Name { get; private set; }
-        public string Email { get; private set; }
+        public Guid Id { get; private set; }
+        public string Name { get; private set; } = null!;
+        public string Email { get; private set; } = null!;
         public DateTimeOffset BirthDate { get; private set; }
         public Address? Address { get; private set; }
-        public string Document { get; private set; } // Can be CNPJ if LegalEntity
+        public string Document { get; private set; } = null!; // Can be CNPJ if LegalEntity
         public CustomerType Type { get; private set; }
         public CustomerStatus Status { get; private set; }
         public string? Cpf => Type == CustomerType.Individual ? Document : null;
@@ -20,11 +20,12 @@ namespace ShopRavenDb.Domain.Model
 
         public Customer(string name, string email, DateTimeOffset birthDate, string document, CustomerType type, Address? address = null)
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid();
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
             BirthDate = birthDate;
-            Document = string.IsNullOrWhiteSpace(document) ? throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document)) : document;
+            Document = CleanDocument(document);
+            if (string.IsNullOrWhiteSpace(Document)) throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document));
             Address = address;
             Type = type;
             Status = CustomerStatus.Active;
@@ -40,8 +41,15 @@ namespace ShopRavenDb.Domain.Model
         {
             Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Nome invalido", nameof(name)) : name;
             Email = string.IsNullOrWhiteSpace(email) ? throw new ArgumentException("Email invalido", nameof(email)) : email;
-            Document = string.IsNullOrWhiteSpace(document) ? throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document)) : document;
+            Document = CleanDocument(document);
+            if (string.IsNullOrWhiteSpace(Document)) throw new ArgumentException("Documento (CPF/CNPJ) invalido", nameof(document));
             Address = address;
+        }
+
+        private string CleanDocument(string document)
+        {
+            if (string.IsNullOrWhiteSpace(document)) return string.Empty;
+            return new string(document.Where(c => char.IsDigit(c)).ToArray());
         }
 
         public void EvaluateVerificationStatus(IEnumerable<Document> documents)

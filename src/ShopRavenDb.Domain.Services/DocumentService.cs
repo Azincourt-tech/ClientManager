@@ -13,27 +13,27 @@ public class DocumentService : IDocumentService
         _documentRepository = documentRepository;
     }
 
-    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
+    public async Task<Guid> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
         return await _documentRepository.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
     }
 
-    public async Task<AttachmentResult?> GetAttachDocumentAsync(string documentId)
+    public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
     {
         return await _documentRepository.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
     }
 
-    public async Task DeleteDocumentAsync(string documentId)
+    public async Task DeleteDocumentAsync(Guid documentId)
     {
         await _documentRepository.DeleteDocumentAsync(documentId).ConfigureAwait(false);
     }
 
-    public async Task<int> GetDocumentCountByCustomerIdAsync(string customerId)
+    public async Task<int> GetDocumentCountByCustomerIdAsync(Guid customerId)
     {
         return await _documentRepository.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<Document>> GetDocumentsByCustomerIdAsync(string customerId)
+    public async Task<IEnumerable<Document>> GetDocumentsByCustomerIdAsync(Guid customerId)
     {
         return await _documentRepository.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
     }

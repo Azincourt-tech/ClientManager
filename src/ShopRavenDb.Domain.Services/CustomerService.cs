@@ -25,12 +25,12 @@ namespace ShopRavenDb.Domain.Services
             await _customerRepository.AddCustomerAsync(customer).ConfigureAwait(false);
         }
 
-        public async Task DeleteCustomerByIdAsync(string id)
+        public async Task DeleteCustomerByIdAsync(Guid id)
         {
             await _customerRepository.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
         }
 
-        public async Task<Customer?> GetCustomerByIdAsync(string id)
+        public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
             return await _customerRepository.GetCustomerByIdAsync(id).ConfigureAwait(false);
         }

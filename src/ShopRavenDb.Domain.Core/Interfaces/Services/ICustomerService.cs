@@ -6,10 +6,10 @@ namespace ShopRavenDb.Domain.Core.Interfaces.Services
 
         Task UpdateCustomerAsync(Customer customer);
 
-        Task DeleteCustomerByIdAsync(string id);
+        Task DeleteCustomerByIdAsync(Guid id);
 
         Task<IEnumerable<Customer>> GetCustomersAsync();
 
-        Task<Customer?> GetCustomerByIdAsync(string id);
+        Task<Customer?> GetCustomerByIdAsync(Guid id);
     }
 }

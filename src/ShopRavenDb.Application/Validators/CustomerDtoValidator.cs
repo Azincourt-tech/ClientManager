@@ -20,9 +20,17 @@ namespace ShopRavenDb.Application.Validators
             RuleFor(x => x.Document)
                 .NotEmpty()
                 .WithMessage("CPF/CNPJ is required")
-                .Must((dto, doc) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.Individual ? cpfValidator.IsValid(doc) : true)
+                .Must((dto, doc) => 
+                {
+                    var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
+                    return dto.Type == ShopRavenDb.Domain.Enums.CustomerType.Individual ? cpfValidator.IsValid(cleaned) : true;
+                })
                 .WithMessage("Invalid CPF number")
-                .Must((dto, doc) => dto.Type == ShopRavenDb.Domain.Enums.CustomerType.LegalEntity ? cnpjValidator.IsValid(doc) : true)
+                .Must((dto, doc) => 
+                {
+                    var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
+                    return dto.Type == ShopRavenDb.Domain.Enums.CustomerType.LegalEntity ? cnpjValidator.IsValid(cleaned) : true;
+                })
                 .WithMessage("Invalid CNPJ number");
 
             RuleFor(x => x.BirthDate).

@@ -26,7 +26,7 @@ namespace ShopRavenDb.Api.Controllers
         /// <param name="customerDto">The customer data to be inserted.</param>
         /// <returns>A service response containing the new customer ID.</returns>
         [HttpPost("customer", Name = "add-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
         {
@@ -56,10 +56,9 @@ namespace ShopRavenDb.Api.Controllers
         [HttpDelete("customer/{customerId}", Name = "delete-customer-by-id")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteCustomerById(string customerId)
+        public async Task<IActionResult> DeleteCustomerById(Guid customerId)
         {
-            var formattedCustomerId = Uri.UnescapeDataString(customerId);
-            var response = await _customerApplication.DeleteCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
+            var response = await _customerApplication.DeleteCustomerByIdAsync(customerId).ConfigureAwait(false);
             return response.Success ? Ok(response) : NotFound(response);
         }
 
@@ -83,10 +82,9 @@ namespace ShopRavenDb.Api.Controllers
         [HttpGet("customers/{customerId}", Name = "get-customer-by-id")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<CustomerDto?>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCustomerById(string customerId)
+        public async Task<IActionResult> GetCustomerById(Guid customerId)
         {
-            var formattedCustomerId = Uri.UnescapeDataString(customerId);
-            var response = await _customerApplication.GetCustomerByIdAsync(formattedCustomerId).ConfigureAwait(false);
+            var response = await _customerApplication.GetCustomerByIdAsync(customerId).ConfigureAwait(false);
 
             if (!response.Success)
                 return NotFound(response);
@@ -102,10 +100,9 @@ namespace ShopRavenDb.Api.Controllers
         [HttpPost("customers/{customerId}/verify", Name = "verify-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> VerifyCustomer(string customerId)
+        public async Task<IActionResult> VerifyCustomer(Guid customerId)
         {
-            var formattedCustomerId = Uri.UnescapeDataString(customerId);
-            var response = await _customerApplication.VerifyCustomerAsync(formattedCustomerId).ConfigureAwait(false);
+            var response = await _customerApplication.VerifyCustomerAsync(customerId).ConfigureAwait(false);
 
             if (!response.Success)
                 return NotFound(response);

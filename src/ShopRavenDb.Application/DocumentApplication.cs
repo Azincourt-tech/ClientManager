@@ -21,20 +21,20 @@ public class DocumentApplication : IDocumentApplication
         _fluentValidator = fluentValidator;
     }
 
-    public async Task<ServiceResponse<string>> AttachDocumentAsync(string customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
+    public async Task<ServiceResponse<Guid>> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
         await _fluentValidator.ValidateAndThrowAsync(file);
         
         if (!_fileValidator.IsValid(file, out string errorMessage))
         {
-            return ServiceResponse<string>.Fail(errorMessage);
+            return ServiceResponse<Guid>.Fail(errorMessage);
         }
 
         var res = await _documentService.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-        return ServiceResponse<string>.Ok(res, "Document successfully attached!");
+        return ServiceResponse<Guid>.Ok(res, "Document successfully attached!");
     }
 
-    public async Task<ServiceResponse<AttachmentResult?>> GetAttachDocumentAsync(string documentId)
+    public async Task<ServiceResponse<AttachmentResult?>> GetAttachDocumentAsync(Guid documentId)
     {
         var res = await _documentService.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
         if (res == null)
@@ -43,13 +43,13 @@ public class DocumentApplication : IDocumentApplication
         return ServiceResponse<AttachmentResult?>.Ok(res);
     }
 
-    public async Task<ServiceResponse<string>> DeleteDocumentAsync(string documentId)
+    public async Task<ServiceResponse<string>> DeleteDocumentAsync(Guid documentId)
     {
         await _documentService.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        return ServiceResponse<string>.Ok(documentId, "Document successfully removed!");
+        return ServiceResponse<string>.Ok(documentId.ToString(), "Document successfully removed!");
     }
 
-    public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(string customerId)
+    public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId)
     {
         var count = await _documentService.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
         return ServiceResponse<int>.Ok(count);

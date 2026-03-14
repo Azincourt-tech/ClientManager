@@ -18,10 +18,11 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
             await documentSession.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public async Task DeleteCustomerByIdAsync(string id)
+        public async Task DeleteCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customer = await documentSession.LoadAsync<Customer>(id).ConfigureAwait(false);
+            // Try loading with prefix first (default RavenDB behavior)
+            var customer = await documentSession.LoadAsync<Customer>($"Customer/{id}").ConfigureAwait(false);
             if (customer is not null)
             {
                 documentSession.Delete(customer);
@@ -29,11 +30,10 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
             }
         }
 
-        public async Task<Customer?> GetCustomerByIdAsync(string id)
+        public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customer = await documentSession.LoadAsync<Customer>(id).ConfigureAwait(false);
-            return customer;
+            return await documentSession.LoadAsync<Customer>($"Customer/{id}").ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<Customer>> GetCustomersAsync()
@@ -46,11 +46,11 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
         public async Task UpdateCustomerAsync(Customer customer)
         {
             using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customerEntity = await documentSession.LoadAsync<Customer>(customer.Id).ConfigureAwait(false);
+            var customerEntity = await documentSession.LoadAsync<Customer>($"Customer/{customer.Id}").ConfigureAwait(false);
 
             if (customerEntity is not null)
             {
-                customerEntity.UpdateDetails(customer.Name, customer.Email, customer.Cpf, customer.Address);
+                customerEntity.UpdateDetails(customer.Name, customer.Email, customer.Document, customer.Address);
             }
 
             await documentSession.SaveChangesAsync().ConfigureAwait(false);

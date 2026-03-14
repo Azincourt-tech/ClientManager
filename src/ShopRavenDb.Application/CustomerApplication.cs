@@ -23,15 +23,15 @@ namespace ShopRavenDb.Application
             _validator = validator;
         }
 
-        public async Task<ServiceResponse<string>> AddCustomerAsync(CustomerDto customerDto)
+        public async Task<ServiceResponse<Guid>> AddCustomerAsync(CustomerDto customerDto)
         {
             await _validator.ValidateAndThrowAsync(customerDto);
             var customer = _mapper.Map<Customer>(customerDto);
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
-            return ServiceResponse<string>.Ok(customer.Id, "Customer inserted successfully!");
+            return ServiceResponse<Guid>.Ok(customer.Id, "Customer inserted successfully!");
         }
 
-        public async Task<ServiceResponse<string>> DeleteCustomerByIdAsync(string id)
+        public async Task<ServiceResponse<string>> DeleteCustomerByIdAsync(Guid id)
         {
             var documentCount = await _documentService.GetDocumentCountByCustomerIdAsync(id).ConfigureAwait(false);
             if (documentCount > 0)
@@ -40,10 +40,10 @@ namespace ShopRavenDb.Application
             }
 
             await _customerService.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
-            return ServiceResponse<string>.Ok(id, "Customer deleted successfully!");
+            return ServiceResponse<string>.Ok(id.ToString(), "Customer deleted successfully!");
         }
 
-        public async Task<ServiceResponse<CustomerDto?>> GetCustomerByIdAsync(string id)
+        public async Task<ServiceResponse<CustomerDto?>> GetCustomerByIdAsync(Guid id)
         {
             var customer = await _customerService.GetCustomerByIdAsync(id).ConfigureAwait(false);
             if (customer == null)
@@ -76,12 +76,12 @@ namespace ShopRavenDb.Application
 
         public async Task<ServiceResponse<string>> UpdateCustomerAsync(CustomerDto customerDto)
         {
-            if (string.IsNullOrEmpty(customerDto.Id))
-                return ServiceResponse<string>.Fail("Customer ID is required for update.");
+            if (string.IsNullOrEmpty(customerDto.Id) || !Guid.TryParse(customerDto.Id, out Guid customerGuid))
+                return ServiceResponse<string>.Fail("A valid Customer ID is required for update.");
 
             await _validator.ValidateAndThrowAsync(customerDto);
             
-            var existingCustomer = await _customerService.GetCustomerByIdAsync(customerDto.Id).ConfigureAwait(false);
+            var existingCustomer = await _customerService.GetCustomerByIdAsync(customerGuid).ConfigureAwait(false);
             if (existingCustomer == null)
                 return ServiceResponse<string>.Fail("Customer not found.");
 
@@ -90,14 +90,14 @@ namespace ShopRavenDb.Application
             existingCustomer.UpdateDetails(customerDto.Name, customerDto.Email, customerDto.Document, address);
             
             // Re-evaluate status as types or documents might have changed (though documents didn't change here, Type might have)
-            var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerDto.Id).ConfigureAwait(false);
+            var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerGuid).ConfigureAwait(false);
             existingCustomer.EvaluateVerificationStatus(documents);
 
             await _customerService.UpdateCustomerAsync(existingCustomer).ConfigureAwait(false);
-            return ServiceResponse<string>.Ok(existingCustomer.Id, "Customer updated successfully!");
+            return ServiceResponse<string>.Ok(existingCustomer.Id.ToString(), "Customer updated successfully!");
         }
 
-        public async Task<ServiceResponse<string>> VerifyCustomerAsync(string id)
+        public async Task<ServiceResponse<string>> VerifyCustomerAsync(Guid id)
         {
             var customer = await _customerService.GetCustomerByIdAsync(id).ConfigureAwait(false);
             if (customer == null) return ServiceResponse<string>.Fail("Customer not found.");

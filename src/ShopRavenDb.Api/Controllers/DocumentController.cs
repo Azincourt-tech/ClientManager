@@ -26,12 +26,11 @@ public class DocumentController : ControllerBase
     /// <param name="expiryDate">The optional expiry date of the document.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach/{customerId}", Name = "attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AttachDocument(string customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
+    public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
-       var formattedCustomerId = Uri.UnescapeDataString(customerId);
-       var response = await _documentApplication.AttachDocumentAsync(formattedCustomerId, file, type, expiryDate).ConfigureAwait(false);
+       var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
        return response.Success ? Ok(response) : BadRequest(response);
     }
     
@@ -43,10 +42,9 @@ public class DocumentController : ControllerBase
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<AttachmentResult?>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAttachDocument(string documentId)
+    public async Task<IActionResult> GetAttachDocument(Guid documentId)
     {
-        var formattedDocumentId = Uri.UnescapeDataString(documentId);
-        var response = await _documentApplication.GetAttachDocumentAsync(formattedDocumentId).ConfigureAwait(false);
+        var response = await _documentApplication.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
 
         if (!response.Success || response.Data == null)
             return NotFound(response);
@@ -62,10 +60,9 @@ public class DocumentController : ControllerBase
     [HttpDelete("{documentId}", Name = "delete-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteDocument(string documentId)
+    public async Task<IActionResult> DeleteDocument(Guid documentId)
     {
-        var formattedDocumentId = Uri.UnescapeDataString(documentId);
-        var response = await _documentApplication.DeleteDocumentAsync(formattedDocumentId).ConfigureAwait(false);
+        var response = await _documentApplication.DeleteDocumentAsync(documentId).ConfigureAwait(false);
         return response.Success ? Ok(response) : NotFound(response);
     }
 }
