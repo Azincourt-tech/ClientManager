@@ -12,7 +12,7 @@ namespace ClientManager.Application.Mappers
 
             return new CustomerDto
             {
-                Id = customer.Id.ToString(),
+                Id = customer.Id,
                 Name = customer.Name,
                 Email = customer.Email,
                 BirthDate = customer.BirthDate,

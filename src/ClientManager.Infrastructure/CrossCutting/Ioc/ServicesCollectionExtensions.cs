@@ -57,7 +57,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         public static IServiceCollection AddValidators(this IServiceCollection servicesCollection)
         {
             servicesCollection.TryAddScoped<IFileValidator, FileValidator>();
-            servicesCollection.AddValidatorsFromAssemblyContaining<ClientManager.Application.Validators.CustomerDtoValidator>();
+            servicesCollection.AddValidatorsFromAssemblyContaining<ClientManager.Application.Validators.CustomerValidator>();
 
             return servicesCollection;
         }

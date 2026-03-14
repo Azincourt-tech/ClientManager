@@ -1,5 +1,7 @@
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
+using FluentValidation;
+using ClientManager.Application.Dtos.Customer;
 
 namespace ClientManager.Application
 {
@@ -7,15 +9,25 @@ namespace ClientManager.Application
     {
         private readonly ICustomerService _customerService;
         private readonly IDocumentService _documentService;
+        private readonly IValidator<CustomerBaseDto> _customerValidator;
 
-        public CustomerApplication(ICustomerService customerService, IDocumentService documentService)
+        public CustomerApplication(ICustomerService customerService, IDocumentService documentService, IValidator<CustomerBaseDto> customerValidator)
         {
             _customerService = customerService;
             _documentService = documentService;
+            _customerValidator = customerValidator;
         }
 
         public async Task<ServiceResponse<Guid>> AddCustomerAsync(CreateCustomerDto customerDto)
         {
+            var validationResult = await _customerValidator.ValidateAsync(customerDto).ConfigureAwait(false);
+
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<Guid>.Fail(firstError);
+            }
+
             var customer = customerDto.ToModel();
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
             return ServiceResponse<Guid>.Ok(customer.Id, "CustomerInserted");
@@ -66,10 +78,15 @@ namespace ClientManager.Application
 
         public async Task<ServiceResponse<string>> UpdateCustomerAsync(UpdateCustomerDto customerDto)
         {
-            if (string.IsNullOrEmpty(customerDto.Id) || !Guid.TryParse(customerDto.Id, out Guid customerGuid))
-                return ServiceResponse<string>.Fail("CustomerNotFound");
+            var validationResult = await _customerValidator.ValidateAsync(customerDto).ConfigureAwait(false);
 
-            var existingCustomer = await _customerService.GetCustomerByIdAsync(customerGuid).ConfigureAwait(false);
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<string>.Fail(firstError);
+            }
+
+            var existingCustomer = await _customerService.GetCustomerByIdAsync(customerDto.Id).ConfigureAwait(false);
 
             if (existingCustomer == null)
                 return ServiceResponse<string>.Fail("CustomerNotFound");
@@ -79,7 +96,7 @@ namespace ClientManager.Application
             existingCustomer.UpdateDetails(customerDto.Name, customerDto.Email, customerDto.Document, address);
 
             // Re-evaluate status as types or documents might have changed (though documents didn't change here, Type might have)
-            var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerGuid).ConfigureAwait(false);
+            var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerDto.Id).ConfigureAwait(false);
             existingCustomer.EvaluateVerificationStatus(documents);
 
             await _customerService.UpdateCustomerAsync(existingCustomer).ConfigureAwait(false);

@@ -50,13 +50,15 @@ namespace ClientManager.Api.Controllers
         /// <summary>
         /// Updates an existing customer's information.
         /// </summary>
+        /// <param name="id">The unique identifier of the customer.</param>
         /// <param name="customerDto">The updated customer data.</param>
         /// <returns>A service response indicating success or failure of the update.</returns>
-        [HttpPut("customer", Name = "update-customer")]
+        [HttpPut("customer/{id}", Name = "update-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateCustomer(UpdateCustomerDto customerDto)
+        public async Task<IActionResult> UpdateCustomer(Guid id, UpdateCustomerDto customerDto)
         {
+            customerDto.Id = id;
             var response = await _customerApplication.UpdateCustomerAsync(customerDto).ConfigureAwait(false);
             if (!response.Success)
             {

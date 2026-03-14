@@ -19,9 +19,9 @@ namespace ClientManager.Domain.Model
         // Construtor vazio para o RavenDB (Desserialização)
         private Customer() { }
 
-        public Customer(string name, string email, DateTimeOffset birthDate, string document, CustomerType type, Address? address = null)
+        public Customer(string name, string email, DateTimeOffset birthDate, string document, CustomerType type, Address? address = null, Guid? id = null)
         {
-            Id = Guid.NewGuid();
+            Id = id ?? Guid.NewGuid();
             Name = name;
             Email = email;
             BirthDate = birthDate;
