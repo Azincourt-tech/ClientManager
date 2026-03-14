@@ -25,7 +25,7 @@ namespace ShopRavenDb.Application.Validators
                 .Must((dto, doc) =>
                 {
                     var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-                    return dto.Type == CustomerType.Individual ? cpfValidator.IsValid(cleaned) : true;
+                    return dto.Type == CustomerType.NaturalPerson ? cpfValidator.IsValid(cleaned) : true;
                 })
                 .WithMessage("Invalid CPF number")
                 .Must((dto, doc) =>

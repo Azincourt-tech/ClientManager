@@ -12,7 +12,7 @@ namespace ShopRavenDb.Domain.Model
         public string Document { get; private set; } = null!; // Can be CNPJ if LegalEntity
         public CustomerType Type { get; private set; }
         public CustomerStatus Status { get; private set; }
-        public string? Cpf => Type == CustomerType.Individual ? Document : null;
+        public string? Cpf => Type == CustomerType.NaturalPerson ? Document : null;
         public string? Cnpj => Type == CustomerType.LegalEntity ? Document : null;
 
         // Construtor vazio para o RavenDB (Desserialização)
@@ -60,7 +60,7 @@ namespace ShopRavenDb.Domain.Model
             var hasSocialContract = docsList.Any(d => d.Type == DocumentType.SocialContract && !d.IsExpired());
 
             bool requirementsMet = false;
-            if (Type == CustomerType.Individual)
+            if (Type == CustomerType.NaturalPerson)
             {
                 // PF: Precisamos de Identidade (RG) e Comprovante de Endereço
                 requirementsMet = hasIdentity && hasAddressProof;

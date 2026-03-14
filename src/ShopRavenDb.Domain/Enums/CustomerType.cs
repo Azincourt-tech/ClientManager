@@ -2,6 +2,6 @@ namespace ShopRavenDb.Domain.Enums;
 
 public enum CustomerType
 {
-    Individual, // Pessoa Física (PF)
+    NaturalPerson, // Pessoa Física (PF)
     LegalEntity // Pessoa Jurídica (PJ)
 }
