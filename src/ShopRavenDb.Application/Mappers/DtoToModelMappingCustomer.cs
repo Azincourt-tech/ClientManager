@@ -1,4 +1,4 @@
-﻿namespace ShopRavenDb.Application.Mappers
+namespace ShopRavenDb.Application.Mappers
 {
     public class DtoToModelMappingCustomer : Profile
     {
@@ -11,12 +11,9 @@
         private void MapppingCustomer()
         {
             CreateMap<Customer, CustomerDto>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(x => x.Name)).ReverseMap()
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(x => x.Email)).ReverseMap()
-                .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(x => x.BirthDate)).ReverseMap()
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(x => x.Address)).ReverseMap()
-                .ForMember(dest => dest.Cpf, opt => opt.MapFrom(x => x.Cpf)).ReverseMap()
-                .ForMember(dest => dest.IsActive, opt => opt.Ignore()).ReverseMap();
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(x => x.Status))
+                .ReverseMap()
+                .ConstructUsing(x => new Customer(x.Name, x.Email, x.BirthDate, x.Cpf, x.Type, null));
         }
 
         private void MapppingAddress()

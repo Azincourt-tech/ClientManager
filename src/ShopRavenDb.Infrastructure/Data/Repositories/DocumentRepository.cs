@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Raven.Client.Documents.Operations.Attachments;
 
+using ShopRavenDb.Domain.Enums;
+
 namespace ShopRavenDb.Infrastructure.Data.Repositories;
 
 public class DocumentRepository : IDocumentRepository
@@ -12,14 +14,22 @@ public class DocumentRepository : IDocumentRepository
         _documentStore = documentStore;
     }
 
-    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file)
+    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
         using var session = _documentStore.OpenAsyncSession();
         
-        // Find existing or create new doc metadata for this customer and filename
+        // Find existing or create new doc metadata for this customer, filename and type
         var document = await session.Query<Document>()
-                                .FirstOrDefaultAsync(d => d.Name == file.FileName && d.CustomerId == customerId).ConfigureAwait(false) 
-                                ?? new Document(file.FileName, customerId);
+                                .FirstOrDefaultAsync(d => d.Name == file.FileName && d.CustomerId == customerId && d.Type == type).ConfigureAwait(false);
+
+        if (document == null)
+        {
+            document = new Document(file.FileName, customerId, type, expiryDate);
+        }
+        else
+        {
+            document.UpdateExpiryDate(expiryDate);
+        }
 
         await session.StoreAsync(document).ConfigureAwait(false);
         await using var stream = file.OpenReadStream();

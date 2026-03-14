@@ -1,5 +1,7 @@
 using Raven.Client.Documents.Operations.Attachments;
 
+using ShopRavenDb.Domain.Enums;
+
 namespace ShopRavenDb.Domain.Services;
 
 public class DocumentService : IDocumentService
@@ -11,9 +13,9 @@ public class DocumentService : IDocumentService
         _documentRepository = documentRepository;
     }
 
-    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file)
+    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
     {
-        return await _documentRepository.AttachDocumentAsync(customerId, file).ConfigureAwait(false);
+        return await _documentRepository.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
     }
 
     public async Task<AttachmentResult?> GetAttachDocumentAsync(string documentId)

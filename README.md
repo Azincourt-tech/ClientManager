@@ -18,9 +18,11 @@ O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e 
 *   **Framework:** .NET 9.0
 *   **Banco de Dados:** RavenDB (NoSQL com suporte a anexos).
 *   **Operações Assíncronas:** Uso extensivo de `async/await` e `IAsyncDocumentSession` para alta performance.
-*   **Validação:** **FluentValidation** para garantir a integridade dos dados na camada de aplicação.
-*   **Resiliência:** **Global Exception Handling** via `IExceptionHandler` para respostas padronizadas (**ProblemDetails**).
-*   **Mapeamento:** AutoMapper.
+*   **Validação de Identidade:** Validadores reais para **CPF** e **CNPJ**.
+*   **Gestão de Documentos:** Categorização por tipo e controle de **Data de Expiração**.
+*   **Segurança de Upload:** Políticas de extensão e tamanho via `IFileValidator`.
+*   **Status de Verificação:** Lógica automática para classificar clientes como `Verified`, `Attention` ou `Active` com base nos documentos.
+*   **Suporte Multi-perfil:** Tratamento diferenciado para **Pessoa Física (PF)** e **Pessoa Jurídica (PJ)**.
 *   **Documentação:** Swagger e Scalar (Modern API Docs).
 *   **Testes:** xUnit, Moq (Mocking) e FluentAssertions.
 

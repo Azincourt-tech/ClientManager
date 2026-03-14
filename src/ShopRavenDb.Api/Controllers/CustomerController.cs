@@ -93,5 +93,24 @@ namespace ShopRavenDb.Api.Controllers
             
             return Ok(response);
         }
+
+        /// <summary>
+        /// Manually triggers verification status re-evaluation for a customer.
+        /// </summary>
+        /// <param name="customerId">The unique identifier of the customer.</param>
+        /// <returns>The updated status of the customer.</returns>
+        [HttpPost("customers/{customerId}/verify", Name = "verify-customer")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> VerifyCustomer(string customerId)
+        {
+            var formattedCustomerId = Uri.UnescapeDataString(customerId);
+            var response = await _customerApplication.VerifyCustomerAsync(formattedCustomerId).ConfigureAwait(false);
+
+            if (!response.Success)
+                return NotFound(response);
+
+            return Ok(response);
+        }
     }
 }

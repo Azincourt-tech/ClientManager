@@ -1,8 +1,10 @@
+using ShopRavenDb.Domain.Enums;
+
 namespace ShopRavenDb.Domain.Core.Interfaces.Repositories;
 
 public interface IDocumentRepository
 {
-    Task<string> AttachDocumentAsync(string customerId, IFormFile file);
+    Task<string> AttachDocumentAsync(string customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null);
     Task<AttachmentResult?> GetAttachDocumentAsync(string documentId);
     Task DeleteDocumentAsync(string documentId);
     Task<int> GetDocumentCountByCustomerIdAsync(string customerId);

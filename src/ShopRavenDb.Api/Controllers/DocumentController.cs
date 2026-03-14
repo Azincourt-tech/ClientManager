@@ -1,3 +1,4 @@
+using ShopRavenDb.Domain.Enums;
 using ShopRavenDb.Domain.Core.Responses;
 using Raven.Client.Documents.Operations.Attachments;
 using ShopRavenDb.Application.Interfaces;
@@ -5,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ShopRavenDb.Api.Controllers;
 
-/// <summary>
-/// Controller for managing file attachments associated with entities.
-/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class DocumentController : ControllerBase
@@ -20,18 +18,20 @@ public class DocumentController : ControllerBase
     }
 
     /// <summary>
-    /// Attaches a file to a specific customer.
+    /// Attaches a file to a specific customer with categorization and optional expiry date.
     /// </summary>
     /// <param name="customerId">The unique identifier of the customer.</param>
     /// <param name="file">The file to be uploaded.</param>
+    /// <param name="type">The type of document (e.g., Identity, AddressProof).</param>
+    /// <param name="expiryDate">The optional expiry date of the document.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach/{customerId}", Name = "attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AttachDocument(string customerId, IFormFile file)
+    public async Task<IActionResult> AttachDocument(string customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
        var formattedCustomerId = Uri.UnescapeDataString(customerId);
-       var response = await _documentApplication.AttachDocumentAsync(formattedCustomerId, file).ConfigureAwait(false);
+       var response = await _documentApplication.AttachDocumentAsync(formattedCustomerId, file, type, expiryDate).ConfigureAwait(false);
        return response.Success ? Ok(response) : BadRequest(response);
     }
     

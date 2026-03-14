@@ -8,6 +8,7 @@ namespace ShopRavenDb.Application.Interfaces
         Task<ServiceResponse<string>> AddCustomerAsync(CustomerDto customerDto);
 
         Task<ServiceResponse<string>> UpdateCustomerAsync(CustomerDto customerDto);
+        Task<ServiceResponse<string>> VerifyCustomerAsync(string id);
 
         Task<ServiceResponse<string>> DeleteCustomerByIdAsync(string id);
 

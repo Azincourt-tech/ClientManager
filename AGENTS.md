@@ -11,6 +11,8 @@
 - Append `--logger "console;verbosity=detailed"` if you need more verbose test output.
 - Trigger `dotnet build && dotnet test` before opening a PR to mimic CI.
 - Add or update tests alongside any changes made to Domain logic, Application handlers, or Infrastructure repositories.
+- Use `ICpfValidator`, `ICnpjValidator`, and `IFileValidator` for sensitive field and file validations.
+- When working with Customers, ensure they support both `Individual` (PF) and `LegalEntity` (PJ) types.
 
 ## PR instructions
 - Follow Conventional Commits (for example, `feat(domain): add Shop aggregate root` or `fix(api): resolve route conflict`).
