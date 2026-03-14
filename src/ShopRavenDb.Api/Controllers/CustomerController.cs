@@ -1,8 +1,4 @@
 using ShopRavenDb.Domain.Core.Responses;
-using Raven.Client.Documents.Operations.Attachments;
-using Microsoft.AspNetCore.Mvc;
-using ShopRavenDb.Application.Interfaces;
-using ShopRavenDb.Application.Dtos;
 
 namespace ShopRavenDb.Api.Controllers
 {
@@ -88,7 +84,7 @@ namespace ShopRavenDb.Api.Controllers
 
             if (!response.Success)
                 return NotFound(response);
-            
+
             return Ok(response);
         }
 

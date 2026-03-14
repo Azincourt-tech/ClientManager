@@ -1,12 +1,14 @@
 using FluentValidation;
+using ShopRavenDb.Domain.Core.Interfaces.Validators;
+using ShopRavenDb.Domain.Enums;
 
 namespace ShopRavenDb.Application.Validators
 {
     public class CustomerDtoValidator : AbstractValidator<CustomerDto>
     {
         public CustomerDtoValidator(
-            ShopRavenDb.Domain.Core.Interfaces.Validators.ICpfValidator cpfValidator,
-            ShopRavenDb.Domain.Core.Interfaces.Validators.ICnpjValidator cnpjValidator)
+            ICpfValidator cpfValidator,
+            ICnpjValidator cnpjValidator)
         {
             RuleFor(x => x.Name).
                 NotEmpty().
@@ -19,24 +21,24 @@ namespace ShopRavenDb.Application.Validators
 
             RuleFor(x => x.Document)
                 .NotEmpty()
-                .WithMessage("CPF/CNPJ is required")
-                .Must((dto, doc) => 
+                .WithMessage("Document is required")
+                .Must((dto, doc) =>
                 {
                     var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-                    return dto.Type == ShopRavenDb.Domain.Enums.CustomerType.Individual ? cpfValidator.IsValid(cleaned) : true;
+                    return dto.Type == CustomerType.Individual ? cpfValidator.IsValid(cleaned) : true;
                 })
                 .WithMessage("Invalid CPF number")
-                .Must((dto, doc) => 
+                .Must((dto, doc) =>
                 {
                     var cleaned = new string(doc?.Where(char.IsDigit).ToArray() ?? Array.Empty<char>());
-                    return dto.Type == ShopRavenDb.Domain.Enums.CustomerType.LegalEntity ? cnpjValidator.IsValid(cleaned) : true;
+                    return dto.Type == CustomerType.LegalEntity ? cnpjValidator.IsValid(cleaned) : true;
                 })
                 .WithMessage("Invalid CNPJ number");
 
             RuleFor(x => x.BirthDate).
                 NotEmpty().
                 WithMessage("Birth date is required");
-                
+
             RuleFor(x => x.Type)
                 .IsInEnum()
                 .WithMessage("Invalid customer type");
