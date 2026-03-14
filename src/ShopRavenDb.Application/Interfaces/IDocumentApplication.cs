@@ -6,6 +6,8 @@ namespace ShopRavenDb.Application.Interfaces;
 
 public interface IDocumentApplication
 {
-    Task<ServiceResponse<string>> AttachDocumentAsync(IFormFile file);
+    Task<ServiceResponse<string>> AttachDocumentAsync(string customerId, IFormFile file);
     Task<ServiceResponse<AttachmentResult?>> GetAttachDocumentAsync(string documentId);
+    Task<ServiceResponse<string>> DeleteDocumentAsync(string documentId);
+    Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(string customerId);
 }

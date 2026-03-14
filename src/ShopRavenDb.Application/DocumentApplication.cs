@@ -18,10 +18,10 @@ public class DocumentApplication : IDocumentApplication
         _validator = validator;
     }
 
-    public async Task<ServiceResponse<string>> AttachDocumentAsync(IFormFile file)
+    public async Task<ServiceResponse<string>> AttachDocumentAsync(string customerId, IFormFile file)
     {
         await _validator.ValidateAndThrowAsync(file);
-        var res = await _documentService.AttachDocumentAsync(file).ConfigureAwait(false);
+        var res = await _documentService.AttachDocumentAsync(customerId, file).ConfigureAwait(false);
         return ServiceResponse<string>.Ok(res, "Document successfully attached!");
     }
 
@@ -32,5 +32,17 @@ public class DocumentApplication : IDocumentApplication
             return ServiceResponse<AttachmentResult?>.Fail("Document not found.");
             
         return ServiceResponse<AttachmentResult?>.Ok(res);
+    }
+
+    public async Task<ServiceResponse<string>> DeleteDocumentAsync(string documentId)
+    {
+        await _documentService.DeleteDocumentAsync(documentId).ConfigureAwait(false);
+        return ServiceResponse<string>.Ok(documentId, "Document successfully removed!");
+    }
+
+    public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(string customerId)
+    {
+        var count = await _documentService.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
+        return ServiceResponse<int>.Ok(count);
     }
 }

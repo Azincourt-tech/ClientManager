@@ -11,13 +11,28 @@ public class DocumentService : IDocumentService
         _documentRepository = documentRepository;
     }
 
-    public async Task<string> AttachDocumentAsync(IFormFile file)
+    public async Task<string> AttachDocumentAsync(string customerId, IFormFile file)
     {
-        return await _documentRepository.AttachDocumentAsync(file).ConfigureAwait(false);
+        return await _documentRepository.AttachDocumentAsync(customerId, file).ConfigureAwait(false);
     }
 
     public async Task<AttachmentResult?> GetAttachDocumentAsync(string documentId)
     {
         return await _documentRepository.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
+    }
+
+    public async Task DeleteDocumentAsync(string documentId)
+    {
+        await _documentRepository.DeleteDocumentAsync(documentId).ConfigureAwait(false);
+    }
+
+    public async Task<int> GetDocumentCountByCustomerIdAsync(string customerId)
+    {
+        return await _documentRepository.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<Document>> GetDocumentsByCustomerIdAsync(string customerId)
+    {
+        return await _documentRepository.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
     }
 }

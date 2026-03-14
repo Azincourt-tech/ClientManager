@@ -20,16 +20,18 @@ public class DocumentController : ControllerBase
     }
 
     /// <summary>
-    /// Attaches a file to a document record.
+    /// Attaches a file to a specific customer.
     /// </summary>
+    /// <param name="customerId">The unique identifier of the customer.</param>
     /// <param name="file">The file to be uploaded.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
-    [HttpPost("attach", Name = "attach-document")]
+    [HttpPost("attach/{customerId}", Name = "attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AttachDocument(IFormFile file)
+    public async Task<IActionResult> AttachDocument(string customerId, IFormFile file)
     {
-       var response = await _documentApplication.AttachDocumentAsync(file).ConfigureAwait(false);
+       var formattedCustomerId = Uri.UnescapeDataString(customerId);
+       var response = await _documentApplication.AttachDocumentAsync(formattedCustomerId, file).ConfigureAwait(false);
        return response.Success ? Ok(response) : BadRequest(response);
     }
     
@@ -50,5 +52,20 @@ public class DocumentController : ControllerBase
             return NotFound(response);
 
         return File(response.Data.Stream, response.Data.Details.ContentType);
+    }
+
+    /// <summary>
+    /// Removes a document and its associated file from the system.
+    /// </summary>
+    /// <param name="documentId">The unique identifier of the document to be removed.</param>
+    /// <returns>A service response confirming the removal.</returns>
+    [HttpDelete("{documentId}", Name = "delete-document")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteDocument(string documentId)
+    {
+        var formattedDocumentId = Uri.UnescapeDataString(documentId);
+        var response = await _documentApplication.DeleteDocumentAsync(formattedDocumentId).ConfigureAwait(false);
+        return response.Success ? Ok(response) : NotFound(response);
     }
 }

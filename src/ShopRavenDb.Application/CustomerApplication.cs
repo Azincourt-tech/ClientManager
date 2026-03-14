@@ -11,14 +11,17 @@ namespace ShopRavenDb.Application
     public class CustomerApplication : ICustomerApplication
     {
         private readonly ICustomerService _customerService;
+        private readonly IDocumentService _documentService;
         private readonly IMapper _mapper;
         private readonly FluentValidation.IValidator<CustomerDto> _validator;
 
         public CustomerApplication(ICustomerService customerService,
+                                   IDocumentService documentService,
                                    IMapper mapper,
                                    FluentValidation.IValidator<CustomerDto> validator)
         {
             _customerService = customerService;
+            _documentService = documentService;
             _mapper = mapper;
             _validator = validator;
         }
@@ -33,6 +36,12 @@ namespace ShopRavenDb.Application
 
         public async Task<ServiceResponse<string>> DeleteCustomerByIdAsync(string id)
         {
+            var documentCount = await _documentService.GetDocumentCountByCustomerIdAsync(id).ConfigureAwait(false);
+            if (documentCount > 0)
+            {
+                return ServiceResponse<string>.Fail("Cannot delete customer with saved documents.");
+            }
+
             await _customerService.DeleteCustomerByIdAsync(id).ConfigureAwait(false);
             return ServiceResponse<string>.Ok(id, "Customer deleted successfully!");
         }
