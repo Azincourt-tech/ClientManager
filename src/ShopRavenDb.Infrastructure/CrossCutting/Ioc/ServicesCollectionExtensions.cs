@@ -1,4 +1,5 @@
-﻿using ShopRavenDb.Domain.Core.Interfaces.Validators;
+using FluentValidation;
+using ShopRavenDb.Domain.Core.Interfaces.Validators;
 using ShopRavenDb.Infrastructure.CrossCutting.Validators;
 
 namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
@@ -63,6 +64,7 @@ namespace ShopRavenDb.Infrastructure.CrossCutting.Ioc
         public static IServiceCollection AddValidators(this IServiceCollection servicesCollection)
         {
             servicesCollection.TryAddScoped<IEmailValidator, EmailValidator>();
+            servicesCollection.AddValidatorsFromAssemblyContaining<ShopRavenDb.Application.Validators.CustomerDtoValidator>();
 
             return servicesCollection;
         }

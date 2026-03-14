@@ -11,13 +11,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRavenDb();
 builder.Services.AddAutoMapper();
-builder.Services.AddAutoMapper();
 builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
 
+builder.Services.AddExceptionHandler<ShopRavenDb.Api.Middlewares.GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
