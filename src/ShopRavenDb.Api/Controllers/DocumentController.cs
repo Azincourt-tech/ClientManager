@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ShopRavenDb.Api.Controllers;
 
+/// <summary>
+/// Controller for managing file attachments associated with entities.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class DocumentController : ControllerBase
@@ -16,7 +19,11 @@ public class DocumentController : ControllerBase
         _documentApplication = documentApplication;
     }
 
-
+    /// <summary>
+    /// Attaches a file to a document record.
+    /// </summary>
+    /// <param name="file">The file to be uploaded.</param>
+    /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach", Name = "attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -26,6 +33,11 @@ public class DocumentController : ControllerBase
        return response.Success ? Ok(response) : BadRequest(response);
     }
     
+    /// <summary>
+    /// Retrieves an attached file by its unique document ID.
+    /// </summary>
+    /// <param name="documentId">The ID of the document to retrieve (URL encoded).</param>
+    /// <returns>The file stream for download.</returns>
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<AttachmentResult?>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

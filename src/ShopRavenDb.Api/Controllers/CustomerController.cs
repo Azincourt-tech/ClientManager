@@ -6,6 +6,9 @@ using ShopRavenDb.Application.Dtos;
 
 namespace ShopRavenDb.Api.Controllers
 {
+    /// <summary>
+    /// Manage customers in the Shop system.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -17,6 +20,11 @@ namespace ShopRavenDb.Api.Controllers
             _customerApplication = customerApplication;
         }
 
+        /// <summary>
+        /// Registers a new customer in the system.
+        /// </summary>
+        /// <param name="customerDto">The customer data to be inserted.</param>
+        /// <returns>A service response containing the new customer ID.</returns>
         [HttpPost("customer", Name = "add-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -26,6 +34,11 @@ namespace ShopRavenDb.Api.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        /// <summary>
+        /// Updates an existing customer's information.
+        /// </summary>
+        /// <param name="customerDto">The updated customer data.</param>
+        /// <returns>A service response indicating success or failure of the update.</returns>
         [HttpPut("customer", Name = "update-customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,6 +48,11 @@ namespace ShopRavenDb.Api.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        /// <summary>
+        /// Removes a customer from the database by their ID.
+        /// </summary>
+        /// <param name="customerId">The unique identifier of the customer (URL encoded).</param>
+        /// <returns>A service response confirming the deletion.</returns>
         [HttpDelete("customer/{customerId}", Name = "delete-customer-by-id")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,6 +63,10 @@ namespace ShopRavenDb.Api.Controllers
             return response.Success ? Ok(response) : NotFound(response);
         }
 
+        /// <summary>
+        /// Retrieves a list of all registered customers.
+        /// </summary>
+        /// <returns>A list of customers wrapped in a service response.</returns>
         [HttpGet("customers", Name = "get-customers")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<IEnumerable<CustomerDto>>))]
         public async Task<IActionResult> GetCustomers()
@@ -53,6 +75,11 @@ namespace ShopRavenDb.Api.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets the details of a specific customer by their ID.
+        /// </summary>
+        /// <param name="customerId">The unique identifier of the customer.</param>
+        /// <returns>The customer data if found.</returns>
         [HttpGet("customers/{customerId}", Name = "get-customer-by-id")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<CustomerDto?>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
