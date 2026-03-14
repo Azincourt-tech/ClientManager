@@ -1,7 +1,7 @@
-﻿namespace ShopRavenDb.Application.Interfaces;
+namespace ShopRavenDb.Application.Interfaces;
 
 public interface IDocumentApplication
 {
-    Task<string> AttachDocument(IFormFile file);
-    Task<AttachmentResult?> GetAttachDocument(string documentId);
+    Task<string> AttachDocumentAsync(IFormFile file);
+    Task<AttachmentResult?> GetAttachDocumentAsync(string documentId);
 }

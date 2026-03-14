@@ -1,4 +1,4 @@
-﻿namespace ShopRavenDb.Api.Controllers;
+namespace ShopRavenDb.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,18 +17,18 @@ public class DocumentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AttachDocument(IFormFile file)
     {
-       var result = await _documentApplication.AttachDocument(file).ConfigureAwait(false);
+       var result = await _documentApplication.AttachDocumentAsync(file).ConfigureAwait(false);
        
        return Ok(result);
     }
     
-    [HttpGet("attach/download", Name = "get-attach-document")]
+    [HttpGet("attach/download/{documentId}", Name = "get-attach-document")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAttachDocument(string documentId)
     {
         var formattedDocumentId = Uri.UnescapeDataString(documentId);
-        var attachment = await _documentApplication.GetAttachDocument(formattedDocumentId).ConfigureAwait(false);
+        var attachment = await _documentApplication.GetAttachDocumentAsync(formattedDocumentId).ConfigureAwait(false);
         
         if (attachment is null)
             return NotFound();
