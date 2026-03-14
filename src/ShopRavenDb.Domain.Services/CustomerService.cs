@@ -1,4 +1,4 @@
-﻿using ShopRavenDb.Domain.Core.Interfaces.Validators;
+using ShopRavenDb.Domain.Core.Interfaces.Validators;
 
 namespace ShopRavenDb.Domain.Services
 {
@@ -21,7 +21,7 @@ namespace ShopRavenDb.Domain.Services
             {
                 throw new Exception("Invalid email");
             }
-            customer.IsActive = true;
+            customer.Activate();
             _customerRepository.AddCustomer(customer);
         }
 

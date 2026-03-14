@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Raven.Client.Documents.Operations.Attachments;
 
 namespace ShopRavenDb.Infrastructure.Data.Repositories;
@@ -18,11 +18,7 @@ public class DocumentRepository : IDocumentRepository
 
         using var session = _documentStore.OpenAsyncSession();
         document = await session.Query<Document>()
-                                .FirstOrDefaultAsync(d => d.Name == file.FileName).ConfigureAwait(false) ?? new Document()
-        {
-            CreateDate = DateTime.Now,
-            Name = file.FileName
-        };
+                                .FirstOrDefaultAsync(d => d.Name == file.FileName).ConfigureAwait(false) ?? new Document(file.FileName);
         await session.StoreAsync(document).ConfigureAwait(false);
         await using var stream = file.OpenReadStream();
         session.Advanced.Attachments.Store(document.Id, document.Name, stream, file.ContentType);

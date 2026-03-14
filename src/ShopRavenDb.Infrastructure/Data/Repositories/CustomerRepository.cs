@@ -1,4 +1,4 @@
-﻿using Raven.Client.Documents.Session;
+using Raven.Client.Documents.Session;
 
 namespace ShopRavenDb.Infrastructure.Data.Repositories
 {
@@ -51,10 +51,7 @@ namespace ShopRavenDb.Infrastructure.Data.Repositories
 
             if (customerEntity is not null)
             {
-                customerEntity.Name = customer.Name;
-                customerEntity.Email = customer.Email;
-                customerEntity.Address = customer.Address;
-                customerEntity.Cpf = customer.Cpf;
+                customerEntity.UpdateDetails(customer.Name, customer.Email, customer.Cpf, customer.Address);
             }
 
             documentSession.SaveChanges();
