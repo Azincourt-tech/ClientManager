@@ -38,7 +38,7 @@
   },
   "architecture": {
     "layers": ["Api", "Application", "Domain", "Domain.Core", "Domain.Services", "Infrastructure"],
-    "patterns": ["DDD", "Onion Architecture", "Repository", "Manual Mapping", "Soft Delete", "FluentValidation"]
+    "patterns": ["DDD", "Onion Architecture", "Repository", "Unit of Work", "Traceability", "Manual Mapping", "Soft Delete", "FluentValidation"]
   },
   "keyFiles": [
     "src/ClientManager.Application/Mappers/CustomerMapper.cs",
