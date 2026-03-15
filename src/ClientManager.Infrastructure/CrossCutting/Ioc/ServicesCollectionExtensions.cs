@@ -1,6 +1,7 @@
+using ClientManager.Infrastructure.CrossCutting.Validators;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
-using ClientManager.Infrastructure.CrossCutting.Validators;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ClientManager.Infrastructure.CrossCutting.Ioc
 {
@@ -10,12 +11,22 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddSingleton<IDocumentStore>(ctx =>
             {
+                var url = configuration["RavenDbSettings:Url"] ?? "http://localhost:8080";
+                var database = configuration["RavenDbSettings:Database"];
+                var certPath = configuration["RavenDbSettings:CertificatePath"];
+                var certPassword = configuration["RavenDbSettings:CertificatePassword"];
+
                 var store = new DocumentStore
                 {
-                    Urls = new string[] { configuration["RavenDbSettings:Url"] ?? "http://localhost:8080" },
-                    Database = configuration["RavenDbSettings:Database"] ?? "Shop"
+                    Urls = [url],
+                    Database = database
                 };
 
+                if (!string.IsNullOrEmpty(certPath))
+                {
+                    // O novo jeito: explícito, seguro e mais rápido
+                    store.Certificate = X509CertificateLoader.LoadPkcs12FromFile(certPath, certPassword);
+                }
                 // Remove a convenção automática que tenta mapear o ID do documento para a propriedade 'Id'
                 // Isso permite que o domínio use Guid Id sem que o RavenDB tente forçar um string lá
                 store.Conventions.FindIdentityProperty = member => member.Name == "NonExistentProperty";
