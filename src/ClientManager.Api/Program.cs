@@ -59,16 +59,18 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseScalar(options =>
+{
+    options.UseTheme(Theme.DeepSpace);
+    options.RoutePrefix = "api-docs";
+});
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
-    app.UseScalar(options =>
-    {
-        options.UseTheme(Theme.DeepSpace);
-        options.RoutePrefix = "api-docs";
-    });
+    // Adicione aqui outras configurações exclusivas de desenvolvimento se necessário
 }
 
 app.UseHttpsRedirection();
