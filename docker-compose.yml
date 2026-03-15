@@ -1,0 +1,18 @@
+services:
+  ravendb:
+    image: ravendb/ravendb:latest
+    container_name: clientmanager-db
+    restart: unless-stopped
+    environment:
+      - RAVEN_Setup_Mode=None
+      - RAVEN_License_Eula_Accepted=true
+      - RAVEN_Security_Unsecured_AllowNetwork_BySystem_Admin=true
+      - RAVEN_DataDir=Data
+    ports:
+      - "8080:8080"   # Porta do RavenDB Studio (Painel de Controle)
+      - "38881:38881" # Porta TCP para comunicação do Driver C#
+    volumes:
+      - ravendb_data:/opt/RavenDB/Server/RavenData
+
+volumes:
+  ravendb_data:

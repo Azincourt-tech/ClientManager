@@ -5,5 +5,6 @@
 - Prettier/EditorConfig to maintain C# formatting standards.
 
 ## Database tooling
-- RavenDB Management Studio for viewing data directly.
+- **RavenDB Management Studio**: Accessible at `http://localhost:8080` for local dev.
+- **Docker & Docker Compose**: Used to orchestrate the local database environment without manual installation.
 

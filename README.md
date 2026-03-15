@@ -29,20 +29,26 @@ O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e 
 
 ## 🚀 Como Rodar o Projeto
 
+O projeto está configurado para utilizar **ambientes distintos**:
+- **Desenvolvimento:** Banco local rodando via Docker (Sem autenticação).
+- **Produção:** Conexão segura com o **RavenDB Cloud** (Via Certificado .pfx).
+
 ### 1. Pré-requisitos
 *   [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) instalado.
-*   Instância do **RavenDB** rodando localmente (Porta 8080).
+*   **Docker Desktop** (ou Docker Engine) instalado.
 
-**Dica: Rode o RavenDB rapidamente via Docker:**
+### 2. Configuração do Ambiente de Desenvolvimento
+Na raiz do projeto, suba o container do RavenDB:
 ```bash
-docker run -d -p 8080:8080 -p 38888:38888 ravendb/ravendb
+docker-compose up -d
 ```
+Isso iniciará o **RavenDB Studio** em `http://localhost:8080`.
 
-### 2. Configuração do Banco de Dados
-1.  Acesse o painel do RavenDB em `http://localhost:8080`.
+### 3. Configuração do Banco de Dados
+1.  Acesse o painel em `http://localhost:8080`.
 2.  Crie um novo banco de dados chamado: **`ClientManagementDB`**.
 
-### 3. Execução da API
+### 4. Execução da API
 No terminal, na raiz do projeto, execute:
 ```bash
 dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj
