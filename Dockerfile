@@ -27,9 +27,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# O Render define a porta via variável de ambiente $PORT, mas o .NET 8/9 
-# por padrão escuta na 8080.
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+# Render usa a porta 10000 por padrão para Web Services.
+# O ASP.NET Core lerá a variável PORT do Render automaticamente se configurarmos assim:
+ENV ASPNETCORE_HTTP_PORTS=10000
+EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "ClientManager.Api.dll"]

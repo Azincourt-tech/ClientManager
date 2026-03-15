@@ -15,6 +15,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
                 var database = configuration["RavenDbSettings:Database"];
                 var certPath = configuration["RavenDbSettings:CertificatePath"];
                 var certPassword = configuration["RavenDbSettings:CertificatePassword"];
+                var certBase64 = configuration["RavenDbSettings:CertificateBase64"];
 
                 var store = new DocumentStore
                 {
@@ -22,9 +23,14 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
                     Database = database
                 };
 
-                if (!string.IsNullOrEmpty(certPath))
+                if (!string.IsNullOrEmpty(certPath) && File.Exists(certPath))
                 {
                     store.Certificate = X509CertificateLoader.LoadPkcs12FromFile(certPath, certPassword);
+                }
+                else if (!string.IsNullOrEmpty(certBase64))
+                {
+                    byte[] certBytes = Convert.FromBase64String(certBase64);
+                    store.Certificate = X509CertificateLoader.LoadPkcs12(certBytes, certPassword);
                 }
 
                 store.Conventions.FindIdentityProperty = member => member.Name == "NonExistentProperty";
