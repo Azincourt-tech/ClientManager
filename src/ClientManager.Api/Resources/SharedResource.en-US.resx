@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome to our API!</value>
+  </data>
+  <data name="Name is required" xml:space="preserve">
+    <value>The name is required (localized en).</value>
+  </data>
+  <data name="Email is required" xml:space="preserve">
+    <value>The email is required.</value>
+  </data>
+  <data name="Invalid email format" xml:space="preserve">
+    <value>The email format is invalid.</value>
+  </data>
+  <data name="Birth date is required" xml:space="preserve">
+    <value>The birth date is required.</value>
+  </data>
+  <data name="Document is required" xml:space="preserve">
+    <value>The document (CPF/CNPJ) is required.</value>
+  </data>
+  <data name="Type is required" xml:space="preserve">
+    <value>The customer type is required.</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Name is required.</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="InvalidEmail" xml:space="preserve">
+    <value>Invalid email format.</value>
+  </data>
+  <data name="DocumentRequired" xml:space="preserve">
+    <value>Document (CPF/CNPJ) is required.</value>
+  </data>
+  <data name="InvalidCPF" xml:space="preserve">
+    <value>Invalid CPF number.</value>
+  </data>
+  <data name="InvalidCNPJ" xml:space="preserve">
+    <value>Invalid CNPJ number.</value>
+  </data>
+  <data name="BirthDateRequired" xml:space="preserve">
+    <value>Birth date is required.</value>
+  </data>
+  <data name="InvalidCustomerType" xml:space="preserve">
+    <value>Invalid customer type.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File cannot be null.</value>
+  </data>
+  <data name="FileEmpty" xml:space="preserve">
+    <value>File size must be greater than 0 bytes.</value>
+  </data>
+  <data name="FileNameEmpty" xml:space="preserve">
+    <value>File name cannot be empty.</value>
+  </data>
+  <data name="CustomerNotFound" xml:space="preserve">
+    <value>Customer not found.</value>
+  </data>
+  <data name="DeleteCustomerWithDocsError" xml:space="preserve">
+    <value>Cannot delete customer with saved documents.</value>
+  </data>
+  <data name="Validation Error" xml:space="preserve">
+    <value>Validation Error</value>
+  </data>
+  <data name="Server error" xml:space="preserve">
+    <value>Server error</value>
+  </data>
+  <data name="Bad Request" xml:space="preserve">
+    <value>Bad Request</value>
+  </data>
+  <data name="CustomerInserted" xml:space="preserve">
+    <value>Customer inserted successfully!</value>
+  </data>
+  <data name="CustomerUpdated" xml:space="preserve">
+    <value>Customer updated successfully!</value>
+  </data>
+  <data name="CustomerDeleted" xml:space="preserve">
+    <value>Customer deleted successfully!</value>
+  </data>
+  <data name="CustomerStatusEvaluated" xml:space="preserve">
+    <value>Customer status evaluated to: {0}</value>
+  </data>
+  <data name="DocumentAttached" xml:space="preserve">
+    <value>Document successfully attached!</value>
+  </data>
+  <data name="DocumentRemoved" xml:space="preserve">
+    <value>Document successfully removed!</value>
+  </data>
+  <data name="DocumentNotFound" xml:space="preserve">
+    <value>Document not found.</value>
+  </data>
+  <data name="FileIsEmpty" xml:space="preserve">
+    <value>File is empty.</value>
+  </data>
+  <data name="FileSizeExceeded" xml:space="preserve">
+    <value>File size exceeds 5MB limit.</value>
+  </data>
+  <data name="InvalidFileExtension" xml:space="preserve">
+    <value>Invalid file extension. Allowed: PDF, PNG, JPG.</value>
+  </data>
+</root>
