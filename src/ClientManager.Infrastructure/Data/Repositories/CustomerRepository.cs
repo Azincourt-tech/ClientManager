@@ -4,60 +4,60 @@ namespace ClientManager.Infrastructure.Data.Repositories
 {
     public class CustomerRepository : ICustomerRepository
     {
-        private readonly IDocumentStore _documentStore;
+        private readonly IAsyncDocumentSession _session;
 
-        public CustomerRepository(IDocumentStore documentStore)
+        public CustomerRepository(IAsyncDocumentSession session)
         {
-            _documentStore = documentStore;
+            _session = session;
         }
 
         public async Task AddCustomerAsync(Customer customer)
         {
-            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            // Passamos o ID explicitamente como string para o RavenDB
-            await documentSession.StoreAsync(customer, customer.Id.ToString()).ConfigureAwait(false);
-            await documentSession.SaveChangesAsync().ConfigureAwait(false);
+            await _session.StoreAsync(customer, customer.Id.ToString()).ConfigureAwait(false);
+            await _session.SaveChangesAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteCustomerByIdAsync(Guid id)
         {
-            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customer = await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
+            var customer = await _session.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
             if (customer is not null)
             {
                 customer.Delete();
-                await documentSession.SaveChangesAsync().ConfigureAwait(false);
+                await _session.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
         public async Task<Customer?> GetCustomerByIdAsync(Guid id)
         {
-            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customer = await documentSession.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
+            var customer = await _session.LoadAsync<Customer>(id.ToString()).ConfigureAwait(false);
             return customer is not null && !customer.IsDeleted ? customer : null;
         }
 
         public async Task<IEnumerable<Customer>> GetCustomersAsync()
         {
-            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            var customers = await documentSession.Query<Customer>()
+            return await _session.Query<Customer>()
                                 .Where(x => !x.IsDeleted)
                                 .ToListAsync().ConfigureAwait(false);
-            return customers;
         }
 
         public async Task UpdateCustomerAsync(Customer customer)
         {
-            using IAsyncDocumentSession documentSession = _documentStore.OpenAsyncSession();
-            // Carregamos usando o Guid como string
-            var customerEntity = await documentSession.LoadAsync<Customer>(customer.Id.ToString()).ConfigureAwait(false);
+            var customerEntity = await _session.LoadAsync<Customer>(customer.Id.ToString()).ConfigureAwait(false);
 
             if (customerEntity is not null)
             {
                 customerEntity.UpdateDetails(customer.Name, customer.Email, customer.Document, customer.Address);
+                await _session.SaveChangesAsync().ConfigureAwait(false);
             }
+        }
 
-            await documentSession.SaveChangesAsync().ConfigureAwait(false);
+        /// <summary>
+        /// Obtém o histórico de revisões (rastreabilidade) do cliente.
+        /// Requer que as Revisions estejam ativadas no RavenDB Studio.
+        /// </summary>
+        public async Task<IEnumerable<Customer>> GetCustomerHistoryAsync(Guid id)
+        {
+            return await _session.Advanced.Revisions.GetForAsync<Customer>(id.ToString()).ConfigureAwait(false);
         }
     }
 }

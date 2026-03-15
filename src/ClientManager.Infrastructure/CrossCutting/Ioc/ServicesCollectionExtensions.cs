@@ -24,13 +24,10 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
                 if (!string.IsNullOrEmpty(certPath))
                 {
-                    // O novo jeito: explícito, seguro e mais rápido
                     store.Certificate = X509CertificateLoader.LoadPkcs12FromFile(certPath, certPassword);
                 }
-                // Remove a convenção automática que tenta mapear o ID do documento para a propriedade 'Id'
-                // Isso permite que o domínio use Guid Id sem que o RavenDB tente forçar um string lá
-                store.Conventions.FindIdentityProperty = member => member.Name == "NonExistentProperty";
 
+                store.Conventions.FindIdentityProperty = member => member.Name == "NonExistentProperty";
                 store.Conventions.FindCollectionName = type => type.Name;
 
                 store.Initialize();
@@ -38,13 +35,22 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
                 return store;
             });
 
+            // Registrar a Sessão como Scoped (Unit of Work)
+            servicesCollection.AddScoped(ctx =>
+            {
+                var store = ctx.GetRequiredService<IDocumentStore>();
+                var session = store.OpenAsyncSession();
+                session.Advanced.UseOptimisticConcurrency = true; // Ativa proteção contra Lost Updates
+                return session;
+            });
+
             return servicesCollection;
         }
 
         public static IServiceCollection AddRepositories(this IServiceCollection servicesCollection)
         {
-            servicesCollection.TryAddSingleton<ICustomerRepository, CustomerRepository>();
-            servicesCollection.TryAddSingleton<IDocumentRepository, DocumentRepository>();
+            servicesCollection.TryAddScoped<ICustomerRepository, CustomerRepository>();
+            servicesCollection.TryAddScoped<IDocumentRepository, DocumentRepository>();
 
             return servicesCollection;
         }
