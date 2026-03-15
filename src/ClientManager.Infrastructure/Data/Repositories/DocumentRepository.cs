@@ -1,6 +1,7 @@
 using ClientManager.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Raven.Client.Documents.Operations.Attachments;
+using Raven.Client.Documents.Session;
 
 namespace ClientManager.Infrastructure.Data.Repositories;
 
