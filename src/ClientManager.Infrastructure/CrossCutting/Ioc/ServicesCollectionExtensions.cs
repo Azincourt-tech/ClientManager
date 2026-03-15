@@ -1,3 +1,4 @@
+using ClientManager.Infrastructure.CrossCutting.HealthChecks;
 using ClientManager.Infrastructure.CrossCutting.Validators;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -46,9 +47,13 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
             {
                 var store = ctx.GetRequiredService<IDocumentStore>();
                 var session = store.OpenAsyncSession();
-                session.Advanced.UseOptimisticConcurrency = true; // Ativa proteção contra Lost Updates
+                session.Advanced.UseOptimisticConcurrency = true;
                 return session;
             });
+
+            // Registrar o Health Check
+            servicesCollection.AddHealthChecks()
+                .AddCheck<RavenDbHealthCheck>("RavenDB");
 
             return servicesCollection;
         }
