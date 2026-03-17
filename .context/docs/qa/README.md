@@ -1,14 +1,12 @@
-# Q&A Index
+---
+slug: index
+category: index
+generatedAt: 2026-03-17T10:00:00.000Z
+---
 
-Project type: **unknown**
+# Perguntas Frequentes (QA)
 
-Generated: 2026-03-14T04:16:55.453Z
+Esta seção contém guias rápidos e respostas para perguntas comuns sobre o projeto ClientManager.
 
-## Getting-started
-
-- [How do I set up and run this project?](./getting-started.md)
-
-## Architecture
-
-- [How is the codebase organized?](./project-structure.md)
-
+- **[Como configurar e rodar este projeto?](getting-started.md)**
+- **[Como o código está organizado?](project-structure.md)**

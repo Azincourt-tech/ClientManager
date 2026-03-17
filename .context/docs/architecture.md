@@ -4,7 +4,7 @@
 This is a .NET Core Monolith implementing Domain-Driven Design (DDD) patterns. It connects to a RavenDB document database.
 
 ## Architectural Layers
-- **Api**: Presentation layer, exposes controllers, REST endpoints and implements global error handling.
+- **Api**: Presentation layer, exposes controllers, REST endpoints, implements global error handling, and provides Health Check endpoints.
 - **Application**: Application services, manual DTO mapping (via specialized Extension Classes) and input validation.
 - **Domain**: Rich domain models with encapsulated business logic.
 - **Domain.Core**: Core interfaces, base classes, and Domain Helpers (CPF, CNPJ, Email).
@@ -26,6 +26,9 @@ This is a .NET Core Monolith implementing Domain-Driven Design (DDD) patterns. I
 | Async/Await | Non-blocking I/O operations throughout the stack |
 | ProblemDetails | Standardized API error responses |
 | Domain Helpers | `DocumentHelper` (CPF/CNPJ) and `EmailHelper` for core business rules |
+| Health Checks | Provides system health monitoring via `/health` endpoint |
+| API Documentation | Multi-provider documentation using **Swagger** and **Scalar** (Modern UI) |
+| Localization | Multi-language support (pt-BR, en-US) for API responses and validation messages |
 
 ## Key Decisions & Trade-offs
 Using RavenDB provides schema-less, transactional document storage tuned for .NET. Manual mapping was chosen over AutoMapper to reduce overhead and improve code clarity and maintainability.
