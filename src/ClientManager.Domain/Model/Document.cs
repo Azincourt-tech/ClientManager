@@ -26,6 +26,8 @@ public class Document
 
     public void UpdateExpiryDate(DateTimeOffset? expiryDate) => ExpiryDate = expiryDate;
 
+    public void UpdateType(DocumentType type) => Type = type;
+
     public void Delete() => IsDeleted = true;
 
     public bool IsExpired() => ExpiryDate.HasValue && ExpiryDate.Value < DateTimeOffset.UtcNow;

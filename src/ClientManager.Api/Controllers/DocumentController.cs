@@ -1,8 +1,5 @@
-using ClientManager.Domain.Enums;
 using ClientManager.Domain.Core.Responses;
-using Raven.Client.Documents.Operations.Attachments;
-using ClientManager.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using ClientManager.Domain.Enums;
 
 namespace ClientManager.Api.Controllers;
 
@@ -32,23 +29,23 @@ public class DocumentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
-       var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-       if (!response.Success)
-       {
-           response.Message = _localizer[response.Message];
-           return BadRequest(response);
-       }
-       response.Message = _localizer[response.Message];
-       return Ok(response);
+        var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
+        if (!response.Success)
+        {
+            response.Message = _localizer[response.Message];
+            return BadRequest(response);
+        }
+        response.Message = _localizer[response.Message];
+        return Ok(response);
     }
-    
+
     /// <summary>
-    /// Retrieves an attached file by its unique document ID.
+    /// Retrieves an attached file by its unique document ID, including document metadata and base64 content.
     /// </summary>
     /// <param name="documentId">The ID of the document to retrieve (URL encoded).</param>
-    /// <returns>The file stream for download.</returns>
+    /// <returns>A service response containing document information and its file in base64.</returns>
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<AttachmentResult?>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<DocumentAttachmentResponseDto?>))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAttachDocument(Guid documentId)
     {
@@ -60,13 +57,35 @@ public class DocumentController : ControllerBase
             return NotFound(response);
         }
 
-        return File(response.Data.Stream, response.Data.Details.ContentType);
+        response.Message = _localizer[response.Message];
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Updates the categorization and expiry date of an existing document.
+    /// </summary>
+    /// <param name="documentId">The unique identifier of the document.</param>
+    /// <param name="updateDocumentDto">The updated document information.</param>
+    /// <returns>A service response containing the ID of the updated document.</returns>
+    [HttpPut("{documentId}", Name = "update-document")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateDocument(Guid documentId, [FromBody] UpdateDocumentDto updateDocumentDto)
+    {
+        var response = await _documentApplication.UpdateDocumentAsync(documentId, updateDocumentDto).ConfigureAwait(false);
+        if (!response.Success)
+        {
+            response.Message = _localizer[response.Message];
+            return NotFound(response);
+        }
+        response.Message = _localizer[response.Message];
+        return Ok(response);
     }
 
     /// <summary>
     /// Removes a document and its associated file from the system.
-    /// </summary>
-    /// <param name="documentId">The unique identifier of the document to be removed.</param>
+    /// </summary>    /// <param name="documentId">The unique identifier of the document to be removed.</param>
     /// <returns>A service response confirming the removal.</returns>
     [HttpDelete("{documentId}", Name = "delete-document")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]

@@ -157,4 +157,10 @@
   <data name="InvalidFileExtension" xml:space="preserve">
     <value>Invalid file extension. Allowed: PDF, PNG, JPG.</value>
   </data>
+  <data name="DocumentUpdated" xml:space="preserve">
+    <value>Document updated successfully!</value>
+  </data>
+  <data name="AttachmentNotFound" xml:space="preserve">
+    <value>Attachment not found.</value>
+  </data>
 </root>
