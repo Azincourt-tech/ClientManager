@@ -1,10 +1,6 @@
 using ClientManager.Api.Results;
-using ClientManager.Application.Dtos.Document;
-using ClientManager.Application.Interfaces;
-using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers;
 
@@ -12,9 +8,9 @@ namespace ClientManager.Api.Controllers;
 public class DocumentController : MainController
 {
     private readonly IDocumentApplication _documentApplication;
-    private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DocumentController(IDocumentApplication documentApplication, Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+    public DocumentController(IDocumentApplication documentApplication, IStringLocalizer<SharedResource> localizer)
     {
         _documentApplication = documentApplication;
         _localizer = localizer;

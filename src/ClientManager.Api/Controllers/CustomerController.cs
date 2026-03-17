@@ -1,5 +1,6 @@
 using ClientManager.Api.Results;
 using ClientManager.Domain.Core.Responses;
+using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers
 {
@@ -10,9 +11,9 @@ namespace ClientManager.Api.Controllers
     public class CustomerController : MainController
     {
         private readonly ICustomerApplication _customerApplication;
-        private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CustomerController(ICustomerApplication customerApplication, Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+        public CustomerController(ICustomerApplication customerApplication, IStringLocalizer<SharedResource> localizer)
         {
             _customerApplication = customerApplication;
             _localizer = localizer;

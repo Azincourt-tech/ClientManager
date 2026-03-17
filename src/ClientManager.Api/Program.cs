@@ -1,9 +1,8 @@
 
 using AspNetCore.Scalar;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Localization;
-using System.Globalization;
 using ClientManager.Api;
+using ClientManager.Api.Filters;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +14,8 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     })
-    .AddDataAnnotationsLocalization(options => {
+    .AddDataAnnotationsLocalization(options =>
+    {
         options.DataAnnotationLocalizerProvider = (type, factory) =>
             factory.Create(typeof(SharedResource));
     });
@@ -34,6 +34,7 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
+    options.OperationFilter<ScalarOperationFilter>();
 });
 builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddDomainServices();
