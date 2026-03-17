@@ -7,41 +7,43 @@ namespace ClientManager.Domain.Core.Responses
     {
         public T? Data { get; set; }
         public bool Success { get; set; } = true;
-        public string Message { get; set; } = string.Empty;
         
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<string>? Errors { get; set; }
+        public string? Message { get; set; }
+        
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? Notifications { get; set; }
 
         public ServiceResponse()
         {
         }
 
-        public ServiceResponse(T data, string message = "")
+        public ServiceResponse(T data, string? message = null)
         {
             Data = data;
             Success = true;
             Message = message;
         }
 
-        public static ServiceResponse<T> Ok(T data, string message = "") => new(data, message);
+        public static ServiceResponse<T> Ok(T data, string? message = null) => new(data, message);
 
-        public static ServiceResponse<T> Fail(string message, List<string>? errors = null)
+        public static ServiceResponse<T> Fail(string message, List<string>? notifications = null)
         {
             return new ServiceResponse<T>
             {
                 Success = false,
                 Message = message,
-                Errors = errors
+                Notifications = notifications
             };
         }
         
-        public static ServiceResponse<T> Fail(string message, string error)
+        public static ServiceResponse<T> Fail(string message, string notification)
         {
             return new ServiceResponse<T>
             {
                 Success = false,
                 Message = message,
-                Errors = new List<string> { error }
+                Notifications = new List<string> { notification }
             };
         }
     }

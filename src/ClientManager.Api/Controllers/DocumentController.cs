@@ -1,11 +1,15 @@
+using ClientManager.Api.Results;
+using ClientManager.Application.Dtos.Document;
+using ClientManager.Application.Interfaces;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClientManager.Api.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
-public class DocumentController : ControllerBase
+public class DocumentController : MainController
 {
     private readonly IDocumentApplication _documentApplication;
     private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
@@ -25,18 +29,12 @@ public class DocumentController : ControllerBase
     /// <param name="expiryDate">The optional expiry date of the document.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach/{customerId}", Name = "attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiOkResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
         var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-        if (!response.Success)
-        {
-            response.Message = _localizer[response.Message];
-            return BadRequest(response);
-        }
-        response.Message = _localizer[response.Message];
-        return Ok(response);
+        return ServiceResponse(response);
     }
 
     /// <summary>
@@ -45,20 +43,12 @@ public class DocumentController : ControllerBase
     /// <param name="documentId">The ID of the document to retrieve (URL encoded).</param>
     /// <returns>A service response containing document information and its file in base64.</returns>
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<DocumentAttachmentResponseDto?>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiOkResult<DocumentAttachmentResponseDto?>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAttachDocument(Guid documentId)
     {
         var response = await _documentApplication.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
-
-        if (!response.Success || response.Data == null)
-        {
-            response.Message = _localizer[response.Message];
-            return NotFound(response);
-        }
-
-        response.Message = _localizer[response.Message];
-        return Ok(response);
+        return ServiceResponse(response);
     }
 
     /// <summary>
@@ -68,19 +58,12 @@ public class DocumentController : ControllerBase
     /// <param name="updateDocumentDto">The updated document information.</param>
     /// <returns>A service response containing the ID of the updated document.</returns>
     [HttpPut("{documentId}", Name = "update-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateDocument(Guid documentId, [FromBody] UpdateDocumentDto updateDocumentDto)
     {
         var response = await _documentApplication.UpdateDocumentAsync(documentId, updateDocumentDto).ConfigureAwait(false);
-        if (!response.Success)
-        {
-            response.Message = _localizer[response.Message];
-            return NotFound(response);
-        }
-        response.Message = _localizer[response.Message];
-        return Ok(response);
+        return ServiceResponse(response);
     }
 
     /// <summary>
@@ -88,17 +71,11 @@ public class DocumentController : ControllerBase
     /// </summary>    /// <param name="documentId">The unique identifier of the document to be removed.</param>
     /// <returns>A service response confirming the removal.</returns>
     [HttpDelete("{documentId}", Name = "delete-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteDocument(Guid documentId)
     {
         var response = await _documentApplication.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        if (!response.Success)
-        {
-            response.Message = _localizer[response.Message];
-            return NotFound(response);
-        }
-        response.Message = _localizer[response.Message];
-        return Ok(response);
+        return ServiceResponse(response);
     }
 }
