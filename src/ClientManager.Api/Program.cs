@@ -1,7 +1,7 @@
 
 using AspNetCore.Scalar;
 using ClientManager.Api;
-using ClientManager.Api.Filters;
+using ClientManager.Api.Middlewares;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +34,6 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
-    options.OperationFilter<ScalarOperationFilter>();
 });
 builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddDomainServices();
@@ -42,7 +41,7 @@ builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
 
-builder.Services.AddExceptionHandler<ClientManager.Api.Middlewares.GlobalExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -68,11 +67,6 @@ app.UseScalar(options =>
     options.UseTheme(Theme.DeepSpace);
     options.RoutePrefix = "api-docs";
 });
-
-if (app.Environment.IsDevelopment())
-{
-    // Adicione aqui outras configurações exclusivas de desenvolvimento se necessário
-}
 
 app.UseHttpsRedirection();
 
