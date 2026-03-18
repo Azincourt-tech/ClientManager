@@ -1,7 +1,8 @@
 
-using AspNetCore.Scalar;
 using ClientManager.Api;
 using ClientManager.Api.Middlewares;
+using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +25,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "ClientManager API",
         Version = "v1",
@@ -32,7 +33,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddRavenDb(builder.Configuration);
@@ -62,10 +63,16 @@ app.UseRequestLocalization(localizationOptions);
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseScalar(options =>
+app.MapScalarApiReference(options =>
 {
-    options.UseTheme(Theme.DeepSpace);
-    options.RoutePrefix = "api-docs";
+    options.ProxyUrl = "/swagger/v1/swagger.json";
+
+    options.WithProxy("/swagger/v1/swagger.json")
+           .WithTheme(ScalarTheme.DeepSpace)
+           .HideClientButton()
+           .DisableAgent()
+           .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+           .HideDeveloperTools();
 });
 
 app.UseHttpsRedirection();
