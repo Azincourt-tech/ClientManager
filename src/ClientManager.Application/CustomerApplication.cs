@@ -1,4 +1,6 @@
 using ClientManager.Application.Mappers;
+using ClientManager.Domain.Core.Events;
+using ClientManager.Domain.Core.Interfaces;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
 
@@ -9,12 +11,14 @@ namespace ClientManager.Application
         private readonly ICustomerService _customerService;
         private readonly IDocumentService _documentService;
         private readonly IValidator<CustomerBaseDto> _customerValidator;
+        private readonly IMessageBus _messageBus;
 
-        public CustomerApplication(ICustomerService customerService, IDocumentService documentService, IValidator<CustomerBaseDto> customerValidator)
+        public CustomerApplication(ICustomerService customerService, IDocumentService documentService, IValidator<CustomerBaseDto> customerValidator, IMessageBus messageBus)
         {
             _customerService = customerService;
             _documentService = documentService;
             _customerValidator = customerValidator;
+            _messageBus = messageBus;
         }
 
         public async Task<ServiceResponse<Guid>> AddCustomerAsync(CreateCustomerDto customerDto)
@@ -29,6 +33,10 @@ namespace ClientManager.Application
 
             var customer = customerDto.ToModel();
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
+
+            // Publish Welcome/Created event
+            await _messageBus.PublishAsync(new CustomerCreatedEvent(customer.Id, customer.Name, customer.Email, DateTime.UtcNow), "customer-created");
+
             return ServiceResponse<Guid>.Ok(customer.Id, "CustomerInserted");
         }
 

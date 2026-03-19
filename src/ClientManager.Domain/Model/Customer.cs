@@ -65,9 +65,9 @@ namespace ClientManager.Domain.Model
                 return;
             }
 
-            var hasIdentity = docsList.Any(d => d.Type == DocumentType.Identity && !d.IsExpired());
-            var hasAddressProof = docsList.Any(d => d.Type == DocumentType.AddressProof && !d.IsExpired());
-            var hasSocialContract = docsList.Any(d => d.Type == DocumentType.SocialContract && !d.IsExpired());
+            var hasIdentity = docsList.Any(d => d.Type == DocumentType.Identity && !d.IsExpired() && d.Status == DocumentStatus.Verified);
+            var hasAddressProof = docsList.Any(d => d.Type == DocumentType.AddressProof && !d.IsExpired() && d.Status == DocumentStatus.Verified);
+            var hasSocialContract = docsList.Any(d => d.Type == DocumentType.SocialContract && !d.IsExpired() && d.Status == DocumentStatus.Verified);
 
             bool requirementsMet = false;
             if (Type == CustomerType.NaturalPerson)
