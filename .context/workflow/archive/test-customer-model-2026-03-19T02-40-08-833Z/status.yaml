@@ -1,20 +1,20 @@
 project:
-  name: "test-application-layer"
+  name: "test-customer-model"
   scale: SMALL
-  started: "2026-03-19T02:40:08.837Z"
+  started: "2026-03-19T02:22:36.131Z"
   current_phase: E
 
 phases:
   P:
     status: completed
-    started_at: "2026-03-19T02:40:08.837Z"
-    completed_at: "2026-03-19T02:41:54.519Z"
+    started_at: "2026-03-19T02:22:36.131Z"
+    completed_at: "2026-03-19T02:23:28.237Z"
   R:
     status: skipped
     reason: "Not required for scale SMALL"
   E:
     status: in_progress
-    started_at: "2026-03-19T02:41:54.521Z"
+    started_at: "2026-03-19T02:23:28.238Z"
   V:
     status: pending
   C:
@@ -23,10 +23,10 @@ phases:
 
 execution:
   history:
-    - timestamp: "2026-03-19T02:41:54.521Z"
+    - timestamp: "2026-03-19T02:23:28.238Z"
       phase: E
       action: started
-  last_activity: "2026-03-19T02:41:54.521Z"
+  last_activity: "2026-03-19T02:23:28.238Z"
   resume_context: "Fase E (Execução) em progresso"
 
 approval:
