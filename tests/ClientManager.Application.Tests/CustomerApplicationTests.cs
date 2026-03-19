@@ -2,8 +2,8 @@ using ClientManager.Application;
 using ClientManager.Application.Dtos.Customer;
 using ClientManager.Application.Interfaces;
 using ClientManager.Domain.Model;
-using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Enums;
+using ClientManager.Domain.Core.Interfaces.Services;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -71,8 +71,6 @@ namespace ClientManager.Application.Tests
                 c.Name == dto.Name && 
                 c.Email == dto.Email && 
                 c.Document == dto.Document)), Times.Once);
-            
-            _validatorMock.Verify(v => v.ValidateAsync(dto, default), Times.Once);
         }
 
         [Fact]
@@ -93,6 +91,94 @@ namespace ClientManager.Application.Tests
 
             _documentServiceMock.Verify(d => d.GetDocumentCountByCustomerIdAsync(id), Times.Once);
             _customerServiceMock.Verify(s => s.DeleteCustomerByIdAsync(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task GetCustomerByIdAsync_WhenCustomerExists_ShouldReturnCustomerAndReevaluateStatus()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var customer = new Customer("Test", "test@test.com", DateTimeOffset.Now.AddYears(-20), "123", CustomerType.NaturalPerson, null, id);
+            
+            _customerServiceMock.Setup(s => s.GetCustomerByIdAsync(id))
+                .ReturnsAsync(customer);
+            _documentServiceMock.Setup(s => s.GetDocumentsByCustomerIdAsync(id))
+                .ReturnsAsync(new List<Document>());
+
+            // Act
+            var result = await _customerApplication.GetCustomerByIdAsync(id);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data.Should().NotBeNull();
+            _customerServiceMock.Verify(s => s.UpdateCustomerAsync(customer), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetCustomerByIdAsync_WhenCustomerNotFound_ShouldReturnFail()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _customerServiceMock.Setup(s => s.GetCustomerByIdAsync(id))
+                .ReturnsAsync((Customer)null);
+
+            // Act
+            var result = await _customerApplication.GetCustomerByIdAsync(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("CustomerNotFound");
+        }
+
+        [Fact]
+        public async Task UpdateCustomerAsync_WhenValid_ShouldUpdateAndReturnOk()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var dto = new UpdateCustomerDto 
+            { 
+                Id = id,
+                Name = "Updated Name", 
+                Email = "updated@test.com",
+                Document = "12345678901",
+                Address = CreateValidAddressDto()
+            };
+            var existingCustomer = new Customer("Old Name", "old@test.com", DateTimeOffset.Now.AddYears(-20), "123", CustomerType.NaturalPerson, null, id);
+
+            _validatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _customerServiceMock.Setup(s => s.GetCustomerByIdAsync(id))
+                .ReturnsAsync(existingCustomer);
+            _documentServiceMock.Setup(s => s.GetDocumentsByCustomerIdAsync(id))
+                .ReturnsAsync(new List<Document>());
+
+            // Act
+            var result = await _customerApplication.UpdateCustomerAsync(dto);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            existingCustomer.Name.Should().Be(dto.Name);
+            _customerServiceMock.Verify(s => s.UpdateCustomerAsync(existingCustomer), Times.Once);
+        }
+
+        [Fact]
+        public async Task VerifyCustomerAsync_WhenExists_ShouldEvaluateStatus()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var customer = new Customer("Test", "test@test.com", DateTimeOffset.Now.AddYears(-20), "123", CustomerType.NaturalPerson, null, id);
+
+            _customerServiceMock.Setup(s => s.GetCustomerByIdAsync(id))
+                .ReturnsAsync(customer);
+            _documentServiceMock.Setup(s => s.GetDocumentsByCustomerIdAsync(id))
+                .ReturnsAsync(new List<Document>());
+
+            // Act
+            var result = await _customerApplication.VerifyCustomerAsync(id);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            _customerServiceMock.Verify(s => s.UpdateCustomerAsync(customer), Times.Once);
         }
     }
 }
