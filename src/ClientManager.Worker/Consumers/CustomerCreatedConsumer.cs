@@ -15,14 +15,15 @@ public class CustomerCreatedConsumer(
 
         try
         {
-            // 1. Send Welcome Email
-            await emailService.SendWelcomeEmailAsync(@event.Email, @event.Name);
-
-            // 2. Generate Welcome Kit PDF
+            // 1. Generate Welcome Kit PDF first
             var pdfBytes = await pdfGenerator.GenerateWelcomeKitAsync(@event.CustomerId, @event.Name);
+            var attachmentName = $"WelcomeKit_{@event.Name.Replace(" ", "_")}.pdf";
             logger.LogInformation("Welcome kit PDF generated ({Size} bytes) for {CustomerId}", pdfBytes.Length, @event.CustomerId);
 
-            logger.LogInformation("Welcome flow completed for customer {CustomerId}", @event.CustomerId);
+            // 2. Send Welcome Email with PDF attachment
+            await emailService.SendWelcomeEmailAsync(@event.Email, @event.Name, pdfBytes, attachmentName);
+
+            logger.LogInformation("Welcome flow completed with attachment for customer {CustomerId}", @event.CustomerId);
         }
         catch (Exception ex)
         {

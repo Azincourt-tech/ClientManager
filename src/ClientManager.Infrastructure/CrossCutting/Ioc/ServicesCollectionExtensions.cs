@@ -94,8 +94,8 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection)
         {
-            servicesCollection.TryAddScoped<IEmailService, SimulatedEmailService>();
-            servicesCollection.TryAddScoped<IPdfGenerator, SimulatedPdfGenerator>();
+            servicesCollection.TryAddScoped<IEmailService, SendGridEmailService>();
+            servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();
 
             return servicesCollection;
         }
