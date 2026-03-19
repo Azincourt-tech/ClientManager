@@ -1,0 +1,35 @@
+project:
+  name: "melhoria-endpoints-document"
+  scale: SMALL
+  started: "2026-03-19T02:17:16.200Z"
+  current_phase: E
+
+phases:
+  P:
+    status: completed
+    started_at: "2026-03-19T02:17:16.200Z"
+    completed_at: "2026-03-19T02:17:56.306Z"
+  R:
+    status: skipped
+    reason: "Not required for scale SMALL"
+  E:
+    status: in_progress
+    started_at: "2026-03-19T02:17:56.307Z"
+  V:
+    status: pending
+  C:
+    status: skipped
+    reason: "Not required for scale SMALL"
+
+execution:
+  history:
+    - timestamp: "2026-03-19T02:17:56.307Z"
+      phase: E
+      action: started
+  last_activity: "2026-03-19T02:17:56.307Z"
+  resume_context: "Fase E (Execução) em progresso"
+
+approval:
+  plan_created: true
+  plan_approved: false
+
