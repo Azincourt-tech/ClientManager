@@ -1,14 +1,14 @@
 {
   "active": [
     {
-      "slug": "test-application-layer-plan",
-      "path": "plans/test-application-layer-plan.md",
-      "title": "Testes da Camada de Aplicação",
-      "summary": "Adicionar testes unitários para as classes de aplicação CustomerApplication e DocumentApplication.",
-      "linkedAt": "2026-03-19T02:41:11.912Z",
+      "slug": "test-service-layer-plan",
+      "path": "plans/test-service-layer-plan.md",
+      "title": "Testes da Camada de Serviço",
+      "summary": "Adicionar testes unitários para as classes de serviço CustomerService e DocumentService.",
+      "linkedAt": "2026-03-19T03:03:00.751Z",
       "status": "active"
     }
   ],
   "completed": [],
-  "primary": "test-application-layer-plan"
+  "primary": "test-service-layer-plan"
 }
