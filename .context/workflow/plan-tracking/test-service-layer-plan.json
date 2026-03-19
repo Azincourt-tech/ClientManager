@@ -1,0 +1,23 @@
+{
+  "planSlug": "test-service-layer-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "phaseId": "phase-1",
+      "status": "completed",
+      "startedAt": "2026-03-19T03:12:34.220Z",
+      "steps": [
+        {
+          "stepIndex": 1,
+          "description": "Step 1",
+          "status": "completed",
+          "completedAt": "2026-03-19T03:12:34.220Z",
+          "notes": "Testes para CustomerService e DocumentService implementados e validados."
+        }
+      ],
+      "completedAt": "2026-03-19T03:12:34.220Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T03:12:34.220Z"
+}

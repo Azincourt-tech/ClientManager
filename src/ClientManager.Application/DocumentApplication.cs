@@ -1,4 +1,3 @@
-using ClientManager.Application.Dtos.Document;
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
@@ -97,6 +96,13 @@ public class DocumentApplication : IDocumentApplication
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
 
         return ServiceResponse<string>.Ok(documentId.ToString(), "DocumentRemoved");
+    }
+
+    public async Task<ServiceResponse<IEnumerable<DocumentDto>>> GetDocumentsByCustomerIdAsync(Guid customerId)
+    {
+        var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
+        var dtos = documents.Select(x => x.ToDto());
+        return ServiceResponse<IEnumerable<DocumentDto>>.Ok(dtos);
     }
 
     public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId)

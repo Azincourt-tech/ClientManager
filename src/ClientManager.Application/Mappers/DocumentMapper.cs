@@ -1,6 +1,3 @@
-using ClientManager.Application.Dtos.Document;
-using ClientManager.Domain.Model;
-
 namespace ClientManager.Application.Mappers
 {
     public static class DocumentMapper

@@ -1,0 +1,16 @@
+{
+  "planSlug": "test-application-layer-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:54:56.280Z"
+    },
+    "phase-2": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:55:09.026Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T02:54:44.128Z"
+}

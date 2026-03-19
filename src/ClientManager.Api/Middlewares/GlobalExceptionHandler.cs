@@ -1,8 +1,5 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace ClientManager.Api.Middlewares
 {
@@ -34,12 +31,12 @@ namespace ClientManager.Api.Middlewares
                 problemDetails.Title = _localizer["Validation Error"];
                 // Evita mostrar a string técnica do FluentValidation no Detail
                 problemDetails.Detail = _localizer["One or more validation errors occurred."];
-                
+
                 // Traduz cada mensagem de erro do FluentValidation usando o localizador
-                problemDetails.Extensions["errors"] = validationException.Errors.Select(e => new 
-                { 
-                    e.PropertyName, 
-                    ErrorMessage = _localizer[e.ErrorMessage].Value 
+                problemDetails.Extensions["errors"] = validationException.Errors.Select(e => new
+                {
+                    e.PropertyName,
+                    ErrorMessage = _localizer[e.ErrorMessage].Value
                 });
             }
             else if (exception is ArgumentException || exception.GetType().Name.Contains("ValidationException"))

@@ -50,6 +50,36 @@ public class DocumentController : MainController
     }
 
     /// <summary>
+    /// Retrieves a list of all documents associated with a specific customer.
+    /// </summary>
+    /// <param name="customerId">The unique identifier of the customer.</param>
+    /// <returns>A service response containing a collection of document information.</returns>
+    [HttpGet("customer/{customerId}", Name = "get-documents-by-customer")]
+    [EndpointSummary("Retrieves a list of all documents associated with a specific customer.")]
+    [ProducesResponseType(typeof(ApiOkResult<IEnumerable<DocumentDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDocumentsByCustomerId(Guid customerId)
+    {
+        var response = await _documentApplication.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
+        return ServiceResponse(response);
+    }
+
+    /// <summary>
+    /// Gets the total count of documents associated with a specific customer.
+    /// </summary>
+    /// <param name="customerId">The unique identifier of the customer.</param>
+    /// <returns>A service response containing the document count.</returns>
+    [HttpGet("customer/{customerId}/count", Name = "get-document-count-by-customer")]
+    [EndpointSummary("Gets the total count of documents associated with a specific customer.")]
+    [ProducesResponseType(typeof(ApiOkResult<int>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDocumentCountByCustomerId(Guid customerId)
+    {
+        var response = await _documentApplication.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
+        return ServiceResponse(response);
+    }
+
+    /// <summary>
     /// Updates the categorization and expiry date of an existing document.
     /// </summary>
     /// <param name="documentId">The unique identifier of the document.</param>

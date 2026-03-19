@@ -1,7 +1,6 @@
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
-using ClientManager.Application.Dtos.Customer;
 
 namespace ClientManager.Application
 {

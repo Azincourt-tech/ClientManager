@@ -1,11 +1,9 @@
 using ClientManager.Api.Results;
 using ClientManager.Domain.Core.Responses;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ClientManager.Api.Controllers
 {
-// [Authorize]
+    // [Authorize]
     [ApiController]
     public abstract class MainController : ControllerBase
     {

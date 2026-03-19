@@ -1,5 +1,4 @@
 using FluentValidation;
-using ClientManager.Application.Dtos.Customer;
 
 namespace ClientManager.Application.Validators
 {

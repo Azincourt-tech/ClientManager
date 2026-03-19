@@ -4,7 +4,9 @@ This directory contains plans for coordinating work across documentation and pla
 
 ## Plan Queue
 1. [Melhoria Endpoints Document Plan](./melhoria-endpoints-document-plan.md)
-2. [Test Customer Model Plan](./test-customer-model-plan.md)
+2. [Test Application Layer Plan](./test-application-layer-plan.md)
+3. [Test Customer Model Plan](./test-customer-model-plan.md)
+4. [Test Service Layer Plan](./test-service-layer-plan.md)
 
 ## How To Create Or Update Plans
 - Run "ai-context plan <name>" to scaffold a new plan template.
