@@ -23,6 +23,7 @@ namespace ClientManager.Api.Controllers
         /// Returns a localized welcome message.
         /// </summary>
         [HttpGet("welcome")]
+        [EndpointSummary("Returns a localized welcome message.")]
         [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         public IActionResult GetWelcome()
         {
@@ -35,6 +36,7 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerDto">The customer data to be inserted.</param>
         /// <returns>A service response containing the new customer ID.</returns>
         [HttpPost("customer", Name = "add-customer")]
+        [EndpointSummary("Registers a new customer in the system.")]
         [ProducesResponseType(typeof(ApiOkResult<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddCustomer(CreateCustomerDto customerDto)
@@ -50,6 +52,7 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerDto">The updated customer data.</param>
         /// <returns>A service response indicating success or failure of the update.</returns>
         [HttpPut("customer/{id}", Name = "update-customer")]
+        [EndpointSummary("Updates an existing customer's information.")]
         [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCustomer(Guid id, UpdateCustomerDto customerDto)
@@ -65,6 +68,7 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer (URL encoded).</param>
         /// <returns>A service response confirming the deletion.</returns>
         [HttpDelete("customer/{customerId}", Name = "delete-customer-by-id")]
+        [EndpointSummary("Removes a customer from the database by their ID.")]
         [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCustomerById(Guid customerId)
@@ -78,6 +82,7 @@ namespace ClientManager.Api.Controllers
         /// </summary>
         /// <returns>A list of customers wrapped in a service response.</returns>
         [HttpGet("customers", Name = "get-customers")]
+        [EndpointSummary("Retrieves a list of all registered customers.")]
         [ProducesResponseType(typeof(ApiOkResult<IEnumerable<CustomerDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomers()
         {
@@ -91,6 +96,7 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer.</param>
         /// <returns>The customer data if found.</returns>
         [HttpGet("customers/{customerId}", Name = "get-customer-by-id")]
+        [EndpointSummary("Gets the details of a specific customer by their ID.")]
         [ProducesResponseType(typeof(ApiOkResult<CustomerDto?>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCustomerById(Guid customerId)
@@ -105,6 +111,7 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer.</param>
         /// <returns>The updated status of the customer.</returns>
         [HttpPost("customers/{customerId}/verify", Name = "verify-customer")]
+        [EndpointSummary("Manually triggers verification status re-evaluation for a customer.")]
         [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyCustomer(Guid customerId)

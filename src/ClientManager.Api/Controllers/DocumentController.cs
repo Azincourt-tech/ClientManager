@@ -25,6 +25,7 @@ public class DocumentController : MainController
     /// <param name="expiryDate">The optional expiry date of the document.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach/{customerId}", Name = "attach-document")]
+    [EndpointSummary("Attaches a file to a specific customer with categorization and optional expiry date.")]
     [ProducesResponseType(typeof(ApiOkResult<Guid>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
@@ -39,6 +40,7 @@ public class DocumentController : MainController
     /// <param name="documentId">The ID of the document to retrieve (URL encoded).</param>
     /// <returns>A service response containing document information and its file in base64.</returns>
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
+    [EndpointSummary("Retrieves an attached file by its unique document ID, including document metadata and base64 content.")]
     [ProducesResponseType(typeof(ApiOkResult<DocumentAttachmentResponseDto?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAttachDocument(Guid documentId)
@@ -54,6 +56,7 @@ public class DocumentController : MainController
     /// <param name="updateDocumentDto">The updated document information.</param>
     /// <returns>A service response containing the ID of the updated document.</returns>
     [HttpPut("{documentId}", Name = "update-document")]
+    [EndpointSummary("Updates the categorization and expiry date of an existing document.")]
     [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateDocument(Guid documentId, [FromBody] UpdateDocumentDto updateDocumentDto)
@@ -67,6 +70,7 @@ public class DocumentController : MainController
     /// </summary>    /// <param name="documentId">The unique identifier of the document to be removed.</param>
     /// <returns>A service response confirming the removal.</returns>
     [HttpDelete("{documentId}", Name = "delete-document")]
+    [EndpointSummary("Removes a document and its associated file from the system.")]
     [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteDocument(Guid documentId)

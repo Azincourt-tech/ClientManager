@@ -1,7 +1,6 @@
 
 using ClientManager.Api;
 using ClientManager.Api.Middlewares;
-using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
@@ -21,21 +20,9 @@ builder.Services.AddControllers()
             factory.Create(typeof(SharedResource));
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "ClientManager API",
-        Version = "v1",
-        Description = "API for managing customers and document attachments using RavenDB and DDD patterns."
-    });
+// Learn more about configuring OpenAPI at https://aka.ms/aspnetcore/openapi
+builder.Services.AddOpenApi();
 
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
-});
 builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
@@ -60,15 +47,16 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
-app.UseSwagger(options =>
+app.MapOpenApi();
+
+app.UseSwaggerUI(options =>
 {
-    options.RouteTemplate = "swagger/{documentName}/swagger.json";
+    options.SwaggerEndpoint("/openapi/v1.json", "ClientManager API v1");
 });
-app.UseSwaggerUI();
 
 app.MapScalarApiReference(options =>
 {
-    options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
+    options.WithOpenApiRoutePattern("/openapi/{documentName}.json")
            .WithTheme(ScalarTheme.DeepSpace)
            .HideClientButton()
            .DisableAgent()
