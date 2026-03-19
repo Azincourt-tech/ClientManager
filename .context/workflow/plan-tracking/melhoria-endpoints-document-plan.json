@@ -13,11 +13,17 @@
           "status": "completed",
           "completedAt": "2026-03-19T02:19:42.822Z",
           "notes": "Implementação concluída e validada com testes unitários."
+        },
+        {
+          "stepIndex": 2,
+          "description": "Step 2",
+          "status": "completed",
+          "completedAt": "2026-03-19T02:19:53.747Z"
         }
       ],
-      "completedAt": "2026-03-19T02:19:42.822Z"
+      "completedAt": "2026-03-19T02:19:53.747Z"
     }
   },
   "decisions": [],
-  "lastUpdated": "2026-03-19T02:19:42.822Z"
+  "lastUpdated": "2026-03-19T02:19:53.747Z"
 }
