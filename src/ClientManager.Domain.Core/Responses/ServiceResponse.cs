@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace ClientManager.Domain.Core.Responses
@@ -7,10 +6,10 @@ namespace ClientManager.Domain.Core.Responses
     {
         public T? Data { get; set; }
         public bool Success { get; set; } = true;
-        
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Message { get; set; }
-        
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<string>? Notifications { get; set; }
 
@@ -36,7 +35,7 @@ namespace ClientManager.Domain.Core.Responses
                 Notifications = notifications
             };
         }
-        
+
         public static ServiceResponse<T> Fail(string message, string notification)
         {
             return new ServiceResponse<T>

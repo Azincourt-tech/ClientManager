@@ -1,4 +1,3 @@
-using ClientManager.Application.Dtos;
 using ClientManager.Domain.Core.Responses;
 
 namespace ClientManager.Application.Interfaces

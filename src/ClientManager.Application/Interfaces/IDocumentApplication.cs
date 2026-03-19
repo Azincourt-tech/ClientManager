@@ -1,8 +1,5 @@
-using ClientManager.Domain.Enums;
 using ClientManager.Domain.Core.Responses;
-using Raven.Client.Documents.Operations.Attachments;
-
-using ClientManager.Application.Dtos.Document;
+using ClientManager.Domain.Enums;
 
 namespace ClientManager.Application.Interfaces;
 

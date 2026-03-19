@@ -41,7 +41,7 @@ namespace ClientManager.Api.Tests.Controllers
             var fileMock = new Mock<IFormFile>();
             fileMock.Setup(f => f.FileName).Returns("passport.pdf");
             fileMock.Setup(f => f.Length).Returns(1024);
-            
+
             var serviceResponse = new ServiceResponse<Guid>(expectedDocumentId);
 
             _documentApplicationMock.Setup(x => x.AttachDocumentAsync(customerId, fileMock.Object, type, expiryDate))
@@ -67,9 +67,9 @@ namespace ClientManager.Api.Tests.Controllers
         {
             // Arrange
             var documentId = Guid.NewGuid();
-            var responseDto = new DocumentAttachmentResponseDto 
-            { 
-                ContentType = "application/pdf", 
+            var responseDto = new DocumentAttachmentResponseDto
+            {
+                ContentType = "application/pdf",
                 ContentBase64 = "SGVsbG8gV29ybGQ=",
                 Info = new DocumentDto
                 {
@@ -108,8 +108,8 @@ namespace ClientManager.Api.Tests.Controllers
         {
             // Arrange
             var documentId = Guid.NewGuid();
-            var updateDto = new UpdateDocumentDto 
-            { 
+            var updateDto = new UpdateDocumentDto
+            {
                 Type = DocumentType.AddressProof,
                 ExpiryDate = DateTimeOffset.Now.AddYears(2)
             };
@@ -130,8 +130,8 @@ namespace ClientManager.Api.Tests.Controllers
             var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<string>>().Subject;
             apiResult.Data.Should().Be("Updated successfully");
 
-            _documentApplicationMock.Verify(a => a.UpdateDocumentAsync(documentId, It.Is<UpdateDocumentDto>(d => 
-                d.Type == updateDto.Type && 
+            _documentApplicationMock.Verify(a => a.UpdateDocumentAsync(documentId, It.Is<UpdateDocumentDto>(d =>
+                d.Type == updateDto.Type &&
                 d.ExpiryDate == updateDto.ExpiryDate)), Times.Once);
         }
 

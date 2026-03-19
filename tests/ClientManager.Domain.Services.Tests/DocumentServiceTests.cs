@@ -1,12 +1,11 @@
+using ClientManager.Domain.Core.Interfaces.Repositories;
 using ClientManager.Domain.Enums;
 using ClientManager.Domain.Model;
-using ClientManager.Domain.Core.Interfaces.Services;
-using ClientManager.Domain.Core.Interfaces.Repositories;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Raven.Client.Documents.Operations.Attachments;
 using Xunit;
-using FluentAssertions;
 
 namespace ClientManager.Domain.Services.Tests
 {
@@ -77,7 +76,7 @@ namespace ClientManager.Domain.Services.Tests
             // Arrange
             var id = Guid.NewGuid();
             // AttachmentResult has a private constructor or is complex to mock, we just mock the return
-            var attachmentResult = (AttachmentResult)null!; 
+            var attachmentResult = (AttachmentResult)null!;
             _documentRepositoryMock.Setup(r => r.GetAttachDocumentAsync(id)).ReturnsAsync(attachmentResult);
 
             // Act

@@ -1,9 +1,8 @@
-using ClientManager.Domain.Model;
-using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Interfaces.Repositories;
+using ClientManager.Domain.Model;
+using FluentAssertions;
 using Moq;
 using Xunit;
-using FluentAssertions;
 
 namespace ClientManager.Domain.Services.Tests
 {

@@ -66,8 +66,8 @@ namespace ClientManager.Api.Tests.Controllers
         public async Task AddCustomer_WhenSuccessful_ShouldReturnOk()
         {
             // Arrange
-            var customerDto = new CreateCustomerDto 
-            { 
+            var customerDto = new CreateCustomerDto
+            {
                 Name = "John Doe",
                 Email = "john.doe@example.com",
                 BirthDate = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero),
@@ -93,9 +93,9 @@ namespace ClientManager.Api.Tests.Controllers
             var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<Guid>>().Subject;
             apiResult.Data.Should().Be(expectedId);
 
-            _customerApplicationMock.Verify(a => a.AddCustomerAsync(It.Is<CreateCustomerDto>(d => 
-                d.Name == customerDto.Name && 
-                d.Email == customerDto.Email && 
+            _customerApplicationMock.Verify(a => a.AddCustomerAsync(It.Is<CreateCustomerDto>(d =>
+                d.Name == customerDto.Name &&
+                d.Email == customerDto.Email &&
                 d.Document == customerDto.Document &&
                 d.Address.Street == customerDto.Address.Street)), Times.Once);
         }
@@ -104,9 +104,9 @@ namespace ClientManager.Api.Tests.Controllers
         public async Task AddCustomer_WhenFails_ShouldReturnBadRequest()
         {
             // Arrange
-            var customerDto = new CreateCustomerDto 
-            { 
-                Name = "Invalid", 
+            var customerDto = new CreateCustomerDto
+            {
+                Name = "Invalid",
                 Email = "invalid",
                 Address = CreateValidAddressDto()
             };
@@ -134,9 +134,9 @@ namespace ClientManager.Api.Tests.Controllers
         {
             // Arrange
             var customerId = Guid.NewGuid();
-            var customerDto = new CustomerDto 
-            { 
-                Id = customerId, 
+            var customerDto = new CustomerDto
+            {
+                Id = customerId,
                 Name = "John Doe",
                 Email = "john.doe@example.com",
                 BirthDate = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero),
@@ -175,15 +175,15 @@ namespace ClientManager.Api.Tests.Controllers
         public async Task GetCustomers_ShouldReturnList()
         {
             // Arrange
-            var customers = new List<CustomerDto> 
-            { 
-                new CustomerDto 
-                { 
-                    Id = Guid.NewGuid(), 
-                    Name = "User 1", 
+            var customers = new List<CustomerDto>
+            {
+                new CustomerDto
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "User 1",
                     Email = "user1@test.com",
                     Address = CreateValidAddressDto()
-                } 
+                }
             };
             var serviceResponse = new ServiceResponse<IEnumerable<CustomerDto>>(customers);
 
@@ -212,9 +212,9 @@ namespace ClientManager.Api.Tests.Controllers
         {
             // Arrange
             var id = Guid.NewGuid();
-            var dto = new UpdateCustomerDto 
-            { 
-                Id = id, 
+            var dto = new UpdateCustomerDto
+            {
+                Id = id,
                 Name = "Updated Name",
                 Email = "updated@example.com",
                 BirthDate = new DateTimeOffset(1990, 1, 1, 0, 0, 0, TimeSpan.Zero),
@@ -239,9 +239,9 @@ namespace ClientManager.Api.Tests.Controllers
             var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<string>>().Subject;
             apiResult.Data.Should().Be("Updated successfully");
 
-            _customerApplicationMock.Verify(a => a.UpdateCustomerAsync(It.Is<UpdateCustomerDto>(d => 
-                d.Id == id && 
-                d.Name == dto.Name && 
+            _customerApplicationMock.Verify(a => a.UpdateCustomerAsync(It.Is<UpdateCustomerDto>(d =>
+                d.Id == id &&
+                d.Name == dto.Name &&
                 d.Email == dto.Email)), Times.Once);
         }
 

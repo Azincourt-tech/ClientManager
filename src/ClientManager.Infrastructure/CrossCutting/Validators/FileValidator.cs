@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using ClientManager.Domain.Core.Interfaces.Services;
-using System.IO;
-using System.Linq;
 
 namespace ClientManager.Infrastructure.CrossCutting.Validators
 {

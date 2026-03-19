@@ -57,7 +57,7 @@ namespace ClientManager.Domain.Model
             if (Status == CustomerStatus.Inactive) return;
 
             var docsList = documents?.ToList() ?? new List<Document>();
-            
+
             // Se não tem nenhum documento, volta/mantém como Pendente
             if (!docsList.Any())
             {

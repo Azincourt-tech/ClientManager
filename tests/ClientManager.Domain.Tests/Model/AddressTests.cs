@@ -35,11 +35,11 @@ namespace ClientManager.Domain.Tests.Model
         [InlineData("Second Avenue", 456, "Suite 200", "Los Angeles", "CA", "90001")]
         [InlineData("Third Street", 789, "", "Chicago", "IL", "60601")]
         public void Address_Constructor_WhenParametersAreProvided_ShouldInitializeProperties(
-            string street, 
-            int number, 
-            string complement, 
-            string city, 
-            string state, 
+            string street,
+            int number,
+            string complement,
+            string city,
+            string state,
             string postalCode)
         {
             // Act

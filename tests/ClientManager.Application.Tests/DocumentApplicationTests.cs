@@ -1,16 +1,11 @@
-using ClientManager.Application;
-using ClientManager.Application.Dtos.Document;
-using ClientManager.Application.Interfaces;
+using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Enums;
 using ClientManager.Domain.Model;
-using ClientManager.Domain.Core.Responses;
-using ClientManager.Domain.Core.Interfaces.Services;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using Raven.Client.Documents.Operations.Attachments;
 using Xunit;
 
 namespace ClientManager.Application.Tests
@@ -51,7 +46,7 @@ namespace ClientManager.Application.Tests
 
             _fluentValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<IFormFile>>(), default))
                 .ReturnsAsync(new ValidationResult());
-            
+
             string error;
             _fileValidatorMock.Setup(v => v.IsValid(fileMock.Object, out error))
                 .Returns(true);
@@ -83,10 +78,10 @@ namespace ClientManager.Application.Tests
             var customerId = Guid.NewGuid();
             var fileMock = new Mock<IFormFile>();
             var type = DocumentType.Identity;
-            
+
             _fluentValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<IFormFile>>(), default))
                 .ReturnsAsync(new ValidationResult());
-            
+
             string errorMessage = "Invalid file type";
             _fileValidatorMock.Setup(v => v.IsValid(fileMock.Object, out errorMessage))
                 .Returns(false);

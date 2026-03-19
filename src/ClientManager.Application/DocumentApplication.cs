@@ -1,4 +1,3 @@
-using ClientManager.Application.Dtos.Document;
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;

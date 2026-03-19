@@ -1,9 +1,7 @@
-using ClientManager.Application;
 using ClientManager.Application.Dtos.Customer;
-using ClientManager.Application.Interfaces;
-using ClientManager.Domain.Model;
-using ClientManager.Domain.Enums;
 using ClientManager.Domain.Core.Interfaces.Services;
+using ClientManager.Domain.Enums;
+using ClientManager.Domain.Model;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -46,16 +44,16 @@ namespace ClientManager.Application.Tests
         public async Task AddCustomerAsync_WhenValid_ShouldCallServiceAndReturnOk()
         {
             // Arrange
-            var dto = new CreateCustomerDto 
-            { 
-                Name = "Test Customer", 
+            var dto = new CreateCustomerDto
+            {
+                Name = "Test Customer",
                 Email = "test@example.com",
                 BirthDate = DateTimeOffset.Now.AddYears(-30),
                 Document = "12345678901",
                 Type = CustomerType.NaturalPerson,
                 Address = CreateValidAddressDto()
             };
-            
+
             _validatorMock.Setup(v => v.ValidateAsync(dto, default))
                 .ReturnsAsync(new ValidationResult());
 
@@ -66,10 +64,10 @@ namespace ClientManager.Application.Tests
             result.Should().NotBeNull();
             result.Success.Should().BeTrue();
             result.Data.Should().NotBeEmpty();
-            
-            _customerServiceMock.Verify(s => s.AddCustomerAsync(It.Is<Customer>(c => 
-                c.Name == dto.Name && 
-                c.Email == dto.Email && 
+
+            _customerServiceMock.Verify(s => s.AddCustomerAsync(It.Is<Customer>(c =>
+                c.Name == dto.Name &&
+                c.Email == dto.Email &&
                 c.Document == dto.Document)), Times.Once);
         }
 
@@ -99,7 +97,7 @@ namespace ClientManager.Application.Tests
             // Arrange
             var id = Guid.NewGuid();
             var customer = new Customer("Test", "test@test.com", DateTimeOffset.Now.AddYears(-20), "123", CustomerType.NaturalPerson, null, id);
-            
+
             _customerServiceMock.Setup(s => s.GetCustomerByIdAsync(id))
                 .ReturnsAsync(customer);
             _documentServiceMock.Setup(s => s.GetDocumentsByCustomerIdAsync(id))
@@ -135,10 +133,10 @@ namespace ClientManager.Application.Tests
         {
             // Arrange
             var id = Guid.NewGuid();
-            var dto = new UpdateCustomerDto 
-            { 
+            var dto = new UpdateCustomerDto
+            {
                 Id = id,
-                Name = "Updated Name", 
+                Name = "Updated Name",
                 Email = "updated@test.com",
                 Document = "12345678901",
                 Address = CreateValidAddressDto()

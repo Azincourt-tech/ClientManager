@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Raven.Client.Documents;
 
 namespace ClientManager.Infrastructure.CrossCutting.HealthChecks
 {
