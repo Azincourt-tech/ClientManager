@@ -1,0 +1,23 @@
+{
+  "planSlug": "test-application-layer-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "phaseId": "phase-1",
+      "status": "completed",
+      "startedAt": "2026-03-19T02:54:37.532Z",
+      "steps": [
+        {
+          "stepIndex": 1,
+          "description": "Step 1",
+          "status": "completed",
+          "completedAt": "2026-03-19T02:54:37.532Z",
+          "notes": "Testes para CustomerApplication e DocumentApplication implementados e validados."
+        }
+      ],
+      "completedAt": "2026-03-19T02:54:37.532Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T02:54:37.532Z"
+}
