@@ -99,6 +99,13 @@ public class DocumentApplication : IDocumentApplication
         return ServiceResponse<string>.Ok(documentId.ToString(), "DocumentRemoved");
     }
 
+    public async Task<ServiceResponse<IEnumerable<DocumentDto>>> GetDocumentsByCustomerIdAsync(Guid customerId)
+    {
+        var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
+        var dtos = documents.Select(x => x.ToDto());
+        return ServiceResponse<IEnumerable<DocumentDto>>.Ok(dtos);
+    }
+
     public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId)
     {
         var count = await _documentService.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);

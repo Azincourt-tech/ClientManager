@@ -12,5 +12,6 @@ public interface IDocumentApplication
     Task<ServiceResponse<DocumentAttachmentResponseDto?>> GetAttachDocumentAsync(Guid documentId);
     Task<ServiceResponse<string>> UpdateDocumentAsync(Guid documentId, UpdateDocumentDto updateDocumentDto);
     Task<ServiceResponse<string>> DeleteDocumentAsync(Guid documentId);
+    Task<ServiceResponse<IEnumerable<DocumentDto>>> GetDocumentsByCustomerIdAsync(Guid customerId);
     Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId);
 }
