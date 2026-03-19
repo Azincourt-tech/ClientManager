@@ -60,14 +60,15 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
+app.UseSwagger(options =>
+{
+    options.RouteTemplate = "swagger/{documentName}/swagger.json";
+});
 app.UseSwaggerUI();
 
 app.MapScalarApiReference(options =>
 {
-    options.ProxyUrl = "/swagger/v1/swagger.json";
-
-    options.WithProxy("/swagger/v1/swagger.json")
+    options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json")
            .WithTheme(ScalarTheme.DeepSpace)
            .HideClientButton()
            .DisableAgent()
