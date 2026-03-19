@@ -1,0 +1,14 @@
+{
+  "active": [
+    {
+      "slug": "melhoria-endpoints-document-plan",
+      "path": "plans/melhoria-endpoints-document-plan.md",
+      "title": "Melhoria de Endpoints de Documento",
+      "summary": "Implementação de melhorias nos endpoints de documentos, incluindo listagem e contagem por cliente.",
+      "linkedAt": "2026-03-19T02:17:53.400Z",
+      "status": "active"
+    }
+  ],
+  "completed": [],
+  "primary": "melhoria-endpoints-document-plan"
+}
