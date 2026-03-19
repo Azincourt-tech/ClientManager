@@ -1,0 +1,23 @@
+{
+  "planSlug": "melhoria-endpoints-document-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "phaseId": "phase-1",
+      "status": "completed",
+      "startedAt": "2026-03-19T02:19:42.822Z",
+      "steps": [
+        {
+          "stepIndex": 1,
+          "description": "Step 1",
+          "status": "completed",
+          "completedAt": "2026-03-19T02:19:42.822Z",
+          "notes": "Implementação concluída e validada com testes unitários."
+        }
+      ],
+      "completedAt": "2026-03-19T02:19:42.822Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T02:19:42.822Z"
+}
