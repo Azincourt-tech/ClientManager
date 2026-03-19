@@ -1,52 +1,87 @@
 {
-  "version": "1.1.0",
-  "generated": "2026-03-14T17:00:00.000Z",
-  "stack": {
-    "primaryLanguage": "csharp",
-    "languages": ["csharp"],
-    "frameworks": [".NET 9.0", "RavenDB"],
-    "testFrameworks": ["xUnit", "Moq", "FluentAssertions"]
-  },
-  "structure": {
-    "rootPath": ".",
-    "topDirectories": [
-      {
-        "name": "src/ClientManager.Api",
-        "description": "Presentation layer (Controllers, Middlewares, Program.cs)"
-      },
-      {
-        "name": "src/ClientManager.Application",
-        "description": "Application layer (Services, DTOs, Mappers, Validators)"
-      },
-      {
-        "name": "src/ClientManager.Domain",
-        "description": "Domain layer (Entities, Enums)"
-      },
-      {
-        "name": "src/ClientManager.Domain.Core",
-        "description": "Core Domain (Interfaces, Helpers, Shared Responses)"
-      },
-      {
-        "name": "src/ClientManager.Domain.Services",
-        "description": "Domain Services implementation"
-      },
-      {
-        "name": "src/ClientManager.Infrastructure",
-        "description": "Infrastructure layer (Repositories, IoC, RavenDB config)"
-      }
+  "success": true,
+  "section": "all",
+  "data": {
+    "version": "1.1.0",
+    "generated": "2026-03-17T10:00:00.000Z",
+    "stack": {
+      "primaryLanguage": "csharp",
+      "languages": [
+        "csharp"
+      ],
+      "frameworks": [
+        ".NET 9.0",
+        "RavenDB",
+        "Scalar",
+        "HealthChecks"
+      ],
+      "testFrameworks": [
+        "xUnit",
+        "Moq",
+        "FluentAssertions"
+      ]
+    },
+    "structure": {
+      "rootPath": ".",
+      "topDirectories": [
+        {
+          "name": "src/ClientManager.Api",
+          "description": "Presentation layer (Controllers, Middlewares, Program.cs, Localization Resources)"
+        },
+        {
+          "name": "src/ClientManager.Application",
+          "description": "Application layer (Services, DTOs, Mappers, Validators)"
+        },
+        {
+          "name": "src/ClientManager.Domain",
+          "description": "Domain layer (Entities, Enums)"
+        },
+        {
+          "name": "src/ClientManager.Domain.Core",
+          "description": "Core Domain (Interfaces, Helpers, Shared Responses)"
+        },
+        {
+          "name": "src/ClientManager.Domain.Services",
+          "description": "Domain Services implementation"
+        },
+        {
+          "name": "src/ClientManager.Infrastructure",
+          "description": "Infrastructure layer (Repositories, IoC, RavenDB config)"
+        }
+      ]
+    },
+    "architecture": {
+      "layers": [
+        "Api",
+        "Application",
+        "Domain",
+        "Domain.Core",
+        "Domain.Services",
+        "Infrastructure"
+      ],
+      "patterns": [
+        "DDD",
+        "Onion Architecture",
+        "Repository",
+        "Unit of Work",
+        "Traceability",
+        "Manual Mapping",
+        "Soft Delete",
+        "FluentValidation",
+        "Localization",
+        "Health Checks"
+      ]
+    },
+    "keyFiles": [
+      "src/ClientManager.Application/Mappers/CustomerMapper.cs",
+      "src/ClientManager.Application/Mappers/DocumentMapper.cs",
+      "src/ClientManager.Domain.Core/Helpers/DocumentHelper.cs",
+      "src/ClientManager.Domain/Model/Customer.cs",
+      "src/ClientManager.Domain/Model/Document.cs",
+      "src/ClientManager.Infrastructure/Data/Repositories/CustomerRepository.cs",
+      "src/ClientManager.Infrastructure/Data/Repositories/DocumentRepository.cs",
+      "src/ClientManager.Api/Results/ApiResponseResult.cs"
     ]
   },
-  "architecture": {
-    "layers": ["Api", "Application", "Domain", "Domain.Core", "Domain.Services", "Infrastructure"],
-    "patterns": ["DDD", "Onion Architecture", "Repository", "Unit of Work", "Traceability", "Manual Mapping", "Soft Delete", "FluentValidation"]
-  },
-  "keyFiles": [
-    "src/ClientManager.Application/Mappers/CustomerMapper.cs",
-    "src/ClientManager.Application/Mappers/DocumentMapper.cs",
-    "src/ClientManager.Domain.Core/Helpers/DocumentHelper.cs",
-    "src/ClientManager.Domain/Model/Customer.cs",
-    "src/ClientManager.Domain/Model/Document.cs",
-    "src/ClientManager.Infrastructure/Data/Repositories/CustomerRepository.cs",
-    "src/ClientManager.Infrastructure/Data/Repositories/DocumentRepository.cs"
-  ]
+  "mapPath": "C:\\Users\\willian.almeida\\source\\repos\\Azincourt-tech\\ClientManager\\.context\\docs\\codebase-map.json"
 }

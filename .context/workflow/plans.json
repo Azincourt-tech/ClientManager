@@ -1,0 +1,14 @@
+{
+  "active": [
+    {
+      "slug": "test-customer-model-plan",
+      "path": "plans/test-customer-model-plan.md",
+      "title": "Testes da Model Customer",
+      "summary": "Adicionar testes unitários para a model Customer no domínio.",
+      "linkedAt": "2026-03-19T02:23:12.013Z",
+      "status": "active"
+    }
+  ],
+  "completed": [],
+  "primary": "test-customer-model-plan"
+}

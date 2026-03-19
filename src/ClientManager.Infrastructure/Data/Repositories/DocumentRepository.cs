@@ -44,6 +44,12 @@ public class DocumentRepository : IDocumentRepository
         return document is not null && !document.IsDeleted ? document : null;
     }
 
+    public async Task UpdateDocumentAsync(Document document)
+    {
+        await _session.StoreAsync(document, document.Id.ToString()).ConfigureAwait(false);
+        await _session.SaveChangesAsync().ConfigureAwait(false);
+    }
+
     public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
     {
         var document = await _session.LoadAsync<Document>(documentId.ToString()).ConfigureAwait(false);

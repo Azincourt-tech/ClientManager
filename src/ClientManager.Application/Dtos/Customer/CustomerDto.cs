@@ -6,6 +6,6 @@ namespace ClientManager.Application.Dtos.Customer
     {
         public Guid Id { get; set; }
         public CustomerStatus Status { get; set; }
-        public IEnumerable<Document.DocumentDto> Documents { get; set; } = new List<Document.DocumentDto>();
+        public IEnumerable<DocumentDto> Documents { get; set; } = new List<DocumentDto>();
     }
 }

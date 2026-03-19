@@ -13,6 +13,9 @@ ClientManager is an application built with .NET Core and RavenDB, exploring Doma
 - FluentValidation
 - ProblemDetails (Global Exception Handling)
 - xUnit & Moq
+- **Localization** (Multi-language support for responses)
+- **Health Checks** (System health monitoring)
+- **Scalar** (Modern API documentation)
 
 ## Getting Started
 Load `ClientManager.sln` in VS, ensure a local or cloud RavenDB instance is available, and set the connection string in the Api project's `appsettings.json`.

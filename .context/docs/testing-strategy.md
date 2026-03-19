@@ -1,11 +1,18 @@
 # Testing Strategy
 
 ## Frameworks
-Uses `xUnit` or `NUnit`, along with `Moq` or NSubstitute for mocking.
+- **xUnit**: Principal framework para testes unitários.
+- **Moq**: Utilizado para criação de mocks e stubs.
+- **FluentAssertions**: Utilizado para asserções mais legíveis e expressivas.
 
 ## Test Types
-- **Unit Tests**: Test domain services and application handlers in isolation.
-- **Integration Tests**: Test the API and Infrastructure components using a test or embedded instance of RavenDB.
+- **Unit Tests**: Testam serviços de domínio, modelos e handlers de aplicação de forma isolada.
+- **Integration Tests**: Testam componentes de API e Infraestrutura (Repositórios) utilizando instâncias reais ou mocks de RavenDB.
 
-Run tests via Command Line (`dotnet test`) or Test Explorer in Visual Studio.
+## Execução
+Execute os testes via linha de comando:
+```bash
+dotnet test
+```
+Ou utilize o **Test Explorer** no Visual Studio / Rider.
 

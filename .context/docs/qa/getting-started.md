@@ -1,28 +1,34 @@
 ---
 slug: getting-started
 category: getting-started
-generatedAt: 2026-03-14T04:16:55.384Z
+generatedAt: 2026-03-17T10:00:00.000Z
 ---
 
-# How do I set up and run this project?
+# Como eu configuro e rodo este projeto?
 
-## Getting Started
+## Pré-requisitos
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### Prerequisites
+## Instalação e Execução
 
-
-### Installation
-
+### 1. Clonar o repositório
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd ClientManager
-
 ```
 
-### Running
-
+### 2. Subir o Banco de Dados (RavenDB)
 ```bash
-# See package.json for available scripts
-npm run <script-name>
+docker-compose up -d
 ```
+Acesse o RavenDB Studio em `http://localhost:8080` e crie um banco chamado `ClientManagementDB`.
+
+### 3. Rodar a API
+```bash
+dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj
+```
+
+### 4. Acessar a Documentação
+- **Swagger:** `https://localhost:7023/swagger`
+- **Scalar:** `https://localhost:7023/api-docs`

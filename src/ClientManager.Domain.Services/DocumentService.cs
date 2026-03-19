@@ -22,6 +22,11 @@ public class DocumentService : IDocumentService
         return await _documentRepository.GetDocumentByIdAsync(documentId).ConfigureAwait(false);
     }
 
+    public async Task UpdateDocumentAsync(Document document)
+    {
+        await _documentRepository.UpdateDocumentAsync(document).ConfigureAwait(false);
+    }
+
     public async Task<AttachmentResult?> GetAttachDocumentAsync(Guid documentId)
     {
         return await _documentRepository.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
