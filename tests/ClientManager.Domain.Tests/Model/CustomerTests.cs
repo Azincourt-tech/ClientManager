@@ -84,11 +84,12 @@ namespace ClientManager.Domain.Tests.Model
         {
             // Arrange
             var customer = new Customer("PF", "pf@test.com", DateTimeOffset.Now, "123", CustomerType.NaturalPerson);
-            var documents = new List<Document>
-            {
-                new Document("ID", customer.Id, DocumentType.Identity, DateTimeOffset.Now.AddYears(1)),
-                new Document("Address", customer.Id, DocumentType.AddressProof, DateTimeOffset.Now.AddYears(1))
-            };
+            var doc1 = new Document("ID", customer.Id, DocumentType.Identity, DateTimeOffset.Now.AddYears(1));
+            doc1.Verify();
+            var doc2 = new Document("Address", customer.Id, DocumentType.AddressProof, DateTimeOffset.Now.AddYears(1));
+            doc2.Verify();
+
+            var documents = new List<Document> { doc1, doc2 };
 
             // Act
             customer.EvaluateVerificationStatus(documents);
@@ -138,12 +139,14 @@ namespace ClientManager.Domain.Tests.Model
         {
             // Arrange
             var customer = new Customer("PJ", "pj@test.com", DateTimeOffset.Now, "123", CustomerType.LegalEntity);
-            var documents = new List<Document>
-            {
-                new Document("ID", customer.Id, DocumentType.Identity, DateTimeOffset.Now.AddYears(1)),
-                new Document("Address", customer.Id, DocumentType.AddressProof, DateTimeOffset.Now.AddYears(1)),
-                new Document("Contract", customer.Id, DocumentType.SocialContract, DateTimeOffset.Now.AddYears(1))
-            };
+            var doc1 = new Document("ID", customer.Id, DocumentType.Identity, DateTimeOffset.Now.AddYears(1));
+            doc1.Verify();
+            var doc2 = new Document("Address", customer.Id, DocumentType.AddressProof, DateTimeOffset.Now.AddYears(1));
+            doc2.Verify();
+            var doc3 = new Document("Contract", customer.Id, DocumentType.SocialContract, DateTimeOffset.Now.AddYears(1));
+            doc3.Verify();
+
+            var documents = new List<Document> { doc1, doc2, doc3 };
 
             // Act
             customer.EvaluateVerificationStatus(documents);

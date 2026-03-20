@@ -1,6 +1,7 @@
 
 using ClientManager.Api;
 using ClientManager.Api.Middlewares;
+using ClientManager.Infrastructure.Messaging.DependencyInjection;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
@@ -28,6 +29,8 @@ builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddMessaging();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
