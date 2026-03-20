@@ -32,20 +32,22 @@ O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e 
 ## 🚀 Como Rodar o Projeto
 
 O projeto está configurado para utilizar **ambientes distintos**:
-- **Desenvolvimento:** Banco local e SMTP local (Mailtrap) para testes de e-mail.
-- **Produção:** Conexão segura com o **RavenDB Cloud**, **CloudAMQP** e **SendGrid**.
+- **Desenvolvimento (Localhost):** Utiliza **RabbitMQ via Docker** e SMTP local (Mailtrap) para testes.
+- **Produção (Deploy):** Utiliza serviços gerenciados na nuvem: **RavenDB Cloud**, **CloudAMQP (RabbitMQ)** e **SendGrid**.
 
 ### 1. Pré-requisitos
 *   [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) instalado.
 *   **Docker Desktop** (ou Docker Engine) instalado.
-*   Conta no [CloudAMQP](https://www.cloudamqp.com/) (Gratuito).
+*   Conta no [CloudAMQP](https://www.cloudamqp.com/) (**Apenas para ambiente de Deploy/Produção**).
 *   Conta no [SendGrid](https://sendgrid.com/) (Produção) ou [Mailtrap](https://mailtrap.io/) (Desenvolvimento).
 
 ### 2. Configuração do Ambiente de Desenvolvimento
-1. Na raiz do projeto, suba o container do RavenDB e RabbitMQ local:
+1. Na raiz do projeto, suba os containers do **RavenDB** e do **RabbitMQ local**:
 ```bash
 docker-compose up -d
 ```
+*Nota: O RabbitMQ local estará acessível em `localhost:5672`.*
+
 2. Configure as credenciais de desenvolvimento usando **User Secrets** (Recomendado):
 ```bash
 # No diretório src/ClientManager.Worker e src/ClientManager.Api
