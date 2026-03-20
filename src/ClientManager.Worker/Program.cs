@@ -13,7 +13,7 @@ builder.Services.AddRepositories();
 builder.Services.AddDomainServices();
 
 // Infrastructure Services
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // Messaging
 builder.Services.AddMessaging();

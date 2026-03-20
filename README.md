@@ -24,35 +24,57 @@ O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e 
 *   **Segurança de Upload:** Políticas de extensão e tamanho via `IFileValidator`.
 *   **Status de Verificação:** Lógica automática para classificar clientes como `Verified`, `Attention` ou `Pending` com base nos documentos.
 *   **Suporte Multi-perfil:** Tratamento diferenciado para **Pessoa Física (PF)** e **Pessoa Jurídica (PJ)**.
+*   **Mensageria:** Integração com **RabbitMQ (CloudAMQP)** para processamento assíncrono.
+*   **Envio de E-mail:** Suporte híbrido para **SendGrid** (Produção) e **SMTP/Mailtrap** (Desenvolvimento).
 *   **Documentação:** Swagger e Scalar (Modern API Docs).
 *   **Testes:** xUnit, Moq (Mocking) e FluentAssertions.
 
 ## 🚀 Como Rodar o Projeto
 
 O projeto está configurado para utilizar **ambientes distintos**:
-- **Desenvolvimento:** Banco local rodando via Docker (Sem autenticação).
-- **Produção:** Conexão segura com o **RavenDB Cloud** (Via Certificado .pfx).
+- **Desenvolvimento:** Banco local e SMTP local (Mailtrap) para testes de e-mail.
+- **Produção:** Conexão segura com o **RavenDB Cloud**, **CloudAMQP** e **SendGrid**.
 
 ### 1. Pré-requisitos
 *   [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) instalado.
 *   **Docker Desktop** (ou Docker Engine) instalado.
+*   Conta no [CloudAMQP](https://www.cloudamqp.com/) (Gratuito).
+*   Conta no [SendGrid](https://sendgrid.com/) (Produção) ou [Mailtrap](https://mailtrap.io/) (Desenvolvimento).
 
 ### 2. Configuração do Ambiente de Desenvolvimento
-Na raiz do projeto, suba o container do RavenDB:
+1. Na raiz do projeto, suba o container do RavenDB e RabbitMQ local:
 ```bash
 docker-compose up -d
 ```
-Isso iniciará o **RavenDB Studio** em `http://localhost:8080`.
+2. Configure as credenciais de desenvolvimento usando **User Secrets** (Recomendado):
+```bash
+# No diretório src/ClientManager.Worker e src/ClientManager.Api
+dotnet user-secrets set "ConnectionStrings:RabbitMQ" "amqp://guest:guest@localhost:5672"
+dotnet user-secrets set "Smtp:Username" "seu_usuario_mailtrap"
+dotnet user-secrets set "Smtp:Password" "sua_senha_mailtrap"
+```
 
 ### 3. Configuração do Banco de Dados
-1.  Acesse o painel em `http://localhost:8080`.
+1.  Acesse o painel do RavenDB em `http://localhost:8080`.
 2.  Crie um novo banco de dados chamado: **`ClientManagementDB`**.
 
-### 4. Execução da API
-No terminal, na raiz do projeto, execute:
+### 4. Execução do Projeto
+Você precisará rodar tanto a **API** quanto o **Worker** para o fluxo completo (Cadastro + Envio de E-mail):
+
+**Rodar a API:**
 ```bash
 dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj
 ```
+
+**Rodar o Worker:**
+```bash
+dotnet run --project src/ClientManager.Worker/ClientManager.Worker.csproj
+```
+
+### 5. Configuração de Produção
+No ambiente de produção (`appsettings.json`), o sistema prioriza o **SendGrid** se a seção `Smtp` não estiver presente:
+- Configure `SendGrid:ApiKey` e `SendGrid:FromEmail`.
+- Configure `ConnectionStrings:RabbitMQ` com a URL do CloudAMQP.
 
 ### 4. Acessando a Documentação
 Com a API rodando, você pode testar os endpoints através de:

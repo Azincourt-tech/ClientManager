@@ -92,9 +92,18 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
             return servicesCollection;
         }
 
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection)
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection, IConfiguration configuration)
         {
-            servicesCollection.TryAddScoped<IEmailService, SendGridEmailService>();
+            var useSmtp = configuration.GetSection("Smtp").Exists();
+            if (useSmtp)
+            {
+                servicesCollection.TryAddScoped<IEmailService, SmtpEmailService>();
+            }
+            else
+            {
+                servicesCollection.TryAddScoped<IEmailService, SendGridEmailService>();
+            }
+
             servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();
 
             return servicesCollection;

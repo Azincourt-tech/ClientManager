@@ -29,6 +29,7 @@ builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
