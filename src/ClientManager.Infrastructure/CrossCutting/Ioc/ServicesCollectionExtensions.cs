@@ -1,4 +1,6 @@
 using ClientManager.Infrastructure.CrossCutting.HealthChecks;
+using ClientManager.Infrastructure.CrossCutting.Security;
+using ClientManager.Infrastructure.CrossCutting.Settings;
 using ClientManager.Infrastructure.CrossCutting.Validators;
 using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Infrastructure.Services;
@@ -64,6 +66,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerRepository, CustomerRepository>();
             servicesCollection.TryAddScoped<IDocumentRepository, DocumentRepository>();
+            servicesCollection.TryAddScoped<IUserRepository, UserRepository>();
 
             return servicesCollection;
         }
@@ -72,6 +75,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerService, CustomerService>();
             servicesCollection.TryAddScoped<IDocumentService, DocumentService>();
+            servicesCollection.TryAddScoped<IUserService, UserService>();
 
             return servicesCollection;
         }
@@ -80,6 +84,8 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerApplication, CustomerApplication>();
             servicesCollection.TryAddScoped<IDocumentApplication, DocumentApplication>();
+            servicesCollection.TryAddScoped<IUserApplication, UserApplication>();
+            servicesCollection.TryAddScoped<IAuthApplication, AuthApplication>();
 
             return servicesCollection;
         }
@@ -88,6 +94,48 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<IFileValidator, FileValidator>();
             servicesCollection.AddValidatorsFromAssemblyContaining<ClientManager.Application.Validators.CustomerValidator>();
+
+            return servicesCollection;
+        }
+
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection servicesCollection, IConfiguration configuration)
+        {
+            servicesCollection.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+            var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+            if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.Secret))
+                throw new InvalidOperationException("JwtSettings configuration is missing or invalid.");
+
+            servicesCollection.TryAddScoped<ITokenService, TokenService>();
+
+            var key = System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret);
+
+            servicesCollection.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            servicesCollection.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "Manager"));
+                options.AddPolicy("AllRoles", policy => policy.RequireRole("Admin", "Manager", "Viewer"));
+            });
 
             return servicesCollection;
         }

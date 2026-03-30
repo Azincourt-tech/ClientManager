@@ -1,9 +1,11 @@
 global using ClientManager.Application;
 global using ClientManager.Application.Interfaces;
+global using ClientManager.Application.Mappers;
 global using ClientManager.Domain.Core.Interfaces.Repositories;
 global using ClientManager.Domain.Core.Interfaces.Services;
 global using ClientManager.Domain.Model;
 global using ClientManager.Domain.Services;
+global using ClientManager.Infrastructure.CrossCutting.Settings;
 global using ClientManager.Infrastructure.Data.Repositories;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
