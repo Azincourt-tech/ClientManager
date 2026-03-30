@@ -52,11 +52,6 @@ app.UseRequestLocalization(localizationOptions);
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
 
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/openapi/v1.json", "ClientManager API v1");
-});
-
 app.MapScalarApiReference(options =>
 {
     options.WithOpenApiRoutePattern("/openapi/{documentName}.json")
@@ -68,8 +63,6 @@ app.MapScalarApiReference(options =>
 });
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
