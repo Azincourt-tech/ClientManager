@@ -1,5 +1,7 @@
 using ClientManager.Infrastructure.CrossCutting.HealthChecks;
 using ClientManager.Infrastructure.CrossCutting.Validators;
+using ClientManager.Domain.Core.Interfaces.Services;
+using ClientManager.Infrastructure.Services;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography.X509Certificates;
@@ -86,6 +88,23 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<IFileValidator, FileValidator>();
             servicesCollection.AddValidatorsFromAssemblyContaining<ClientManager.Application.Validators.CustomerValidator>();
+
+            return servicesCollection;
+        }
+
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection, IConfiguration configuration)
+        {
+            var useSmtp = configuration.GetSection("Smtp").Exists();
+            if (useSmtp)
+            {
+                servicesCollection.TryAddScoped<IEmailService, SmtpEmailService>();
+            }
+            else
+            {
+                servicesCollection.TryAddScoped<IEmailService, SendGridEmailService>();
+            }
+
+            servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();
 
             return servicesCollection;
         }

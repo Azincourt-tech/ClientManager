@@ -1,0 +1,14 @@
+{
+  "active": [
+    {
+      "slug": "test-service-layer-plan",
+      "path": "plans/test-service-layer-plan.md",
+      "title": "Testes da Camada de Serviço",
+      "summary": "Adicionar testes unitários para as classes de serviço CustomerService e DocumentService.",
+      "linkedAt": "2026-03-19T03:03:00.751Z",
+      "status": "active"
+    }
+  ],
+  "completed": [],
+  "primary": "test-service-layer-plan"
+}

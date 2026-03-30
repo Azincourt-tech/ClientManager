@@ -1,0 +1,16 @@
+{
+  "planSlug": "melhoria-endpoints-document-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:20:09.543Z"
+    },
+    "phase-2": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:20:26.233Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T02:19:58.773Z"
+}

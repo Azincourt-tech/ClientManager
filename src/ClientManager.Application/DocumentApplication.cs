@@ -1,3 +1,6 @@
+using ClientManager.Application.Mappers;
+using ClientManager.Domain.Core.Events;
+using ClientManager.Domain.Core.Interfaces;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
 using FluentValidation;
@@ -10,17 +13,20 @@ public class DocumentApplication : IDocumentApplication
     private readonly ICustomerService _customerService;
     private readonly IFileValidator _fileValidator;
     private readonly IValidator<IFormFile> _fluentValidator;
+    private readonly IMessageBus _messageBus;
 
     public DocumentApplication(
         IDocumentService documentService,
         ICustomerService customerService,
         IFileValidator fileValidator,
-        IValidator<IFormFile> fluentValidator)
+        IValidator<IFormFile> fluentValidator,
+        IMessageBus messageBus)
     {
         _documentService = documentService;
         _customerService = customerService;
         _fileValidator = fileValidator;
         _fluentValidator = fluentValidator;
+        _messageBus = messageBus;
     }
 
     public async Task<ServiceResponse<Guid>> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
@@ -37,16 +43,51 @@ public class DocumentApplication : IDocumentApplication
         // Re-evaluate customer status
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
 
+        // Publish Document Uploaded event for background processing
+        await _messageBus.PublishAsync(new DocumentUploadedEvent(res, customerId, type, file.FileName, DateTime.UtcNow), "document-uploaded");
+
         return ServiceResponse<Guid>.Ok(res, "DocumentAttached");
     }
 
-    public async Task<ServiceResponse<AttachmentResult?>> GetAttachDocumentAsync(Guid documentId)
+    public async Task<ServiceResponse<DocumentAttachmentResponseDto?>> GetAttachDocumentAsync(Guid documentId)
     {
-        var res = await _documentService.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
-        if (res == null)
-            return ServiceResponse<AttachmentResult?>.Fail("DocumentNotFound");
+        var doc = await _documentService.GetDocumentByIdAsync(documentId).ConfigureAwait(false);
+        if (doc == null)
+            return ServiceResponse<DocumentAttachmentResponseDto?>.Fail("DocumentNotFound");
 
-        return ServiceResponse<AttachmentResult?>.Ok(res);
+        using var attachment = await _documentService.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
+        if (attachment == null)
+            return ServiceResponse<DocumentAttachmentResponseDto?>.Fail("AttachmentNotFound");
+
+        using var ms = new MemoryStream();
+        await attachment.Stream.CopyToAsync(ms).ConfigureAwait(false);
+        var contentBase64 = Convert.ToBase64String(ms.ToArray());
+
+        var res = new DocumentAttachmentResponseDto
+        {
+            Info = doc.ToDto(),
+            ContentBase64 = contentBase64,
+            ContentType = attachment.Details.ContentType
+        };
+
+        return ServiceResponse<DocumentAttachmentResponseDto?>.Ok(res);
+    }
+
+    public async Task<ServiceResponse<string>> UpdateDocumentAsync(Guid documentId, UpdateDocumentDto updateDocumentDto)
+    {
+        var document = await _documentService.GetDocumentByIdAsync(documentId).ConfigureAwait(false);
+        if (document == null)
+            return ServiceResponse<string>.Fail("DocumentNotFound");
+
+        document.UpdateType(updateDocumentDto.Type);
+        document.UpdateExpiryDate(updateDocumentDto.ExpiryDate);
+
+        await _documentService.UpdateDocumentAsync(document).ConfigureAwait(false);
+
+        // Re-evaluate customer status
+        await ReevaluateCustomerStatusAsync(document.CustomerId).ConfigureAwait(false);
+
+        return ServiceResponse<string>.Ok(documentId.ToString(), "DocumentUpdated");
     }
 
     public async Task<ServiceResponse<string>> DeleteDocumentAsync(Guid documentId)
@@ -63,6 +104,13 @@ public class DocumentApplication : IDocumentApplication
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
 
         return ServiceResponse<string>.Ok(documentId.ToString(), "DocumentRemoved");
+    }
+
+    public async Task<ServiceResponse<IEnumerable<DocumentDto>>> GetDocumentsByCustomerIdAsync(Guid customerId)
+    {
+        var documents = await _documentService.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
+        var dtos = documents.Select(x => x.ToDto());
+        return ServiceResponse<IEnumerable<DocumentDto>>.Ok(dtos);
     }
 
     public async Task<ServiceResponse<int>> GetDocumentCountByCustomerIdAsync(Guid customerId)

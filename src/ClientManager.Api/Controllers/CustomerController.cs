@@ -1,4 +1,6 @@
+using ClientManager.Api.Results;
 using ClientManager.Domain.Core.Responses;
+using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers
 {
@@ -6,13 +8,12 @@ namespace ClientManager.Api.Controllers
     /// Manage customers in the Shop system.
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController]
-    public class CustomerController : ControllerBase
+    public class CustomerController : MainController
     {
         private readonly ICustomerApplication _customerApplication;
-        private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CustomerController(ICustomerApplication customerApplication, Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+        public CustomerController(ICustomerApplication customerApplication, IStringLocalizer<SharedResource> localizer)
         {
             _customerApplication = customerApplication;
             _localizer = localizer;
@@ -22,9 +23,11 @@ namespace ClientManager.Api.Controllers
         /// Returns a localized welcome message.
         /// </summary>
         [HttpGet("welcome")]
+        [EndpointSummary("Returns a localized welcome message.")]
+        [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         public IActionResult GetWelcome()
         {
-            return Ok(_localizer["Welcome"].Value);
+            return ServiceResponse(new ServiceResponse<string>(_localizer["Welcome"].Value));
         }
 
         /// <summary>
@@ -33,18 +36,13 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerDto">The customer data to be inserted.</param>
         /// <returns>A service response containing the new customer ID.</returns>
         [HttpPost("customer", Name = "add-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EndpointSummary("Registers a new customer in the system.")]
+        [ProducesResponseType(typeof(ApiOkResult<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddCustomer(CreateCustomerDto customerDto)
         {
             var response = await _customerApplication.AddCustomerAsync(customerDto).ConfigureAwait(false);
-            if (!response.Success)
-            {
-                response.Message = _localizer[response.Message];
-                return BadRequest(response);
-            }
-            response.Message = _localizer[response.Message];
-            return Ok(response);
+            return ServiceResponse(response);
         }
 
         /// <summary>
@@ -54,19 +52,14 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerDto">The updated customer data.</param>
         /// <returns>A service response indicating success or failure of the update.</returns>
         [HttpPut("customer/{id}", Name = "update-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [EndpointSummary("Updates an existing customer's information.")]
+        [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateCustomer(Guid id, UpdateCustomerDto customerDto)
         {
             customerDto.Id = id;
             var response = await _customerApplication.UpdateCustomerAsync(customerDto).ConfigureAwait(false);
-            if (!response.Success)
-            {
-                response.Message = _localizer[response.Message];
-                return BadRequest(response);
-            }
-            response.Message = _localizer[response.Message];
-            return Ok(response);
+            return ServiceResponse(response);
         }
 
         /// <summary>
@@ -75,18 +68,13 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer (URL encoded).</param>
         /// <returns>A service response confirming the deletion.</returns>
         [HttpDelete("customer/{customerId}", Name = "delete-customer-by-id")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EndpointSummary("Removes a customer from the database by their ID.")]
+        [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCustomerById(Guid customerId)
         {
             var response = await _customerApplication.DeleteCustomerByIdAsync(customerId).ConfigureAwait(false);
-            if (!response.Success)
-            {
-                response.Message = _localizer[response.Message];
-                return NotFound(response);
-            }
-            response.Message = _localizer[response.Message];
-            return Ok(response);
+            return ServiceResponse(response);
         }
 
         /// <summary>
@@ -94,11 +82,12 @@ namespace ClientManager.Api.Controllers
         /// </summary>
         /// <returns>A list of customers wrapped in a service response.</returns>
         [HttpGet("customers", Name = "get-customers")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<IEnumerable<CustomerDto>>))]
+        [EndpointSummary("Retrieves a list of all registered customers.")]
+        [ProducesResponseType(typeof(ApiOkResult<IEnumerable<CustomerDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomers()
         {
             var response = await _customerApplication.GetCustomersAsync().ConfigureAwait(false);
-            return Ok(response);
+            return ServiceResponse(response);
         }
 
         /// <summary>
@@ -107,19 +96,13 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer.</param>
         /// <returns>The customer data if found.</returns>
         [HttpGet("customers/{customerId}", Name = "get-customer-by-id")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<CustomerDto?>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EndpointSummary("Gets the details of a specific customer by their ID.")]
+        [ProducesResponseType(typeof(ApiOkResult<CustomerDto?>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCustomerById(Guid customerId)
         {
             var response = await _customerApplication.GetCustomerByIdAsync(customerId).ConfigureAwait(false);
-
-            if (!response.Success)
-            {
-                response.Message = _localizer[response.Message];
-                return NotFound(response);
-            }
-
-            return Ok(response);
+            return ServiceResponse(response);
         }
 
         /// <summary>
@@ -128,22 +111,13 @@ namespace ClientManager.Api.Controllers
         /// <param name="customerId">The unique identifier of the customer.</param>
         /// <returns>The updated status of the customer.</returns>
         [HttpPost("customers/{customerId}/verify", Name = "verify-customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [EndpointSummary("Manually triggers verification status re-evaluation for a customer.")]
+        [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyCustomer(Guid customerId)
         {
             var response = await _customerApplication.VerifyCustomerAsync(customerId).ConfigureAwait(false);
-
-            if (!response.Success)
-            {
-                response.Message = _localizer[response.Message];
-                return NotFound(response);
-            }
-
-            // Formata a mensagem traduzida com o valor do status (que vem em response.Data)
-            response.Message = string.Format(_localizer[response.Message].Value, response.Data);
-
-            return Ok(response);
-        }    }
+            return ServiceResponse(response);
+        }
+    }
 }
-

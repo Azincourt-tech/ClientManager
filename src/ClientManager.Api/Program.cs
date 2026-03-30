@@ -1,9 +1,9 @@
 
-using AspNetCore.Scalar;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Localization;
-using System.Globalization;
 using ClientManager.Api;
+using ClientManager.Api.Middlewares;
+using ClientManager.Infrastructure.Messaging.DependencyInjection;
+using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,33 +15,24 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     })
-    .AddDataAnnotationsLocalization(options => {
+    .AddDataAnnotationsLocalization(options =>
+    {
         options.DataAnnotationLocalizerProvider = (type, factory) =>
             factory.Create(typeof(SharedResource));
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "ClientManager API",
-        Version = "v1",
-        Description = "API for managing customers and document attachments using RavenDB and DDD patterns."
-    });
+// Learn more about configuring OpenAPI at https://aka.ms/aspnetcore/openapi
+builder.Services.AddOpenApi();
 
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
-});
 builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddDomainServices();
 builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
+builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddMessaging();
 
-builder.Services.AddExceptionHandler<ClientManager.Api.Middlewares.GlobalExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -59,19 +50,22 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI();
+app.MapOpenApi();
 
-app.UseScalar(options =>
+app.UseSwaggerUI(options =>
 {
-    options.UseTheme(Theme.DeepSpace);
-    options.RoutePrefix = "api-docs";
+    options.SwaggerEndpoint("/openapi/v1.json", "ClientManager API v1");
 });
 
-if (app.Environment.IsDevelopment())
+app.MapScalarApiReference(options =>
 {
-    // Adicione aqui outras configurações exclusivas de desenvolvimento se necessário
-}
+    options.WithOpenApiRoutePattern("/openapi/{documentName}.json")
+           .WithTheme(ScalarTheme.DeepSpace)
+           .HideClientButton()
+           .DisableAgent()
+           .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+           .HideDeveloperTools();
+});
 
 app.UseHttpsRedirection();
 

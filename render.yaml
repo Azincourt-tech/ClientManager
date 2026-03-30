@@ -1,0 +1,50 @@
+services:
+  # 1. Web Service (API)
+  - type: web
+    name: clientmanager-api
+    env: docker
+    dockerContext: .
+    dockerfilePath: src/ClientManager.Api/Dockerfile
+    plan: free # Use 'free' or 'starter'
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__RabbitMQ
+        sync: false # Set in Render UI (CloudAMQP URL)
+      - key: SendGrid__ApiKey
+        sync: false # Set in Render UI
+      - key: SendGrid__FromEmail
+        sync: false # Set in Render UI
+      - key: SendGrid__FromName
+        value: ClientManager
+      - key: RavenDbSettings__Url
+        sync: false # Set in Render UI
+      - key: RavenDbSettings__Database
+        value: ClientManagementDB
+      - key: RavenDbSettings__CertificateBase64
+        sync: false # Set in Render UI (Optional)
+
+  # 2. Background Worker
+  - type: worker
+    name: clientmanager-worker
+    env: docker
+    dockerContext: .
+    dockerfilePath: src/ClientManager.Worker/Dockerfile
+    plan: free
+    envVars:
+      - key: DOTNET_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__RabbitMQ
+        sync: false # Use the same URL as above
+      - key: SendGrid__ApiKey
+        sync: false
+      - key: SendGrid__FromEmail
+        sync: false
+      - key: SendGrid__FromName
+        value: ClientManager
+      - key: RavenDbSettings__Url
+        sync: false
+      - key: RavenDbSettings__Database
+        value: ClientManagementDB
+      - key: RavenDbSettings__CertificateBase64
+        sync: false

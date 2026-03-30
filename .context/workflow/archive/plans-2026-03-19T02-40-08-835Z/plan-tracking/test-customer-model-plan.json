@@ -1,0 +1,16 @@
+{
+  "planSlug": "test-customer-model-plan",
+  "progress": 100,
+  "phases": {
+    "phase-1": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:24:25.865Z"
+    },
+    "phase-2": {
+      "status": "completed",
+      "updatedAt": "2026-03-19T02:24:37.386Z"
+    }
+  },
+  "decisions": [],
+  "lastUpdated": "2026-03-19T02:24:21.614Z"
+}

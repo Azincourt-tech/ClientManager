@@ -12,6 +12,9 @@ public class Document
     public DateTimeOffset? ExpiryDate { get; private set; }
     public bool IsDeleted { get; private set; }
 
+    public DocumentStatus Status { get; private set; }
+    public string? RejectionReason { get; private set; }
+
     private Document() { }
 
     public Document(string name, Guid customerId, DocumentType type, DateTimeOffset? expiryDate = null)
@@ -22,9 +25,24 @@ public class Document
         Type = type;
         CreateDate = DateTimeOffset.UtcNow;
         ExpiryDate = expiryDate;
+        Status = DocumentStatus.Pending;
+    }
+
+    public void Verify()
+    {
+        Status = DocumentStatus.Verified;
+        RejectionReason = null;
+    }
+
+    public void Reject(string reason)
+    {
+        Status = DocumentStatus.Rejected;
+        RejectionReason = reason;
     }
 
     public void UpdateExpiryDate(DateTimeOffset? expiryDate) => ExpiryDate = expiryDate;
+
+    public void UpdateType(DocumentType type) => Type = type;
 
     public void Delete() => IsDeleted = true;
 

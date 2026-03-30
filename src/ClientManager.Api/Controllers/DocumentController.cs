@@ -1,19 +1,16 @@
+using ClientManager.Api.Results;
 using ClientManager.Domain.Enums;
-using ClientManager.Domain.Core.Responses;
-using Raven.Client.Documents.Operations.Attachments;
-using ClientManager.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
-public class DocumentController : ControllerBase
+public class DocumentController : MainController
 {
     private readonly IDocumentApplication _documentApplication;
-    private readonly Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> _localizer;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public DocumentController(IDocumentApplication documentApplication, Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
+    public DocumentController(IDocumentApplication documentApplication, IStringLocalizer<SharedResource> localizer)
     {
         _documentApplication = documentApplication;
         _localizer = localizer;
@@ -28,58 +25,87 @@ public class DocumentController : ControllerBase
     /// <param name="expiryDate">The optional expiry date of the document.</param>
     /// <returns>A service response containing the document ID of the attached file.</returns>
     [HttpPost("attach/{customerId}", Name = "attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<Guid>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [EndpointSummary("Attaches a file to a specific customer with categorization and optional expiry date.")]
+    [ProducesResponseType(typeof(ApiOkResult<Guid>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AttachDocument(Guid customerId, IFormFile file, [FromQuery] DocumentType type, [FromQuery] DateTimeOffset? expiryDate = null)
     {
-       var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
-       if (!response.Success)
-       {
-           response.Message = _localizer[response.Message];
-           return BadRequest(response);
-       }
-       response.Message = _localizer[response.Message];
-       return Ok(response);
+        var response = await _documentApplication.AttachDocumentAsync(customerId, file, type, expiryDate).ConfigureAwait(false);
+        return ServiceResponse(response);
     }
-    
+
     /// <summary>
-    /// Retrieves an attached file by its unique document ID.
+    /// Retrieves an attached file by its unique document ID, including document metadata and base64 content.
     /// </summary>
     /// <param name="documentId">The ID of the document to retrieve (URL encoded).</param>
-    /// <returns>The file stream for download.</returns>
+    /// <returns>A service response containing document information and its file in base64.</returns>
     [HttpGet("get-attach/{documentId}", Name = "get-attach-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<AttachmentResult?>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EndpointSummary("Retrieves an attached file by its unique document ID, including document metadata and base64 content.")]
+    [ProducesResponseType(typeof(ApiOkResult<DocumentAttachmentResponseDto?>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAttachDocument(Guid documentId)
     {
         var response = await _documentApplication.GetAttachDocumentAsync(documentId).ConfigureAwait(false);
+        return ServiceResponse(response);
+    }
 
-        if (!response.Success || response.Data == null)
-        {
-            response.Message = _localizer[response.Message];
-            return NotFound(response);
-        }
+    /// <summary>
+    /// Retrieves a list of all documents associated with a specific customer.
+    /// </summary>
+    /// <param name="customerId">The unique identifier of the customer.</param>
+    /// <returns>A service response containing a collection of document information.</returns>
+    [HttpGet("customer/{customerId}", Name = "get-documents-by-customer")]
+    [EndpointSummary("Retrieves a list of all documents associated with a specific customer.")]
+    [ProducesResponseType(typeof(ApiOkResult<IEnumerable<DocumentDto>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDocumentsByCustomerId(Guid customerId)
+    {
+        var response = await _documentApplication.GetDocumentsByCustomerIdAsync(customerId).ConfigureAwait(false);
+        return ServiceResponse(response);
+    }
 
-        return File(response.Data.Stream, response.Data.Details.ContentType);
+    /// <summary>
+    /// Gets the total count of documents associated with a specific customer.
+    /// </summary>
+    /// <param name="customerId">The unique identifier of the customer.</param>
+    /// <returns>A service response containing the document count.</returns>
+    [HttpGet("customer/{customerId}/count", Name = "get-document-count-by-customer")]
+    [EndpointSummary("Gets the total count of documents associated with a specific customer.")]
+    [ProducesResponseType(typeof(ApiOkResult<int>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetDocumentCountByCustomerId(Guid customerId)
+    {
+        var response = await _documentApplication.GetDocumentCountByCustomerIdAsync(customerId).ConfigureAwait(false);
+        return ServiceResponse(response);
+    }
+
+    /// <summary>
+    /// Updates the categorization and expiry date of an existing document.
+    /// </summary>
+    /// <param name="documentId">The unique identifier of the document.</param>
+    /// <param name="updateDocumentDto">The updated document information.</param>
+    /// <returns>A service response containing the ID of the updated document.</returns>
+    [HttpPut("{documentId}", Name = "update-document")]
+    [EndpointSummary("Updates the categorization and expiry date of an existing document.")]
+    [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateDocument(Guid documentId, [FromBody] UpdateDocumentDto updateDocumentDto)
+    {
+        var response = await _documentApplication.UpdateDocumentAsync(documentId, updateDocumentDto).ConfigureAwait(false);
+        return ServiceResponse(response);
     }
 
     /// <summary>
     /// Removes a document and its associated file from the system.
-    /// </summary>
-    /// <param name="documentId">The unique identifier of the document to be removed.</param>
+    /// </summary>    /// <param name="documentId">The unique identifier of the document to be removed.</param>
     /// <returns>A service response confirming the removal.</returns>
     [HttpDelete("{documentId}", Name = "delete-document")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ServiceResponse<string>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EndpointSummary("Removes a document and its associated file from the system.")]
+    [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteDocument(Guid documentId)
     {
         var response = await _documentApplication.DeleteDocumentAsync(documentId).ConfigureAwait(false);
-        if (!response.Success)
-        {
-            response.Message = _localizer[response.Message];
-            return NotFound(response);
-        }
-        response.Message = _localizer[response.Message];
-        return Ok(response);
+        return ServiceResponse(response);
     }
 }
