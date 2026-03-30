@@ -16,6 +16,9 @@ O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e 
 
 *   **Framework:** .NET 9.0
 *   **Banco de Dados:** RavenDB (NoSQL com suporte a anexos).
+*   **Autenticação:** **JWT (JSON Web Token)** com geração e validação de tokens.
+*   **Autorização:** Sistema de roles com **Admin**, **Manager** e **Viewer**, com políticas de acesso por nível.
+*   **Hash de Senha:** **BCrypt** para armazenamento seguro de credenciais.
 *   **Mapeamento:** Mapeamento manual de DTOs para maior performance e controle.
 *   **Exclusão Lógica:** Implementação de **Soft Delete** em todas as entidades principais.
 *   **Operações Assíncronas:** Uso extensivo de `async/await` e `IAsyncDocumentSession` para alta performance.
@@ -54,6 +57,12 @@ docker-compose up -d
 dotnet user-secrets set "ConnectionStrings:RabbitMQ" "amqp://guest:guest@localhost:5672"
 dotnet user-secrets set "Smtp:Username" "seu_usuario_mailtrap"
 dotnet user-secrets set "Smtp:Password" "sua_senha_mailtrap"
+
+# Configuração JWT
+dotnet user-secrets set "Jwt:Key" "sua_chave_secreta_com_pelo_menos_32_caracteres"
+dotnet user-secrets set "Jwt:Issuer" "ClientManager"
+dotnet user-secrets set "Jwt:Audience" "ClientManager"
+dotnet user-secrets set "Jwt:ExpireMinutes" "60"
 ```
 
 ### 3. Configuração do Banco de Dados
@@ -83,6 +92,28 @@ Com a API rodando, você pode testar os endpoints através de:
 *   **Swagger UI:** `https://localhost:7023/swagger`
 *   **Scalar Docs:** `https://localhost:7023/api-docs` (Interface moderna)
 
+## 🔐 Autenticação e Autorização
+
+O sistema utiliza **JWT** para autenticação e possui três níveis de acesso:
+
+| Role    | Descrição                              |
+|---------|----------------------------------------|
+| Admin   | Acesso total, incluindo gerenciamento de usuários |
+| Manager | Cadastro e edição de clientes e documentos       |
+| Viewer  | Apenas leitura de clientes e documentos           |
+
+### Endpoints de Autenticação (`/api/auth`)
+
+*   **POST `/api/auth/register`** — Registra um novo usuário (requer role **Admin**).
+*   **POST `/api/auth/login`** — Autentica o usuário e retorna o token JWT.
+
+### Endpoints de Usuário (`/api/user`)
+
+*   **GET `/api/user`** — Lista todos os usuários (requer role **Admin**).
+*   **GET `/api/user/{id}`** — Busca um usuário por ID (requer role **Admin**).
+*   **PUT `/api/user/{id}`** — Atualiza os dados de um usuário (requer role **Admin**).
+*   **DELETE `/api/user/{id}`** — Remove um usuário (requer role **Admin**).
+
 ## 🧪 Como Rodar os Testes
 
 Este projeto foi focado em testabilidade. Para rodar todos os testes unitários e verificar a integridade do sistema, use o comando:
@@ -91,11 +122,12 @@ Este projeto foi focado em testabilidade. Para rodar todos os testes unitários 
 dotnet test
 ```
 
-Os testes cobrem:
-*   **Controllers:** Status codes e fluxo de retorno.
-*   **Application:** Mapeamento correto de DTOs.
-*   **Domain Services:** Regras de negócio como validação de e-mail e ativação de cliente.
-*   **Models:** Integridade das entidades.
+O projeto conta com **114 testes unitários** com **0 falhas**, cobrindo:
+
+*   **Controllers:** Status codes, fluxo de retorno e autorização.
+*   **Application:** Mapeamento correto de DTOs e lógica de autenticação.
+*   **Domain Services:** Regras de negócio como validação de e-mail, ativação de cliente e gestão de usuários.
+*   **Models:** Integridade das entidades, incluindo a entidade `User`.
 
 ---
 Desenvolvido para fins de estudo de arquitetura e qualidade de software.
