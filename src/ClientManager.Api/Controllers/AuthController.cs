@@ -1,6 +1,7 @@
 using ClientManager.Api.Results;
 using ClientManager.Application.Dtos.User;
 using ClientManager.Domain.Core.Responses;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClientManager.Api.Controllers;
 
