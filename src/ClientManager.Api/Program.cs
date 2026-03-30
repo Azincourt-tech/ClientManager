@@ -1,4 +1,3 @@
-
 using ClientManager.Api;
 using ClientManager.Api.Middlewares;
 using ClientManager.Infrastructure.Messaging.DependencyInjection;
@@ -31,6 +30,7 @@ builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -63,6 +63,9 @@ app.MapScalarApiReference(options =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

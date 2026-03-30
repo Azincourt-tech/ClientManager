@@ -1,5 +1,6 @@
 using ClientManager.Api.Results;
 using ClientManager.Domain.Core.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers
@@ -8,6 +9,7 @@ namespace ClientManager.Api.Controllers
     /// Manage customers in the Shop system.
     /// </summary>
     [Route("api/[controller]")]
+    [Authorize]
     public class CustomerController : MainController
     {
         private readonly ICustomerApplication _customerApplication;

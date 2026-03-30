@@ -1,10 +1,14 @@
 using ClientManager.Infrastructure.CrossCutting.HealthChecks;
 using ClientManager.Infrastructure.CrossCutting.Validators;
+using ClientManager.Infrastructure.CrossCutting.Security;
 using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Infrastructure.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace ClientManager.Infrastructure.CrossCutting.Ioc
 {
@@ -64,6 +68,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerRepository, CustomerRepository>();
             servicesCollection.TryAddScoped<IDocumentRepository, DocumentRepository>();
+            servicesCollection.TryAddScoped<IUserRepository, UserRepository>();
 
             return servicesCollection;
         }
@@ -72,6 +77,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerService, CustomerService>();
             servicesCollection.TryAddScoped<IDocumentService, DocumentService>();
+            servicesCollection.TryAddScoped<IUserService, UserService>();
 
             return servicesCollection;
         }
@@ -80,6 +86,8 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         {
             servicesCollection.TryAddScoped<ICustomerApplication, CustomerApplication>();
             servicesCollection.TryAddScoped<IDocumentApplication, DocumentApplication>();
+            servicesCollection.TryAddScoped<IUserApplication, UserApplication>();
+            servicesCollection.TryAddScoped<IAuthApplication, AuthApplication>();
 
             return servicesCollection;
         }
@@ -105,8 +113,43 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
             }
 
             servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();
+            servicesCollection.TryAddScoped<ITokenService, TokenService>();
 
             return servicesCollection;
+        }
+
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            var secretKey = configuration["JwtSettings:SecretKey"] ?? "DefaultSecretKeyForDevelopment12345678901234567890";
+            var issuer = configuration["JwtSettings:Issuer"] ?? "ClientManager";
+            var audience = configuration["JwtSettings:Audience"] ?? "ClientManager";
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "Manager"));
+            });
+
+            return services;
         }
     }
 }

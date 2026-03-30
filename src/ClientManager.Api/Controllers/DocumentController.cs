@@ -1,10 +1,12 @@
 using ClientManager.Api.Results;
 using ClientManager.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Localization;
 
 namespace ClientManager.Api.Controllers;
 
 [Route("api/[controller]")]
+[Authorize]
 public class DocumentController : MainController
 {
     private readonly IDocumentApplication _documentApplication;
