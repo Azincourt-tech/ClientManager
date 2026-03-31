@@ -1,8 +1,11 @@
-namespace ClientManager.Domain.Core.Interfaces.Services;
+using ClientManager.Domain.Enums;
 
-public interface ITokenService
+namespace ClientManager.Domain.Core.Interfaces.Services
 {
-    string GenerateToken(Guid userId, string username, string email, string role);
-
-    string GenerateRefreshToken();
+    public interface ITokenService
+    {
+        string GenerateToken(Guid userId, string username, string email, UserRole role);
+        string GenerateRefreshToken();
+        Guid? ValidateToken(string token);
+    }
 }

@@ -7,199 +7,207 @@ using ClientManager.Domain.Enums;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Moq;
 using Xunit;
 
-namespace ClientManager.Api.Tests.Controllers;
-
-public class AuthControllerTests
+namespace ClientManager.Api.Tests.Controllers
 {
-    private readonly Mock<IAuthApplication> _authApplicationMock;
-    private readonly AuthController _authController;
-
-    public AuthControllerTests()
+    public class AuthControllerTests
     {
-        _authApplicationMock = new Mock<IAuthApplication>();
-        _authController = new AuthController(_authApplicationMock.Object);
-    }
+        private readonly Mock<IAuthApplication> _authApplicationMock;
+        private readonly Mock<IStringLocalizer<SharedResource>> _localizerMock;
+        private readonly AuthController _authController;
 
-    [Fact]
-    public async Task Register_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        public AuthControllerTests()
         {
-            Username = "newuser",
-            Email = "newuser@test.com",
-            Password = "Password123",
+            _authApplicationMock = new Mock<IAuthApplication>();
+            _localizerMock = new Mock<IStringLocalizer<SharedResource>>();
+
+            _authController = new AuthController(
+                _authApplicationMock.Object,
+                _localizerMock.Object
+            );
+        }
+
+        private CreateUserDto CreateValidUserDto() => new CreateUserDto
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "password123",
             Role = UserRole.Viewer
         };
-        var authResponse = new AuthResponseDto
+
+        private LoginDto CreateValidLoginDto() => new LoginDto
         {
-            Token = "jwt-token",
-            RefreshToken = "refresh-token",
-            Expiration = DateTimeOffset.UtcNow.AddHours(1),
-            User = new UserDto
+            Username = "testuser",
+            Password = "password123"
+        };
+
+        [Fact]
+        public async Task Register_WhenSuccessful_ShouldReturnOk()
+        {
+            // Arrange
+            var userDto = CreateValidUserDto();
+            var authResponse = new AuthResponseDto
             {
-                Id = Guid.NewGuid(),
-                Username = dto.Username,
-                Email = dto.Email,
-                Role = dto.Role.ToString(),
-                IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow
-            }
-        };
-        var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse);
+                Token = "jwt-token",
+                RefreshToken = "refresh-token",
+                User = new UserDto { Id = Guid.NewGuid(), Username = userDto.Username, Email = userDto.Email, Role = userDto.Role, IsActive = true },
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+            var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse, "UserRegistered");
 
-        _authApplicationMock.Setup(x => x.RegisterAsync(dto))
-            .ReturnsAsync(serviceResponse);
+            _authApplicationMock.Setup(x => x.RegisterAsync(userDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _authController.Register(dto);
+            // Act
+            var result = await _authController.Register(userDto);
 
-        // Assert
-        result.Should().NotBeNull();
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
-        apiResult.Data!.Token.Should().Be("jwt-token");
-        apiResult.Data.User.Username.Should().Be(dto.Username);
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
+            apiResult.Data.Should().NotBeNull();
+            apiResult.Data!.Token.Should().Be("jwt-token");
+            apiResult.Data.RefreshToken.Should().Be("refresh-token");
 
-        _authApplicationMock.Verify(a => a.RegisterAsync(dto), Times.Once);
-    }
+            _authApplicationMock.Verify(a => a.RegisterAsync(userDto), Times.Once);
+        }
 
-    [Fact]
-    public async Task Register_WhenFails_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        [Fact]
+        public async Task Register_WhenFails_ShouldReturnBadRequest()
         {
-            Username = "existing",
-            Email = "existing@test.com",
-            Password = "pass",
-            Role = UserRole.Viewer
-        };
-        var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("UsernameAlreadyExists");
+            // Arrange
+            var userDto = CreateValidUserDto();
+            var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("UsernameAlreadyExists");
 
-        _authApplicationMock.Setup(x => x.RegisterAsync(dto))
-            .ReturnsAsync(serviceResponse);
+            _authApplicationMock.Setup(x => x.RegisterAsync(userDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _authController.Register(dto);
+            // Act
+            var result = await _authController.Register(userDto);
 
-        // Assert
-        result.Should().NotBeNull();
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        _authApplicationMock.Verify(a => a.RegisterAsync(dto), Times.Once);
-    }
+            badResult.Value.Should().BeOfType<ApiBadRequestResult>();
 
-    [Fact]
-    public async Task Login_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var loginDto = new LoginDto { Username = "testuser", Password = "Password123" };
-        var authResponse = new AuthResponseDto
+            _authApplicationMock.Verify(a => a.RegisterAsync(userDto), Times.Once);
+        }
+
+        [Fact]
+        public async Task Login_WhenSuccessful_ShouldReturnOk()
         {
-            Token = "jwt-token",
-            RefreshToken = "refresh-token",
-            Expiration = DateTimeOffset.UtcNow.AddHours(1),
-            User = new UserDto
+            // Arrange
+            var loginDto = CreateValidLoginDto();
+            var authResponse = new AuthResponseDto
             {
-                Id = Guid.NewGuid(),
-                Username = loginDto.Username,
-                Email = "test@test.com",
-                Role = "Admin",
-                IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow
-            }
-        };
-        var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse);
+                Token = "jwt-token",
+                RefreshToken = "refresh-token",
+                User = new UserDto { Id = Guid.NewGuid(), Username = loginDto.Username, IsActive = true },
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+            var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse, "LoginSuccessful");
 
-        _authApplicationMock.Setup(x => x.LoginAsync(loginDto))
-            .ReturnsAsync(serviceResponse);
+            _authApplicationMock.Setup(x => x.LoginAsync(loginDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _authController.Login(loginDto);
+            // Act
+            var result = await _authController.Login(loginDto);
 
-        // Assert
-        result.Should().NotBeNull();
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
-        apiResult.Data!.Token.Should().Be("jwt-token");
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
+            apiResult.Data!.Token.Should().Be("jwt-token");
 
-        _authApplicationMock.Verify(a => a.LoginAsync(loginDto), Times.Once);
-    }
+            _authApplicationMock.Verify(a => a.LoginAsync(loginDto), Times.Once);
+        }
 
-    [Fact]
-    public async Task Login_WhenFails_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var loginDto = new LoginDto { Username = "wrong", Password = "wrong" };
-        var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("InvalidCredentials");
-
-        _authApplicationMock.Setup(x => x.LoginAsync(loginDto))
-            .ReturnsAsync(serviceResponse);
-
-        // Act
-        var result = await _authController.Login(loginDto);
-
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task Refresh_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var refreshToken = "some-refresh-token";
-        var authResponse = new AuthResponseDto
+        [Fact]
+        public async Task Login_WhenInvalidCredentials_ShouldReturnBadRequest()
         {
-            Token = "new-jwt-token",
-            RefreshToken = "new-refresh-token",
-            Expiration = DateTimeOffset.UtcNow.AddHours(1)
-        };
-        var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse);
+            // Arrange
+            var loginDto = CreateValidLoginDto();
+            var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("InvalidCredentials");
 
-        _authApplicationMock.Setup(x => x.RefreshTokenAsync(refreshToken))
-            .ReturnsAsync(serviceResponse);
+            _authApplicationMock.Setup(x => x.LoginAsync(loginDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _authController.Refresh(refreshToken);
+            // Act
+            var result = await _authController.Login(loginDto);
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
-        apiResult.Data!.Token.Should().Be("new-jwt-token");
-    }
+            _authApplicationMock.Verify(a => a.LoginAsync(loginDto), Times.Once);
+        }
 
-    [Fact]
-    public async Task Refresh_WhenFails_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("RefreshTokenRequired");
+        [Fact]
+        public async Task RefreshToken_WhenSuccessful_ShouldReturnOk()
+        {
+            // Arrange
+            var refreshToken = "valid-refresh-token";
+            var authResponse = new AuthResponseDto
+            {
+                Token = "new-jwt-token",
+                RefreshToken = "new-refresh-token",
+                User = new UserDto { Id = Guid.NewGuid(), IsActive = true },
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+            var serviceResponse = new ServiceResponse<AuthResponseDto>(authResponse, "TokenRefreshed");
 
-        _authApplicationMock.Setup(x => x.RefreshTokenAsync(""))
-            .ReturnsAsync(serviceResponse);
+            _authApplicationMock.Setup(x => x.RefreshTokenAsync(refreshToken))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _authController.Refresh("");
+            // Act
+            var result = await _authController.RefreshToken(refreshToken);
 
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
+            apiResult.Data!.Token.Should().Be("new-jwt-token");
+
+            _authApplicationMock.Verify(a => a.RefreshTokenAsync(refreshToken), Times.Once);
+        }
+
+        [Fact]
+        public async Task RefreshToken_WhenInvalidToken_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var refreshToken = "invalid-refresh-token";
+            var serviceResponse = ServiceResponse<AuthResponseDto>.Fail("InvalidRefreshToken");
+
+            _authApplicationMock.Setup(x => x.RefreshTokenAsync(refreshToken))
+                .ReturnsAsync(serviceResponse);
+
+            // Act
+            var result = await _authController.RefreshToken(refreshToken);
+
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            _authApplicationMock.Verify(a => a.RefreshTokenAsync(refreshToken), Times.Once);
+        }
     }
 }

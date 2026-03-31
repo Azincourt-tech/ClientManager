@@ -1,103 +1,95 @@
-using ClientManager.Application.Dtos.User;
-using ClientManager.Application.Interfaces;
 using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
 
-namespace ClientManager.Application;
-
-public class UserApplication : IUserApplication
+namespace ClientManager.Application
 {
-    private readonly IUserService _userService;
-    private readonly IValidator<CreateUserDto> _createUserValidator;
-
-    public UserApplication(IUserService userService, IValidator<CreateUserDto> createUserValidator)
+    public class UserApplication : IUserApplication
     {
-        _userService = userService;
-        _createUserValidator = createUserValidator;
-    }
+        private readonly IUserService _userService;
+        private readonly IValidator<Dtos.User.CreateUserDto> _createUserValidator;
 
-    public async Task<ServiceResponse<UserDto>> CreateUserAsync(CreateUserDto createUserDto)
-    {
-        var validationResult = await _createUserValidator.ValidateAsync(createUserDto).ConfigureAwait(false);
-
-        if (!validationResult.IsValid)
+        public UserApplication(IUserService userService, IValidator<Dtos.User.CreateUserDto> createUserValidator)
         {
-            var firstError = validationResult.Errors.First().ErrorMessage;
-            return ServiceResponse<UserDto>.Fail(firstError);
+            _userService = userService;
+            _createUserValidator = createUserValidator;
         }
 
-        var existingUser = await _userService.GetUserByUsernameAsync(createUserDto.Username).ConfigureAwait(false);
-        if (existingUser != null)
-            return ServiceResponse<UserDto>.Fail("UsernameAlreadyExists");
-
-        var existingEmail = await _userService.GetUserByEmailAsync(createUserDto.Email).ConfigureAwait(false);
-        if (existingEmail != null)
-            return ServiceResponse<UserDto>.Fail("EmailAlreadyExists");
-
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
-        var user = createUserDto.ToModel(passwordHash);
-
-        await _userService.AddUserAsync(user).ConfigureAwait(false);
-
-        return ServiceResponse<UserDto>.Ok(user.ToDto());
-    }
-
-    public async Task<ServiceResponse<UserDto>> GetUserByIdAsync(Guid id)
-    {
-        var user = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
-
-        if (user == null)
-            return ServiceResponse<UserDto>.Fail("UserNotFound");
-
-        return ServiceResponse<UserDto>.Ok(user.ToDto());
-    }
-
-    public async Task<ServiceResponse<IEnumerable<UserDto>>> GetUsersAsync()
-    {
-        var users = await _userService.GetUsersAsync().ConfigureAwait(false);
-        var userDtos = users.Select(u => u.ToDto());
-        return ServiceResponse<IEnumerable<UserDto>>.Ok(userDtos);
-    }
-
-    public async Task<ServiceResponse<UserDto>> UpdateUserAsync(Guid id, CreateUserDto updateUserDto)
-    {
-        var validationResult = await _createUserValidator.ValidateAsync(updateUserDto).ConfigureAwait(false);
-
-        if (!validationResult.IsValid)
+        public async Task<ServiceResponse<Guid>> AddUserAsync(Dtos.User.CreateUserDto userDto)
         {
-            var firstError = validationResult.Errors.First().ErrorMessage;
-            return ServiceResponse<UserDto>.Fail(firstError);
+            var validationResult = await _createUserValidator.ValidateAsync(userDto).ConfigureAwait(false);
+
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<Guid>.Fail(firstError);
+            }
+
+            var existingUser = await _userService.GetUserByUsernameAsync(userDto.Username).ConfigureAwait(false);
+            if (existingUser != null)
+                return ServiceResponse<Guid>.Fail("UsernameAlreadyExists");
+
+            var existingEmail = await _userService.GetUserByEmailAsync(userDto.Email).ConfigureAwait(false);
+            if (existingEmail != null)
+                return ServiceResponse<Guid>.Fail("EmailAlreadyExists");
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            var user = userDto.ToModel(passwordHash);
+
+            await _userService.AddUserAsync(user).ConfigureAwait(false);
+            return ServiceResponse<Guid>.Ok(user.Id, "UserInserted");
         }
 
-        var existingUser = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
-
-        if (existingUser == null)
-            return ServiceResponse<UserDto>.Fail("UserNotFound");
-
-        existingUser.UpdateDetails(updateUserDto.Username, updateUserDto.Email, updateUserDto.Role);
-
-        if (!string.IsNullOrWhiteSpace(updateUserDto.Password))
+        public async Task<ServiceResponse<string>> UpdateUserAsync(Guid id, Dtos.User.CreateUserDto userDto)
         {
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(updateUserDto.Password);
-            existingUser.UpdatePasswordHash(passwordHash);
+            var validationResult = await _createUserValidator.ValidateAsync(userDto).ConfigureAwait(false);
+
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<string>.Fail(firstError);
+            }
+
+            var existingUser = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
+            if (existingUser == null)
+                return ServiceResponse<string>.Fail("UserNotFound");
+
+            existingUser.UpdateDetails(userDto.Username, userDto.Email, userDto.Role);
+
+            if (!string.IsNullOrWhiteSpace(userDto.Password))
+            {
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+                existingUser.UpdatePasswordHash(passwordHash);
+            }
+
+            await _userService.UpdateUserAsync(existingUser).ConfigureAwait(false);
+            return ServiceResponse<string>.Ok(existingUser.Id.ToString(), "UserUpdated");
         }
 
-        await _userService.UpdateUserAsync(existingUser).ConfigureAwait(false);
+        public async Task<ServiceResponse<string>> DeleteUserByIdAsync(Guid id)
+        {
+            var user = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
+            if (user == null)
+                return ServiceResponse<string>.Fail("UserNotFound");
 
-        return ServiceResponse<UserDto>.Ok(existingUser.ToDto());
-    }
+            await _userService.DeleteUserByIdAsync(id).ConfigureAwait(false);
+            return ServiceResponse<string>.Ok(id.ToString(), "UserDeleted");
+        }
 
-    public async Task<ServiceResponse<string>> DeleteUserAsync(Guid id)
-    {
-        var user = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
+        public async Task<ServiceResponse<IEnumerable<Dtos.User.UserDto>>> GetUsersAsync()
+        {
+            var users = await _userService.GetUsersAsync().ConfigureAwait(false);
+            var usersDto = users.Select(u => u.ToDto());
+            return ServiceResponse<IEnumerable<Dtos.User.UserDto>>.Ok(usersDto);
+        }
 
-        if (user == null)
-            return ServiceResponse<string>.Fail("UserNotFound");
+        public async Task<ServiceResponse<Dtos.User.UserDto?>> GetUserByIdAsync(Guid id)
+        {
+            var user = await _userService.GetUserByIdAsync(id).ConfigureAwait(false);
+            if (user == null)
+                return ServiceResponse<Dtos.User.UserDto?>.Fail("UserNotFound");
 
-        user.Deactivate();
-        await _userService.UpdateUserAsync(user).ConfigureAwait(false);
-
-        return ServiceResponse<string>.Ok(id.ToString(), "UserDeactivated");
+            return ServiceResponse<Dtos.User.UserDto?>.Ok(user.ToDto());
+        }
     }
 }

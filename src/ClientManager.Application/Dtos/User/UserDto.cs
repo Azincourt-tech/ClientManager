@@ -1,11 +1,14 @@
-namespace ClientManager.Application.Dtos.User;
+using ClientManager.Domain.Enums;
 
-public class UserDto
+namespace ClientManager.Application.Dtos.User
 {
-    public Guid Id { get; set; }
-    public string Username { get; set; } = null!;
-    public string Email { get; set; } = null!;
-    public string Role { get; set; } = null!;
-    public bool IsActive { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
+    public class UserDto
+    {
+        public Guid Id { get; set; }
+        public string Username { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public UserRole Role { get; set; }
+        public bool IsActive { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+    }
 }

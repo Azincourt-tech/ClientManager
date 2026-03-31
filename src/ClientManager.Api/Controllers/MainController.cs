@@ -1,9 +1,10 @@
 using ClientManager.Api.Results;
 using ClientManager.Domain.Core.Responses;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ClientManager.Api.Controllers
 {
-    // [Authorize]
+    [Authorize(Policy = "AllRoles")]
     [ApiController]
     public abstract class MainController : ControllerBase
     {

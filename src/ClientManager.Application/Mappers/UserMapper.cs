@@ -1,34 +1,35 @@
 using ClientManager.Application.Dtos.User;
-using ClientManager.Domain.Enums;
+using ClientManager.Domain.Model;
 
-namespace ClientManager.Application.Mappers;
-
-public static class UserMapper
+namespace ClientManager.Application.Mappers
 {
-    public static UserDto ToDto(this User user)
+    public static class UserMapper
     {
-        if (user == null) return null!;
-
-        return new UserDto
+        public static UserDto ToDto(this User user)
         {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
-            Role = user.Role.ToString(),
-            IsActive = user.IsActive,
-            CreatedAt = user.CreatedAt
-        };
-    }
+            if (user == null) return null!;
 
-    public static User ToModel(this CreateUserDto dto, string passwordHash)
-    {
-        if (dto == null) return null!;
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt
+            };
+        }
 
-        return new User(
-            dto.Username,
-            dto.Email,
-            passwordHash,
-            dto.Role
-        );
+        public static User ToModel(this CreateUserDto dto, string passwordHash)
+        {
+            if (dto == null) return null!;
+
+            return new User(
+                dto.Username,
+                dto.Email,
+                passwordHash,
+                dto.Role
+            );
+        }
     }
 }

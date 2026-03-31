@@ -1,16 +1,19 @@
-namespace ClientManager.Domain.Core.Interfaces.Services;
-
-public interface IUserService
+namespace ClientManager.Domain.Core.Interfaces.Services
 {
-    Task AddUserAsync(User user);
+    public interface IUserService
+    {
+        Task AddUserAsync(User user);
 
-    Task UpdateUserAsync(User user);
+        Task UpdateUserAsync(User user);
 
-    Task<User?> GetUserByIdAsync(Guid id);
+        Task DeleteUserByIdAsync(Guid id);
 
-    Task<User?> GetUserByUsernameAsync(string username);
+        Task<IEnumerable<User>> GetUsersAsync();
 
-    Task<User?> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByIdAsync(Guid id);
 
-    Task<IEnumerable<User>> GetUsersAsync();
+        Task<User?> GetUserByUsernameAsync(string username);
+
+        Task<User?> GetUserByEmailAsync(string email);
+    }
 }

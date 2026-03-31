@@ -1,16 +1,19 @@
-namespace ClientManager.Domain.Core.Interfaces.Repositories;
-
-public interface IUserRepository
+namespace ClientManager.Domain.Core.Interfaces.Repositories
 {
-    Task AddUserAsync(User user);
+    public interface IUserRepository
+    {
+        Task AddUserAsync(User user);
 
-    Task UpdateUserAsync(User user);
+        Task UpdateUserAsync(User user);
 
-    Task<User?> GetUserByIdAsync(Guid id);
+        Task DeleteUserByIdAsync(Guid id);
 
-    Task<User?> GetUserByUsernameAsync(string username);
+        Task<IEnumerable<User>> GetUsersAsync();
 
-    Task<User?> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByIdAsync(Guid id);
 
-    Task<IEnumerable<User>> GetUsersAsync();
+        Task<User?> GetUserByUsernameAsync(string username);
+
+        Task<User?> GetUserByEmailAsync(string email);
+    }
 }

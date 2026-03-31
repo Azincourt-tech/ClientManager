@@ -7,279 +7,268 @@ using ClientManager.Domain.Enums;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Moq;
 using Xunit;
 
-namespace ClientManager.Api.Tests.Controllers;
-
-public class UserControllerTests
+namespace ClientManager.Api.Tests.Controllers
 {
-    private readonly Mock<IUserApplication> _userApplicationMock;
-    private readonly UserController _userController;
-
-    public UserControllerTests()
+    public class UserControllerTests
     {
-        _userApplicationMock = new Mock<IUserApplication>();
-        _userController = new UserController(_userApplicationMock.Object);
-    }
+        private readonly Mock<IUserApplication> _userApplicationMock;
+        private readonly Mock<IStringLocalizer<SharedResource>> _localizerMock;
+        private readonly UserController _userController;
 
-    [Fact]
-    public async Task CreateUser_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        public UserControllerTests()
         {
-            Username = "newuser",
-            Email = "newuser@test.com",
-            Password = "Password123",
+            _userApplicationMock = new Mock<IUserApplication>();
+            _localizerMock = new Mock<IStringLocalizer<SharedResource>>();
+
+            _userController = new UserController(
+                _userApplicationMock.Object,
+                _localizerMock.Object
+            );
+        }
+
+        private CreateUserDto CreateValidUserDto() => new CreateUserDto
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "password123",
             Role = UserRole.Viewer
         };
-        var userDto = new UserDto
+
+        [Fact]
+        public async Task AddUser_WhenSuccessful_ShouldReturnOk()
         {
-            Id = Guid.NewGuid(),
-            Username = dto.Username,
-            Email = dto.Email,
-            Role = dto.Role.ToString(),
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
-        var serviceResponse = new ServiceResponse<UserDto>(userDto);
+            // Arrange
+            var userDto = CreateValidUserDto();
+            var expectedId = Guid.NewGuid();
+            var serviceResponse = new ServiceResponse<Guid>(expectedId, "UserInserted");
 
-        _userApplicationMock.Setup(x => x.CreateUserAsync(dto))
-            .ReturnsAsync(serviceResponse);
+            _userApplicationMock.Setup(x => x.AddUserAsync(userDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _userController.CreateUser(dto);
+            // Act
+            var result = await _userController.AddUser(userDto);
 
-        // Assert
-        result.Should().NotBeNull();
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<UserDto>>().Subject;
-        apiResult.Data!.Username.Should().Be(dto.Username);
-        apiResult.Data.Email.Should().Be(dto.Email);
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<Guid>>().Subject;
+            apiResult.Data.Should().Be(expectedId);
 
-        _userApplicationMock.Verify(a => a.CreateUserAsync(dto), Times.Once);
-    }
+            _userApplicationMock.Verify(a => a.AddUserAsync(userDto), Times.Once);
+        }
 
-    [Fact]
-    public async Task CreateUser_WhenFails_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var dto = new CreateUserDto { Username = "", Email = "", Password = "", Role = UserRole.Viewer };
-        var serviceResponse = ServiceResponse<UserDto>.Fail("UsernameRequired");
-
-        _userApplicationMock.Setup(x => x.CreateUserAsync(dto))
-            .ReturnsAsync(serviceResponse);
-
-        // Act
-        var result = await _userController.CreateUser(dto);
-
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task GetUserById_WhenExists_ShouldReturnUser()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var userDto = new UserDto
+        [Fact]
+        public async Task AddUser_WhenFails_ShouldReturnBadRequest()
         {
-            Id = id,
-            Username = "testuser",
-            Email = "test@test.com",
-            Role = "Admin",
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
-        var serviceResponse = new ServiceResponse<UserDto>(userDto);
+            // Arrange
+            var userDto = CreateValidUserDto();
+            var serviceResponse = ServiceResponse<Guid>.Fail("UsernameAlreadyExists");
 
-        _userApplicationMock.Setup(x => x.GetUserByIdAsync(id))
-            .ReturnsAsync(serviceResponse);
+            _userApplicationMock.Setup(x => x.AddUserAsync(userDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _userController.GetUserById(id);
+            // Act
+            var result = await _userController.AddUser(userDto);
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<UserDto>>().Subject;
-        apiResult.Data!.Id.Should().Be(id);
-        apiResult.Data.Username.Should().Be("testuser");
+            badResult.Value.Should().BeOfType<ApiBadRequestResult>();
 
-        _userApplicationMock.Verify(a => a.GetUserByIdAsync(id), Times.Once);
-    }
+            _userApplicationMock.Verify(a => a.AddUserAsync(userDto), Times.Once);
+        }
 
-    [Fact]
-    public async Task GetUserById_WhenNotFound_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var serviceResponse = ServiceResponse<UserDto>.Fail("UserNotFound");
-
-        _userApplicationMock.Setup(x => x.GetUserByIdAsync(id))
-            .ReturnsAsync(serviceResponse);
-
-        // Act
-        var result = await _userController.GetUserById(id);
-
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
-    [Fact]
-    public async Task GetUsers_ShouldReturnList()
-    {
-        // Arrange
-        var users = new List<UserDto>
+        [Fact]
+        public async Task GetUserById_WhenExists_ShouldReturnUser()
         {
-            new UserDto
+            // Arrange
+            var userId = Guid.NewGuid();
+            var userDto = new UserDto
             {
-                Id = Guid.NewGuid(),
-                Username = "user1",
-                Email = "user1@test.com",
-                Role = "Admin",
+                Id = userId,
+                Username = "testuser",
+                Email = "test@example.com",
+                Role = UserRole.Admin,
                 IsActive = true,
                 CreatedAt = DateTimeOffset.UtcNow
-            },
-            new UserDto
+            };
+            var serviceResponse = new ServiceResponse<UserDto?>(userDto);
+
+            _userApplicationMock.Setup(x => x.GetUserByIdAsync(userId))
+                .ReturnsAsync(serviceResponse);
+
+            // Act
+            var result = await _userController.GetUserById(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<UserDto>>().Subject;
+            apiResult.Data!.Id.Should().Be(userId);
+            apiResult.Data.Username.Should().Be("testuser");
+
+            _userApplicationMock.Verify(a => a.GetUserByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUserById_WhenNotFound_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var serviceResponse = ServiceResponse<UserDto?>.Fail("UserNotFound");
+
+            _userApplicationMock.Setup(x => x.GetUserByIdAsync(userId))
+                .ReturnsAsync(serviceResponse);
+
+            // Act
+            var result = await _userController.GetUserById(userId);
+
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+            _userApplicationMock.Verify(a => a.GetUserByIdAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetUsers_ShouldReturnList()
+        {
+            // Arrange
+            var users = new List<UserDto>
             {
-                Id = Guid.NewGuid(),
-                Username = "user2",
-                Email = "user2@test.com",
-                Role = "Viewer",
-                IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow
-            }
-        };
-        var serviceResponse = new ServiceResponse<IEnumerable<UserDto>>(users);
+                new UserDto { Id = Guid.NewGuid(), Username = "user1", Email = "user1@test.com", Role = UserRole.Admin, IsActive = true },
+                new UserDto { Id = Guid.NewGuid(), Username = "user2", Email = "user2@test.com", Role = UserRole.Viewer, IsActive = true }
+            };
+            var serviceResponse = new ServiceResponse<IEnumerable<UserDto>>(users);
 
-        _userApplicationMock.Setup(x => x.GetUsersAsync())
-            .ReturnsAsync(serviceResponse);
+            _userApplicationMock.Setup(x => x.GetUsersAsync())
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _userController.GetUsers();
+            // Act
+            var result = await _userController.GetUsers();
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<IEnumerable<UserDto>>>().Subject;
-        apiResult.Data!.Should().HaveCount(2);
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<IEnumerable<UserDto>>>().Subject;
+            apiResult.Data.Should().HaveCount(2);
+            apiResult.Data!.First().Username.Should().Be("user1");
 
-        _userApplicationMock.Verify(a => a.GetUsersAsync(), Times.Once);
-    }
+            _userApplicationMock.Verify(a => a.GetUsersAsync(), Times.Once);
+        }
 
-    [Fact]
-    public async Task UpdateUser_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var dto = new CreateUserDto
+        [Fact]
+        public async Task UpdateUser_WhenSuccessful_ShouldReturnOk()
         {
-            Username = "updateduser",
-            Email = "updated@test.com",
-            Password = "NewPassword123",
-            Role = UserRole.Manager
-        };
-        var userDto = new UserDto
+            // Arrange
+            var id = Guid.NewGuid();
+            var userDto = CreateValidUserDto();
+            var serviceResponse = new ServiceResponse<string>(id.ToString(), "UserUpdated");
+
+            _userApplicationMock.Setup(x => x.UpdateUserAsync(id, userDto))
+                .ReturnsAsync(serviceResponse);
+
+            // Act
+            var result = await _userController.UpdateUser(id, userDto);
+
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<string>>().Subject;
+            apiResult.Data.Should().Be(id.ToString());
+
+            _userApplicationMock.Verify(a => a.UpdateUserAsync(id, userDto), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateUser_WhenUserNotFound_ShouldReturnBadRequest()
         {
-            Id = id,
-            Username = dto.Username,
-            Email = dto.Email,
-            Role = dto.Role.ToString(),
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow
-        };
-        var serviceResponse = new ServiceResponse<UserDto>(userDto);
+            // Arrange
+            var id = Guid.NewGuid();
+            var userDto = CreateValidUserDto();
+            var serviceResponse = ServiceResponse<string>.Fail("UserNotFound");
 
-        _userApplicationMock.Setup(x => x.UpdateUserAsync(id, dto))
-            .ReturnsAsync(serviceResponse);
+            _userApplicationMock.Setup(x => x.UpdateUserAsync(id, userDto))
+                .ReturnsAsync(serviceResponse);
 
-        // Act
-        var result = await _userController.UpdateUser(id, dto);
+            // Act
+            var result = await _userController.UpdateUser(id, userDto);
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<UserDto>>().Subject;
-        apiResult.Data!.Username.Should().Be(dto.Username);
+            _userApplicationMock.Verify(a => a.UpdateUserAsync(id, userDto), Times.Once);
+        }
 
-        _userApplicationMock.Verify(a => a.UpdateUserAsync(id, dto), Times.Once);
-    }
+        [Fact]
+        public async Task DeleteUserById_WhenSuccessful_ShouldReturnOk()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var serviceResponse = new ServiceResponse<string>(id.ToString(), "UserDeleted");
 
-    [Fact]
-    public async Task UpdateUser_WhenFails_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var dto = new CreateUserDto { Username = "", Email = "", Password = "", Role = UserRole.Viewer };
-        var serviceResponse = ServiceResponse<UserDto>.Fail("UserNotFound");
+            _userApplicationMock.Setup(x => x.DeleteUserByIdAsync(id))
+                .ReturnsAsync(serviceResponse);
 
-        _userApplicationMock.Setup(x => x.UpdateUserAsync(id, dto))
-            .ReturnsAsync(serviceResponse);
+            // Act
+            var result = await _userController.DeleteUserById(id);
 
-        // Act
-        var result = await _userController.UpdateUser(id, dto);
+            // Assert
+            result.Should().NotBeNull();
+            var okResult = result as OkObjectResult;
+            okResult.Should().NotBeNull();
+            okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<string>>().Subject;
+            apiResult.Data.Should().Be(id.ToString());
 
-    [Fact]
-    public async Task DeleteUser_WhenSuccessful_ShouldReturnOk()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var serviceResponse = ServiceResponse<string>.Ok(id.ToString(), "UserDeactivated");
+            _userApplicationMock.Verify(a => a.DeleteUserByIdAsync(id), Times.Once);
+        }
 
-        _userApplicationMock.Setup(x => x.DeleteUserAsync(id))
-            .ReturnsAsync(serviceResponse);
+        [Fact]
+        public async Task DeleteUserById_WhenUserNotFound_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var serviceResponse = ServiceResponse<string>.Fail("UserNotFound");
 
-        // Act
-        var result = await _userController.DeleteUser(id);
+            _userApplicationMock.Setup(x => x.DeleteUserByIdAsync(id))
+                .ReturnsAsync(serviceResponse);
 
-        // Assert
-        var okResult = result as OkObjectResult;
-        okResult.Should().NotBeNull();
-        okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
+            // Act
+            var result = await _userController.DeleteUserById(id);
 
-        var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<string>>().Subject;
-        apiResult.Data.Should().Be(id.ToString());
+            // Assert
+            result.Should().NotBeNull();
+            var badResult = result as BadRequestObjectResult;
+            badResult.Should().NotBeNull();
+            badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
-        _userApplicationMock.Verify(a => a.DeleteUserAsync(id), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteUser_WhenNotFound_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var serviceResponse = ServiceResponse<string>.Fail("UserNotFound");
-
-        _userApplicationMock.Setup(x => x.DeleteUserAsync(id))
-            .ReturnsAsync(serviceResponse);
-
-        // Act
-        var result = await _userController.DeleteUser(id);
-
-        // Assert
-        var badResult = result as BadRequestObjectResult;
-        badResult.Should().NotBeNull();
-        badResult!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            _userApplicationMock.Verify(a => a.DeleteUserByIdAsync(id), Times.Once);
+        }
     }
 }

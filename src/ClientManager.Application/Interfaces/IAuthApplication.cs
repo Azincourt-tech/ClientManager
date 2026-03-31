@@ -1,13 +1,14 @@
 using ClientManager.Application.Dtos.User;
 using ClientManager.Domain.Core.Responses;
 
-namespace ClientManager.Application.Interfaces;
-
-public interface IAuthApplication
+namespace ClientManager.Application.Interfaces
 {
-    Task<ServiceResponse<AuthResponseDto>> RegisterAsync(CreateUserDto createUserDto);
+    public interface IAuthApplication
+    {
+        Task<ServiceResponse<AuthResponseDto>> RegisterAsync(CreateUserDto userDto);
 
-    Task<ServiceResponse<AuthResponseDto>> LoginAsync(LoginDto loginDto);
+        Task<ServiceResponse<AuthResponseDto>> LoginAsync(LoginDto loginDto);
 
-    Task<ServiceResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken);
+        Task<ServiceResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken);
+    }
 }

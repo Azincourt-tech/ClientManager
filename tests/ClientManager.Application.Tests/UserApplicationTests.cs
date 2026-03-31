@@ -5,262 +5,282 @@ using ClientManager.Domain.Model;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
-namespace ClientManager.Application.Tests;
-
-public class UserApplicationTests
+namespace ClientManager.Application.Tests
 {
-    private readonly Mock<IUserService> _userServiceMock;
-    private readonly Mock<IValidator<CreateUserDto>> _validatorMock;
-    private readonly UserApplication _userApplication;
-
-    public UserApplicationTests()
+    public class UserApplicationTests
     {
-        _userServiceMock = new Mock<IUserService>();
-        _validatorMock = new Mock<IValidator<CreateUserDto>>();
+        private readonly Mock<IUserService> _userServiceMock;
+        private readonly Mock<IValidator<CreateUserDto>> _createUserValidatorMock;
+        private readonly UserApplication _userApplication;
 
-        _userApplication = new UserApplication(
-            _userServiceMock.Object,
-            _validatorMock.Object
-        );
-    }
-
-    [Fact]
-    public async Task CreateUserAsync_WhenValid_ShouldCreateUser()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        public UserApplicationTests()
         {
-            Username = "newuser",
-            Email = "newuser@test.com",
-            Password = "Password123",
+            _userServiceMock = new Mock<IUserService>();
+            _createUserValidatorMock = new Mock<IValidator<CreateUserDto>>();
+
+            _userApplication = new UserApplication(
+                _userServiceMock.Object,
+                _createUserValidatorMock.Object
+            );
+        }
+
+        private CreateUserDto CreateValidUserDto() => new CreateUserDto
+        {
+            Username = "testuser",
+            Email = "test@example.com",
+            Password = "password123",
             Role = UserRole.Viewer
         };
 
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult());
-        _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
-            .ReturnsAsync((User?)null);
-        _userServiceMock.Setup(s => s.GetUserByEmailAsync(dto.Email))
-            .ReturnsAsync((User?)null);
-
-        // Act
-        var result = await _userApplication.CreateUserAsync(dto);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Username.Should().Be(dto.Username);
-        result.Data.Email.Should().Be(dto.Email);
-        _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateUserAsync_WhenValidationFails_ShouldReturnFail()
-    {
-        // Arrange
-        var dto = new CreateUserDto { Username = "", Email = "", Password = "", Role = UserRole.Viewer };
-
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult(new[] { new ValidationFailure("Username", "UsernameRequired") }));
-
-        // Act
-        var result = await _userApplication.CreateUserAsync(dto);
-
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("UsernameRequired");
-        _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task CreateUserAsync_WhenUsernameExists_ShouldReturnFail()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        [Fact]
+        public async Task AddUserAsync_WhenValid_ShouldReturnSuccess()
         {
-            Username = "existinguser",
-            Email = "new@test.com",
-            Password = "Password123",
-            Role = UserRole.Viewer
-        };
+            // Arrange
+            var dto = CreateValidUserDto();
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
+                .ReturnsAsync((User?)null);
+            _userServiceMock.Setup(s => s.GetUserByEmailAsync(dto.Email))
+                .ReturnsAsync((User?)null);
 
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult());
-        _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
-            .ReturnsAsync(new User("existinguser", "existing@test.com", "hash", UserRole.Viewer));
+            // Act
+            var result = await _userApplication.AddUserAsync(dto);
 
-        // Act
-        var result = await _userApplication.CreateUserAsync(dto);
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data.Should().NotBeEmpty();
+            result.Message.Should().Be("UserInserted");
+            _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Once);
+        }
 
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("UsernameAlreadyExists");
-        _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task CreateUserAsync_WhenEmailExists_ShouldReturnFail()
-    {
-        // Arrange
-        var dto = new CreateUserDto
+        [Fact]
+        public async Task AddUserAsync_WhenValidationFails_ShouldReturnFail()
         {
-            Username = "newuser",
-            Email = "existing@test.com",
-            Password = "Password123",
-            Role = UserRole.Viewer
-        };
+            // Arrange
+            var dto = CreateValidUserDto();
+            var validationFailure = new ValidationResult(new[] { new ValidationFailure("Username", "UsernameRequired") });
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(validationFailure);
 
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult());
-        _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
-            .ReturnsAsync((User?)null);
-        _userServiceMock.Setup(s => s.GetUserByEmailAsync(dto.Email))
-            .ReturnsAsync(new User("otheruser", "existing@test.com", "hash", UserRole.Viewer));
+            // Act
+            var result = await _userApplication.AddUserAsync(dto);
 
-        // Act
-        var result = await _userApplication.CreateUserAsync(dto);
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UsernameRequired");
+            _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
+        }
 
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("EmailAlreadyExists");
-        _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task GetUserByIdAsync_WhenExists_ShouldReturnUser()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var user = new User("testuser", "test@test.com", "hash", UserRole.Admin, id);
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(user);
-
-        // Act
-        var result = await _userApplication.GetUserByIdAsync(id);
-
-        // Assert
-        result.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Id.Should().Be(id);
-        result.Data.Username.Should().Be("testuser");
-    }
-
-    [Fact]
-    public async Task GetUserByIdAsync_WhenNotFound_ShouldReturnFail()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
-
-        // Act
-        var result = await _userApplication.GetUserByIdAsync(id);
-
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("UserNotFound");
-    }
-
-    [Fact]
-    public async Task GetUsersAsync_ShouldReturnAllUsers()
-    {
-        // Arrange
-        var users = new List<User>
+        [Fact]
+        public async Task AddUserAsync_WhenUsernameAlreadyExists_ShouldReturnFail()
         {
-            new User("user1", "user1@test.com", "hash1", UserRole.Admin),
-            new User("user2", "user2@test.com", "hash2", UserRole.Viewer)
-        };
-        _userServiceMock.Setup(s => s.GetUsersAsync()).ReturnsAsync(users);
+            // Arrange
+            var dto = CreateValidUserDto();
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
+                .ReturnsAsync(new User(dto.Username, dto.Email, "hash", dto.Role));
 
-        // Act
-        var result = await _userApplication.GetUsersAsync();
+            // Act
+            var result = await _userApplication.AddUserAsync(dto);
 
-        // Assert
-        result.Success.Should().BeTrue();
-        result.Data.Should().NotBeNull();
-        result.Data!.Should().HaveCount(2);
-    }
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UsernameAlreadyExists");
+            _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
+        }
 
-    [Fact]
-    public async Task UpdateUserAsync_WhenExists_ShouldUpdateAndReturnUser()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var dto = new CreateUserDto
+        [Fact]
+        public async Task AddUserAsync_WhenEmailAlreadyExists_ShouldReturnFail()
         {
-            Username = "updateduser",
-            Email = "updated@test.com",
-            Password = "NewPassword123",
-            Role = UserRole.Manager
-        };
-        var existingUser = new User("olduser", "old@test.com", "oldhash", UserRole.Viewer, id);
+            // Arrange
+            var dto = CreateValidUserDto();
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByUsernameAsync(dto.Username))
+                .ReturnsAsync((User?)null);
+            _userServiceMock.Setup(s => s.GetUserByEmailAsync(dto.Email))
+                .ReturnsAsync(new User("otheruser", dto.Email, "hash", dto.Role));
 
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult());
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(existingUser);
+            // Act
+            var result = await _userApplication.AddUserAsync(dto);
 
-        // Act
-        var result = await _userApplication.UpdateUserAsync(id, dto);
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("EmailAlreadyExists");
+            _userServiceMock.Verify(s => s.AddUserAsync(It.IsAny<User>()), Times.Never);
+        }
 
-        // Assert
-        result.Success.Should().BeTrue();
-        result.Data!.Username.Should().Be(dto.Username);
-        existingUser.Username.Should().Be(dto.Username);
-        _userServiceMock.Verify(s => s.UpdateUserAsync(existingUser), Times.Once);
-    }
+        [Fact]
+        public async Task GetUserByIdAsync_WhenUserExists_ShouldReturnUser()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var user = new User("testuser", "test@test.com", "hash", UserRole.Admin, id);
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(user);
 
-    [Fact]
-    public async Task UpdateUserAsync_WhenNotFound_ShouldReturnFail()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var dto = new CreateUserDto { Username = "user", Email = "email@test.com", Password = "pass", Role = UserRole.Viewer };
+            // Act
+            var result = await _userApplication.GetUserByIdAsync(id);
 
-        _validatorMock.Setup(v => v.ValidateAsync(dto, default))
-            .ReturnsAsync(new ValidationResult());
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data.Should().NotBeNull();
+            result.Data!.Id.Should().Be(id);
+            result.Data.Username.Should().Be("testuser");
+        }
 
-        // Act
-        var result = await _userApplication.UpdateUserAsync(id, dto);
+        [Fact]
+        public async Task GetUserByIdAsync_WhenUserNotFound_ShouldReturnFail()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
 
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("UserNotFound");
-    }
+            // Act
+            var result = await _userApplication.GetUserByIdAsync(id);
 
-    [Fact]
-    public async Task DeleteUserAsync_WhenExists_ShouldDeactivateUser()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        var user = new User("user", "user@test.com", "hash", UserRole.Viewer, id);
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(user);
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UserNotFound");
+        }
 
-        // Act
-        var result = await _userApplication.DeleteUserAsync(id);
+        [Fact]
+        public async Task GetUsersAsync_ShouldReturnAllUsers()
+        {
+            // Arrange
+            var users = new List<User>
+            {
+                new User("user1", "user1@test.com", "hash1", UserRole.Admin),
+                new User("user2", "user2@test.com", "hash2", UserRole.Viewer)
+            };
+            _userServiceMock.Setup(s => s.GetUsersAsync()).ReturnsAsync(users);
 
-        // Assert
-        result.Success.Should().BeTrue();
-        result.Data.Should().Be(id.ToString());
-        user.IsActive.Should().BeFalse();
-        _userServiceMock.Verify(s => s.UpdateUserAsync(user), Times.Once);
-    }
+            // Act
+            var result = await _userApplication.GetUsersAsync();
 
-    [Fact]
-    public async Task DeleteUserAsync_WhenNotFound_ShouldReturnFail()
-    {
-        // Arrange
-        var id = Guid.NewGuid();
-        _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data.Should().HaveCount(2);
+        }
 
-        // Act
-        var result = await _userApplication.DeleteUserAsync(id);
+        [Fact]
+        public async Task UpdateUserAsync_WhenUserExists_ShouldUpdateAndReturnSuccess()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var dto = CreateValidUserDto();
+            var existingUser = new User("olduser", "old@test.com", "oldhash", UserRole.Viewer, id);
 
-        // Assert
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("UserNotFound");
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(existingUser);
+
+            // Act
+            var result = await _userApplication.UpdateUserAsync(id, dto);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Message.Should().Be("UserUpdated");
+            existingUser.Username.Should().Be(dto.Username);
+            existingUser.Email.Should().Be(dto.Email);
+            _userServiceMock.Verify(s => s.UpdateUserAsync(existingUser), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateUserAsync_WhenUserNotFound_ShouldReturnFail()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var dto = CreateValidUserDto();
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
+
+            // Act
+            var result = await _userApplication.UpdateUserAsync(id, dto);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UserNotFound");
+            _userServiceMock.Verify(s => s.UpdateUserAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateUserAsync_WhenValidationFails_ShouldReturnFail()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var dto = CreateValidUserDto();
+            var validationFailure = new ValidationResult(new[] { new ValidationFailure("Username", "UsernameRequired") });
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(validationFailure);
+
+            // Act
+            var result = await _userApplication.UpdateUserAsync(id, dto);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UsernameRequired");
+            _userServiceMock.Verify(s => s.UpdateUserAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateUserAsync_WhenPasswordProvided_ShouldUpdatePasswordHash()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var dto = CreateValidUserDto();
+            dto.Password = "newpassword456";
+            var existingUser = new User("olduser", "old@test.com", "oldhash", UserRole.Viewer, id);
+
+            _createUserValidatorMock.Setup(v => v.ValidateAsync(dto, default))
+                .ReturnsAsync(new ValidationResult());
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(existingUser);
+
+            // Act
+            var result = await _userApplication.UpdateUserAsync(id, dto);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            existingUser.PasswordHash.Should().NotBe("oldhash");
+            _userServiceMock.Verify(s => s.UpdateUserAsync(existingUser), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteUserByIdAsync_WhenUserExists_ShouldReturnSuccess()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var user = new User("testuser", "test@test.com", "hash", UserRole.Admin, id);
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync(user);
+
+            // Act
+            var result = await _userApplication.DeleteUserByIdAsync(id);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Message.Should().Be("UserDeleted");
+            _userServiceMock.Verify(s => s.DeleteUserByIdAsync(id), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteUserByIdAsync_WhenUserNotFound_ShouldReturnFail()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _userServiceMock.Setup(s => s.GetUserByIdAsync(id)).ReturnsAsync((User?)null);
+
+            // Act
+            var result = await _userApplication.DeleteUserByIdAsync(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Message.Should().Be("UserNotFound");
+            _userServiceMock.Verify(s => s.DeleteUserByIdAsync(It.IsAny<Guid>()), Times.Never);
+        }
     }
 }

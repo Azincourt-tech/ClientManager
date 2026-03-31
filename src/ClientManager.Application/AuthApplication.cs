@@ -1,97 +1,128 @@
-using ClientManager.Application.Dtos.User;
-using ClientManager.Application.Interfaces;
 using ClientManager.Application.Mappers;
-using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
-using Microsoft.Extensions.Configuration;
+using FluentValidation;
 
-namespace ClientManager.Application;
-
-public class AuthApplication : IAuthApplication
+namespace ClientManager.Application
 {
-    private readonly IUserService _userService;
-    private readonly ITokenService _tokenService;
-    private readonly IConfiguration _configuration;
-
-    public AuthApplication(IUserService userService, ITokenService tokenService, IConfiguration configuration)
+    public class AuthApplication : IAuthApplication
     {
-        _userService = userService;
-        _tokenService = tokenService;
-        _configuration = configuration;
-    }
+        private readonly IUserService _userService;
+        private readonly ITokenService _tokenService;
+        private readonly IValidator<Dtos.User.CreateUserDto> _createUserValidator;
+        private readonly IValidator<Dtos.User.LoginDto> _loginValidator;
 
-    public async Task<ServiceResponse<AuthResponseDto>> RegisterAsync(CreateUserDto createUserDto)
-    {
-        var existingUser = await _userService.GetUserByUsernameAsync(createUserDto.Username).ConfigureAwait(false);
-        if (existingUser != null)
-            return ServiceResponse<AuthResponseDto>.Fail("UsernameAlreadyExists");
+        // In-memory refresh token storage (in production, use a persistent store)
+        private static readonly Dictionary<string, Guid> _refreshTokens = new();
 
-        var existingEmail = await _userService.GetUserByEmailAsync(createUserDto.Email).ConfigureAwait(false);
-        if (existingEmail != null)
-            return ServiceResponse<AuthResponseDto>.Fail("EmailAlreadyExists");
-
-        var passwordHash = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password);
-        var user = createUserDto.ToModel(passwordHash);
-
-        await _userService.AddUserAsync(user).ConfigureAwait(false);
-
-        var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role.ToString());
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        var expirationMinutes = double.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
-
-        var response = new AuthResponseDto
+        public AuthApplication(
+            IUserService userService,
+            ITokenService tokenService,
+            IValidator<Dtos.User.CreateUserDto> createUserValidator,
+            IValidator<Dtos.User.LoginDto> loginValidator)
         {
-            Token = token,
-            RefreshToken = refreshToken,
-            Expiration = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes),
-            User = user.ToDto()
-        };
+            _userService = userService;
+            _tokenService = tokenService;
+            _createUserValidator = createUserValidator;
+            _loginValidator = loginValidator;
+        }
 
-        return ServiceResponse<AuthResponseDto>.Ok(response, "UserRegistered");
-    }
-
-    public async Task<ServiceResponse<AuthResponseDto>> LoginAsync(LoginDto loginDto)
-    {
-        var user = await _userService.GetUserByUsernameAsync(loginDto.Username).ConfigureAwait(false);
-
-        if (user == null)
-            return ServiceResponse<AuthResponseDto>.Fail("InvalidCredentials");
-
-        if (!user.IsActive)
-            return ServiceResponse<AuthResponseDto>.Fail("UserInactive");
-
-        if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
-            return ServiceResponse<AuthResponseDto>.Fail("InvalidCredentials");
-
-        var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role.ToString());
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        var expirationMinutes = double.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
-
-        var response = new AuthResponseDto
+        public async Task<ServiceResponse<Dtos.User.AuthResponseDto>> RegisterAsync(Dtos.User.CreateUserDto userDto)
         {
-            Token = token,
-            RefreshToken = refreshToken,
-            Expiration = DateTimeOffset.UtcNow.AddMinutes(expirationMinutes),
-            User = user.ToDto()
-        };
+            var validationResult = await _createUserValidator.ValidateAsync(userDto).ConfigureAwait(false);
 
-        return ServiceResponse<AuthResponseDto>.Ok(response, "LoginSuccessful");
-    }
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail(firstError);
+            }
 
-    public async Task<ServiceResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken)
-    {
-        if (string.IsNullOrWhiteSpace(refreshToken))
-            return ServiceResponse<AuthResponseDto>.Fail("RefreshTokenRequired");
+            var existingUser = await _userService.GetUserByUsernameAsync(userDto.Username).ConfigureAwait(false);
+            if (existingUser != null)
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("UsernameAlreadyExists");
 
-        var newToken = _tokenService.GenerateRefreshToken();
+            var existingEmail = await _userService.GetUserByEmailAsync(userDto.Email).ConfigureAwait(false);
+            if (existingEmail != null)
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("EmailAlreadyExists");
 
-        var response = new AuthResponseDto
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            var user = userDto.ToModel(passwordHash);
+
+            await _userService.AddUserAsync(user).ConfigureAwait(false);
+
+            var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            _refreshTokens[refreshToken] = user.Id;
+
+            var authResponse = new Dtos.User.AuthResponseDto
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                User = user.ToDto(),
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+
+            return ServiceResponse<Dtos.User.AuthResponseDto>.Ok(authResponse, "UserRegistered");
+        }
+
+        public async Task<ServiceResponse<Dtos.User.AuthResponseDto>> LoginAsync(Dtos.User.LoginDto loginDto)
         {
-            Token = newToken,
-            RefreshToken = newToken,
-            Expiration = DateTimeOffset.UtcNow.AddMinutes(double.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60"))
-        };
+            var validationResult = await _loginValidator.ValidateAsync(loginDto).ConfigureAwait(false);
 
-        return ServiceResponse<AuthResponseDto>.Ok(response, "TokenRefreshed");
+            if (!validationResult.IsValid)
+            {
+                var firstError = validationResult.Errors.First().ErrorMessage;
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail(firstError);
+            }
+
+            var user = await _userService.GetUserByUsernameAsync(loginDto.Username).ConfigureAwait(false);
+            if (user == null)
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("InvalidCredentials");
+
+            if (!user.IsActive)
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("UserInactive");
+
+            if (!BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("InvalidCredentials");
+
+            var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            _refreshTokens[refreshToken] = user.Id;
+
+            var authResponse = new Dtos.User.AuthResponseDto
+            {
+                Token = token,
+                RefreshToken = refreshToken,
+                User = user.ToDto(),
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+
+            return ServiceResponse<Dtos.User.AuthResponseDto>.Ok(authResponse, "LoginSuccessful");
+        }
+
+        public async Task<ServiceResponse<Dtos.User.AuthResponseDto>> RefreshTokenAsync(string refreshToken)
+        {
+            if (!_refreshTokens.TryGetValue(refreshToken, out var userId))
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("InvalidRefreshToken");
+
+            _refreshTokens.Remove(refreshToken);
+
+            var user = await _userService.GetUserByIdAsync(userId).ConfigureAwait(false);
+            if (user == null || !user.IsActive)
+                return ServiceResponse<Dtos.User.AuthResponseDto>.Fail("UserNotFound");
+
+            var newToken = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+            _refreshTokens[newRefreshToken] = user.Id;
+
+            var authResponse = new Dtos.User.AuthResponseDto
+            {
+                Token = newToken,
+                RefreshToken = newRefreshToken,
+                User = user.ToDto(),
+                ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
+            };
+
+            return ServiceResponse<Dtos.User.AuthResponseDto>.Ok(authResponse, "TokenRefreshed");
+        }
     }
 }

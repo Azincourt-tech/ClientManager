@@ -23,7 +23,25 @@ builder.Services.AddControllers()
     });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnetcore/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Components ??= new();
+        document.Components.SecuritySchemes = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiSecurityScheme>
+        {
+            ["Bearer"] = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                Description = "Enter your JWT token"
+            }
+        };
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddRavenDb(builder.Configuration);
 builder.Services.AddDomainServices();
@@ -33,11 +51,6 @@ builder.Services.AddValidators();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
 builder.Services.AddJwtAuthentication(builder.Configuration);
-
-// Workers (formerly separate Worker service)
-builder.Services.AddScoped<DocumentUploadedConsumer>();
-builder.Services.AddScoped<CustomerCreatedConsumer>();
-builder.Services.AddHostedService<MessageBusWorker>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

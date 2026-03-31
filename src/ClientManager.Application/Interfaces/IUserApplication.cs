@@ -1,17 +1,18 @@
 using ClientManager.Application.Dtos.User;
 using ClientManager.Domain.Core.Responses;
 
-namespace ClientManager.Application.Interfaces;
-
-public interface IUserApplication
+namespace ClientManager.Application.Interfaces
 {
-    Task<ServiceResponse<UserDto>> CreateUserAsync(CreateUserDto createUserDto);
+    public interface IUserApplication
+    {
+        Task<ServiceResponse<Guid>> AddUserAsync(CreateUserDto userDto);
 
-    Task<ServiceResponse<UserDto>> GetUserByIdAsync(Guid id);
+        Task<ServiceResponse<string>> UpdateUserAsync(Guid id, CreateUserDto userDto);
 
-    Task<ServiceResponse<IEnumerable<UserDto>>> GetUsersAsync();
+        Task<ServiceResponse<string>> DeleteUserByIdAsync(Guid id);
 
-    Task<ServiceResponse<UserDto>> UpdateUserAsync(Guid id, CreateUserDto updateUserDto);
+        Task<ServiceResponse<IEnumerable<UserDto>>> GetUsersAsync();
 
-    Task<ServiceResponse<string>> DeleteUserAsync(Guid id);
+        Task<ServiceResponse<UserDto?>> GetUserByIdAsync(Guid id);
+    }
 }
