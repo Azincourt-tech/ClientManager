@@ -25,6 +25,7 @@ namespace ClientManager.Api.Controllers
         /// Returns a localized welcome message.
         /// </summary>
         [HttpGet("welcome")]
+        [AllowAnonymous]
         [EndpointSummary("Returns a localized welcome message.")]
         [ProducesResponseType(typeof(ApiOkResult<string>), StatusCodes.Status200OK)]
         public IActionResult GetWelcome()
