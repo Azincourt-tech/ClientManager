@@ -13,17 +13,19 @@ services:
         sync: false # CloudAMQP URL
       # Email: Resend
       - key: Resend__ApiKey
-        sync: false # Resend API key (re_xxx) - already configured
+        sync: false
       - key: Resend__FromEmail
-        value: onboarding@resend.dev
+        sync: false
       - key: Resend__FromName
-        value: ClientManager
+        sync: false
       # RavenDB
       - key: RavenDbSettings__Url
         sync: false
       - key: RavenDbSettings__Database
-        value: ClientManagerDB
+        sync: false
       - key: RavenDbSettings__CertificateBase64
+        sync: false
+      - key: RavenDbSettings__CertificatePassword
         sync: false
 
   # Worker removido - agora roda in-process na API como MessageBusWorker
