@@ -81,6 +81,14 @@ app.UseRequestLocalization(localizationOptions);
 
 app.UseCors("AllowAll");
 
+// Allow Scalar to work inside Render dashboard iframe
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Remove("X-Frame-Options");
+    context.Response.Headers["Content-Security-Policy"] = "frame-ancestors *;";
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
 
