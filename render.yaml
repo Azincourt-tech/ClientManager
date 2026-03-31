@@ -5,24 +5,32 @@ services:
     env: docker
     dockerContext: .
     dockerfilePath: src/ClientManager.Api/Dockerfile
-    plan: free # Use 'free' or 'starter'
+    plan: free
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__RabbitMQ
-        sync: false # Set in Render UI (CloudAMQP URL)
-      - key: SendGrid__ApiKey
-        sync: false # Set in Render UI
-      - key: SendGrid__FromEmail
-        sync: false # Set in Render UI
-      - key: SendGrid__FromName
+        sync: false # CloudAMQP URL
+      # Email: Resend (producao)
+      - key: Smtp__Host
+        value: smtp.resend.com
+      - key: Smtp__Port
+        value: 465
+      - key: Smtp__Username
+        value: resend
+      - key: Smtp__Password
+        sync: false # Resend API key (re_xxx)
+      - key: Smtp__FromEmail
+        sync: false # Verified sender email in Resend
+      - key: Smtp__FromName
         value: ClientManager
+      # RavenDB
       - key: RavenDbSettings__Url
-        sync: false # Set in Render UI
+        sync: false
       - key: RavenDbSettings__Database
         value: ClientManagementDB
       - key: RavenDbSettings__CertificateBase64
-        sync: false # Set in Render UI (Optional)
+        sync: false
 
   # 2. Background Worker
   - type: worker
@@ -35,13 +43,21 @@ services:
       - key: DOTNET_ENVIRONMENT
         value: Production
       - key: ConnectionStrings__RabbitMQ
-        sync: false # Use the same URL as above
-      - key: SendGrid__ApiKey
-        sync: false
-      - key: SendGrid__FromEmail
-        sync: false
-      - key: SendGrid__FromName
+        sync: false # Same CloudAMQP URL as API
+      # Email: Resend (producao)
+      - key: Smtp__Host
+        value: smtp.resend.com
+      - key: Smtp__Port
+        value: 465
+      - key: Smtp__Username
+        value: resend
+      - key: Smtp__Password
+        sync: false # Resend API key (re_xxx)
+      - key: Smtp__FromEmail
+        sync: false # Verified sender email in Resend
+      - key: Smtp__FromName
         value: ClientManager
+      # RavenDB
       - key: RavenDbSettings__Url
         sync: false
       - key: RavenDbSettings__Database
