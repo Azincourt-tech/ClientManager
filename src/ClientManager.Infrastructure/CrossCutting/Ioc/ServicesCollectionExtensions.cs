@@ -34,7 +34,12 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
                 }
                 else if (!string.IsNullOrEmpty(certBase64))
                 {
-                    byte[] certBytes = Convert.FromBase64String(certBase64);
+                    var cleanCert = certBase64
+                        .Replace("\n", "")
+                        .Replace("\r", "")
+                        .Replace(" ", "")
+                        .Trim();
+                    byte[] certBytes = Convert.FromBase64String(cleanCert);
                     store.Certificate = X509CertificateLoader.LoadPkcs12(certBytes, certPassword);
                 }
 
