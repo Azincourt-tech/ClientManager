@@ -22,7 +22,7 @@ services:
       - key: RavenDbSettings__Url
         sync: false
       - key: RavenDbSettings__Database
-        value: ClientManagementDB
+        value: ClientManagerDB
       - key: RavenDbSettings__CertificateBase64
         sync: false
 
