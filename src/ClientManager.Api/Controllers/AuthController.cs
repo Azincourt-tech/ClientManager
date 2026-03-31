@@ -25,15 +25,32 @@ public class AuthController : MainController
     /// Registers a new user in the system.
     /// </summary>
     /// <param name="userDto">The user data to register.</param>
-    /// <returns>A service response containing the authentication token and user info.</returns>
+    /// <returns>A service response containing the user info (without token).</returns>
     [HttpPost("register", Name = "auth-register")]
     [EndpointSummary("Registers a new user in the system.")]
-    [ProducesResponseType(typeof(ApiOkResult<AuthResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiOkResult<RegisterResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiBadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register(CreateUserDto userDto)
     {
         var response = await _authApplication.RegisterAsync(userDto).ConfigureAwait(false);
-        return ServiceResponse(response);
+
+        if (!response.Success || response.Data == null)
+        {
+            return ServiceResponse(new ServiceResponse<RegisterResponseDto>
+            {
+                Success = false,
+                Message = response.Message,
+                Notifications = response.Notifications
+            });
+        }
+
+        var registerResponse = new RegisterResponseDto
+        {
+            User = response.Data.User,
+            ExpiresAt = response.Data.ExpiresAt
+        };
+
+        return ServiceResponse(new ServiceResponse<RegisterResponseDto>(registerResponse, response.Message));
     }
 
     /// <summary>
