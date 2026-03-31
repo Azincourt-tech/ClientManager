@@ -1,5 +1,5 @@
 services:
-  # 1. Web Service (API)
+  # 1. Web Service (API + Worker)
   - type: web
     name: clientmanager-api
     env: docker
@@ -13,7 +13,7 @@ services:
         sync: false # CloudAMQP URL
       # Email: Resend
       - key: Resend__ApiKey
-        sync: false # Resend API key (re_xxx)
+        sync: false # Resend API key (re_xxx) - already configured
       - key: Resend__FromEmail
         value: onboarding@resend.dev
       - key: Resend__FromName
@@ -26,29 +26,4 @@ services:
       - key: RavenDbSettings__CertificateBase64
         sync: false
 
-  # 2. Background Worker
-  - type: worker
-    name: clientmanager-worker
-    env: docker
-    dockerContext: .
-    dockerfilePath: src/ClientManager.Worker/Dockerfile
-    plan: free
-    envVars:
-      - key: DOTNET_ENVIRONMENT
-        value: Production
-      - key: ConnectionStrings__RabbitMQ
-        sync: false # Same CloudAMQP URL as API
-      # Email: Resend
-      - key: Resend__ApiKey
-        sync: false # Resend API key (re_xxx)
-      - key: Resend__FromEmail
-        value: onboarding@resend.dev
-      - key: Resend__FromName
-        value: ClientManager
-      # RavenDB
-      - key: RavenDbSettings__Url
-        sync: false
-      - key: RavenDbSettings__Database
-        value: ClientManagementDB
-      - key: RavenDbSettings__CertificateBase64
-        sync: false
+  # Worker removido - agora roda in-process na API como MessageBusWorker

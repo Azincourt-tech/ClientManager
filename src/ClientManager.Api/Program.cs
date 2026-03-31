@@ -1,5 +1,7 @@
 using ClientManager.Api;
+using ClientManager.Api.Consumers;
 using ClientManager.Api.Middlewares;
+using ClientManager.Api.Workers;
 using ClientManager.Infrastructure.Messaging.DependencyInjection;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -31,6 +33,11 @@ builder.Services.AddValidators();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// Workers (formerly separate Worker service)
+builder.Services.AddScoped<DocumentUploadedConsumer>();
+builder.Services.AddScoped<CustomerCreatedConsumer>();
+builder.Services.AddHostedService<MessageBusWorker>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
