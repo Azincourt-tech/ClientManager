@@ -170,39 +170,5 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
             return servicesCollection;
         }
-
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
-        {
-            var secretKey = configuration["JwtSettings:SecretKey"] ?? "DefaultSecretKeyForDevelopment12345678901234567890";
-            var issuer = configuration["JwtSettings:Issuer"] ?? "ClientManager";
-            var audience = configuration["JwtSettings:Audience"] ?? "ClientManager";
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-                };
-            });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Admin", "Manager"));
-            });
-
-            return services;
-        }
     }
 }

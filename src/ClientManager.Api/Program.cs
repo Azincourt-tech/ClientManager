@@ -82,8 +82,6 @@ app.MapScalarApiReference(options =>
            .HideDeveloperTools();
 });
 
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
