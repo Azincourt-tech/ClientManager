@@ -39,6 +39,13 @@ builder.Services.AddOpenApi(options =>
                 Description = "Enter your JWT token"
             }
         };
+
+        // Force HTTPS in server URL to avoid Mixed Content errors
+        document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
+        {
+            new() { Url = "https://clientmanager-ie0y.onrender.com/" }
+        };
+
         return Task.CompletedTask;
     });
 });
