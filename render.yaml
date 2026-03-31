@@ -11,18 +11,12 @@ services:
         value: Production
       - key: ConnectionStrings__RabbitMQ
         sync: false # CloudAMQP URL
-      # Email: Resend (producao)
-      - key: Smtp__Host
-        value: smtp.resend.com
-      - key: Smtp__Port
-        value: 465
-      - key: Smtp__Username
-        value: resend
-      - key: Smtp__Password
+      # Email: Resend
+      - key: Resend__ApiKey
         sync: false # Resend API key (re_xxx)
-      - key: Smtp__FromEmail
-        sync: false # Verified sender email in Resend
-      - key: Smtp__FromName
+      - key: Resend__FromEmail
+        value: onboarding@resend.dev
+      - key: Resend__FromName
         value: ClientManager
       # RavenDB
       - key: RavenDbSettings__Url
@@ -44,18 +38,12 @@ services:
         value: Production
       - key: ConnectionStrings__RabbitMQ
         sync: false # Same CloudAMQP URL as API
-      # Email: Resend (producao)
-      - key: Smtp__Host
-        value: smtp.resend.com
-      - key: Smtp__Port
-        value: 465
-      - key: Smtp__Username
-        value: resend
-      - key: Smtp__Password
+      # Email: Resend
+      - key: Resend__ApiKey
         sync: false # Resend API key (re_xxx)
-      - key: Smtp__FromEmail
-        sync: false # Verified sender email in Resend
-      - key: Smtp__FromName
+      - key: Resend__FromEmail
+        value: onboarding@resend.dev
+      - key: Resend__FromName
         value: ClientManager
       # RavenDB
       - key: RavenDbSettings__Url

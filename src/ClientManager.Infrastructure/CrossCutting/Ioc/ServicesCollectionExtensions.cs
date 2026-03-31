@@ -102,8 +102,12 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection, IConfiguration configuration)
         {
-            var useSmtp = configuration.GetSection("Smtp").Exists();
-            if (useSmtp)
+            // Prioridade: Resend > Smtp (Mailtrap/dev) > SendGrid (fallback)
+            if (!string.IsNullOrEmpty(configuration["Resend:ApiKey"]))
+            {
+                servicesCollection.TryAddScoped<IEmailService, ResendEmailService>();
+            }
+            else if (configuration.GetSection("Smtp").Exists() && !string.IsNullOrEmpty(configuration["Smtp:Host"]))
             {
                 servicesCollection.TryAddScoped<IEmailService, SmtpEmailService>();
             }
