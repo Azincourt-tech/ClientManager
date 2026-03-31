@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Raven.Client.ServerWide.Operations;
 
 namespace ClientManager.Infrastructure.CrossCutting.HealthChecks
 {
@@ -13,17 +14,19 @@ namespace ClientManager.Infrastructure.CrossCutting.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(10));
+
             try
             {
-                // Tenta realizar uma consulta assíncrona simples para testar a conexão
-                using (var session = _documentStore.OpenAsyncSession())
-                {
-                    // RavenDB Async API para Raw Query
-                    await session.Advanced.AsyncRawQuery<dynamic>("from @all_docs limit 1")
-                                 .ToListAsync(cancellationToken);
-                }
+                var operation = new GetDatabaseNamesOperation(0, 1);
+                await _documentStore.Maintenance.Server.SendAsync(operation, cts.Token);
 
                 return HealthCheckResult.Healthy("RavenDB connection is healthy.");
+            }
+            catch (OperationCanceledException)
+            {
+                return HealthCheckResult.Degraded("RavenDB health check timed out. This may indicate a cold start or temporary unavailability.");
             }
             catch (Exception ex)
             {

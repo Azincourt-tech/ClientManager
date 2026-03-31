@@ -52,6 +52,16 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -68,6 +78,8 @@ var localizationOptions = new RequestLocalizationOptions()
 localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 
 app.UseRequestLocalization(localizationOptions);
+
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
