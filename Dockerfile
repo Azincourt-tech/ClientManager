@@ -28,8 +28,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Render define a variável PORT automaticamente.
-ENV ASPNETCORE_URLS=http://+:${PORT:-10000}
+# ASP.NET Core uses PORT env var in containers, fallback to 10000
+ENV ASPNETCORE_URLS=http://*:10000
 EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "ClientManager.Api.dll"]
