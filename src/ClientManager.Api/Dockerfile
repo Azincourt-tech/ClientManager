@@ -15,7 +15,8 @@ COPY ["src/ClientManager.Infrastructure/ClientManager.Infrastructure.csproj", "s
 COPY ["src/ClientManager.Infrastructure.Messaging/ClientManager.Infrastructure.Messaging.csproj", "src/ClientManager.Infrastructure.Messaging/"]
 COPY ["ClientManager.sln", "./"]
 
-RUN dotnet restore "ClientManager.Api.csproj"
+# Restore dependencies using full path from WORKDIR /src
+RUN dotnet restore "src/ClientManager.Api/ClientManager.Api.csproj"
 
 # Copy the rest of the code and build
 COPY . .
