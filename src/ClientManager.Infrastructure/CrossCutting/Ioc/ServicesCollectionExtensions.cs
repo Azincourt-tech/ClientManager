@@ -2,7 +2,6 @@ using ClientManager.Infrastructure.CrossCutting.HealthChecks;
 using ClientManager.Infrastructure.CrossCutting.Security;
 using ClientManager.Infrastructure.CrossCutting.Settings;
 using ClientManager.Infrastructure.CrossCutting.Validators;
-using ClientManager.Infrastructure.CrossCutting.Security;
 using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Infrastructure.Services;
 using FluentValidation;

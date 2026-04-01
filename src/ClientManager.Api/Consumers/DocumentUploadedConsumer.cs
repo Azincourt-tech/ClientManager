@@ -26,7 +26,7 @@ public class DocumentUploadedConsumer(
 
             // 1. File Integrity Check (Simulated)
             await Task.Delay(1000);
-            if (@event.FileName.EndsWith(".exe") || @event.FileName.EndsWith(".bat"))
+            if (@event.FileName.EndsWith(".exe", StringComparison.Ordinal) || @event.FileName.EndsWith(".bat", StringComparison.Ordinal))
             {
                 document.Reject("File integrity check failed: Potentially dangerous file type.");
                 await documentService.UpdateDocumentAsync(document);

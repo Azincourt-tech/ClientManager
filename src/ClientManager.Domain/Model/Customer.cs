@@ -46,7 +46,7 @@ namespace ClientManager.Domain.Model
             Address = address;
         }
 
-        private string CleanDocument(string document)
+        private static string CleanDocument(string document)
         {
             if (string.IsNullOrWhiteSpace(document)) return string.Empty;
             return new string(document.Where(c => char.IsDigit(c)).ToArray());
@@ -59,7 +59,7 @@ namespace ClientManager.Domain.Model
             var docsList = documents?.ToList() ?? new List<Document>();
 
             // Se não tem nenhum documento, volta/mantém como Pendente
-            if (!docsList.Any())
+            if (docsList.Count == 0)
             {
                 SetPending();
                 return;
