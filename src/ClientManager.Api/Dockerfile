@@ -33,3 +33,5 @@ ENV ASPNETCORE_HTTP_PORTS=10000
 EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "ClientManager.Api.dll"]
+
+# Force rebuild: 2026-04-01
