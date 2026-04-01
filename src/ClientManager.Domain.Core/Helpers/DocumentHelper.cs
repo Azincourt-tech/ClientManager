@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ClientManager.Domain.Core.Helpers
 {
     public static class DocumentHelper
@@ -42,7 +44,7 @@ namespace ClientManager.Domain.Core.Helpers
             int[] multiplier2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
 
             for (int i = 0; i < 9; i++)
-                sum += int.Parse(tempCpf[i].ToString()) * multiplier1[i];
+                sum += int.Parse(tempCpf[i].ToString(), CultureInfo.InvariantCulture) * multiplier1[i];
 
             var remainder = sum % 11;
             var digit1 = remainder < 2 ? 0 : 11 - remainder;
@@ -51,12 +53,12 @@ namespace ClientManager.Domain.Core.Helpers
             sum = 0;
 
             for (int i = 0; i < 10; i++)
-                sum += int.Parse(tempCpf[i].ToString()) * multiplier2[i];
+                sum += int.Parse(tempCpf[i].ToString(), CultureInfo.InvariantCulture) * multiplier2[i];
 
             remainder = sum % 11;
             var digit2 = remainder < 2 ? 0 : 11 - remainder;
 
-            return cpf.EndsWith(digit1.ToString() + digit2.ToString());
+            return cpf.EndsWith(digit1.ToString(CultureInfo.InvariantCulture) + digit2.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         }
 
         private static bool HasValidCnpjDigits(string cnpj)
@@ -68,7 +70,7 @@ namespace ClientManager.Domain.Core.Helpers
             var sum = 0;
 
             for (int i = 0; i < 12; i++)
-                sum += int.Parse(tempCnpj[i].ToString()) * multiplier1[i];
+                sum += int.Parse(tempCnpj[i].ToString(), CultureInfo.InvariantCulture) * multiplier1[i];
 
             var remainder = (sum % 11);
             var digit1 = remainder < 2 ? 0 : 11 - remainder;
@@ -77,12 +79,12 @@ namespace ClientManager.Domain.Core.Helpers
             sum = 0;
 
             for (int i = 0; i < 13; i++)
-                sum += int.Parse(tempCnpj[i].ToString()) * multiplier2[i];
+                sum += int.Parse(tempCnpj[i].ToString(), CultureInfo.InvariantCulture) * multiplier2[i];
 
             remainder = (sum % 11);
             var digit2 = remainder < 2 ? 0 : 11 - remainder;
 
-            return cnpj.EndsWith(digit1.ToString() + digit2.ToString());
+            return cnpj.EndsWith(digit1.ToString(CultureInfo.InvariantCulture) + digit2.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 using ClientManager.Domain.Core.Interfaces.Services;
@@ -11,7 +12,7 @@ public class SmtpEmailService(IConfiguration configuration, ILogger<SmtpEmailSer
     public async Task SendWelcomeEmailAsync(string email, string name, byte[]? attachment = null, string? attachmentName = null)
     {
         var host = configuration["Smtp:Host"];
-        var port = int.Parse(configuration["Smtp:Port"] ?? "587");
+        var port = int.Parse(configuration["Smtp:Port"] ?? "587", CultureInfo.InvariantCulture);
         var username = configuration["Smtp:Username"];
         var password = configuration["Smtp:Password"];
         var fromEmail = configuration["Smtp:FromEmail"] ?? "no-reply@clientmanager.com";
