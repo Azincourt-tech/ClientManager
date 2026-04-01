@@ -12,7 +12,6 @@ COPY ["src/ClientManager.Domain/ClientManager.Domain.csproj", "src/ClientManager
 COPY ["src/ClientManager.Domain.Core/ClientManager.Domain.Core.csproj", "src/ClientManager.Domain.Core/"]
 COPY ["src/ClientManager.Domain.Services/ClientManager.Domain.Services.csproj", "src/ClientManager.Domain.Services/"]
 COPY ["src/ClientManager.Infrastructure/ClientManager.Infrastructure.csproj", "src/ClientManager.Infrastructure/"]
-COPY ["src/ClientManager.Infrastructure.Messaging/ClientManager.Infrastructure.Messaging.csproj", "src/ClientManager.Infrastructure.Messaging/"]
 COPY ["ClientManager.sln", "./"]
 
 # Restore dependencies using full path from WORKDIR /src
