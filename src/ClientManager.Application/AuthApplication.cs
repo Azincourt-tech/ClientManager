@@ -1,4 +1,5 @@
 using ClientManager.Application.Mappers;
+using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
 
@@ -51,6 +52,18 @@ namespace ClientManager.Application
             var user = userDto.ToModel(passwordHash);
 
             await _userService.AddUserAsync(user).ConfigureAwait(false);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(user.Email, user.Username).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // fire-and-forget: email failure should not block registration
+                }
+            });
 
             var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role);
             var refreshToken = _tokenService.GenerateRefreshToken();
