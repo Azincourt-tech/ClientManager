@@ -166,6 +166,7 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
             servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();
             servicesCollection.TryAddScoped<ITokenService, TokenService>();
+            servicesCollection.TryAddScoped<IWelcomeEmailHandler, WelcomeEmailHandler>();
 
             return servicesCollection;
         }

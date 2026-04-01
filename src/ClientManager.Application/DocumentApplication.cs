@@ -1,6 +1,4 @@
 using ClientManager.Application.Mappers;
-using ClientManager.Domain.Core.Events;
-using ClientManager.Domain.Core.Interfaces;
 using ClientManager.Domain.Core.Responses;
 using ClientManager.Domain.Enums;
 using FluentValidation;
@@ -13,20 +11,17 @@ public class DocumentApplication : IDocumentApplication
     private readonly ICustomerService _customerService;
     private readonly IFileValidator _fileValidator;
     private readonly IValidator<IFormFile> _fluentValidator;
-    private readonly IMessageBus _messageBus;
 
     public DocumentApplication(
         IDocumentService documentService,
         ICustomerService customerService,
         IFileValidator fileValidator,
-        IValidator<IFormFile> fluentValidator,
-        IMessageBus messageBus)
+        IValidator<IFormFile> fluentValidator)
     {
         _documentService = documentService;
         _customerService = customerService;
         _fileValidator = fileValidator;
         _fluentValidator = fluentValidator;
-        _messageBus = messageBus;
     }
 
     public async Task<ServiceResponse<Guid>> AttachDocumentAsync(Guid customerId, IFormFile file, DocumentType type, DateTimeOffset? expiryDate = null)
@@ -42,9 +37,6 @@ public class DocumentApplication : IDocumentApplication
 
         // Re-evaluate customer status
         await ReevaluateCustomerStatusAsync(customerId).ConfigureAwait(false);
-
-        // Publish Document Uploaded event for background processing
-        await _messageBus.PublishAsync(new DocumentUploadedEvent(res, customerId, type, file.FileName, DateTime.UtcNow), "document-uploaded");
 
         return ServiceResponse<Guid>.Ok(res, "DocumentAttached");
     }
