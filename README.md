@@ -1,134 +1,196 @@
-# ClientManager - Gestão de Clientes e Documentos
+# ClientManager - Customer & Document Management API
 
-Este projeto foi desenvolvido como um modelo de estudo para **Testes Unitários** e **Arquitetura Limpa (Clean Architecture)**, utilizando o banco de dados NoSQL **RavenDB**.
+A REST API for managing customers and their documents, built with .NET 9 following Clean Architecture and DDD principles. Designed as a study project for unit testing and architectural patterns, using RavenDB as the NoSQL database.
 
-A API permite o cadastro completo de clientes (incluindo endereços) e o gerenciamento de documentos anexos (como PDFs ou imagens) armazenados diretamente no banco de dados.
+---
 
-O projeto segue os princípios da **Arquitetura Cebola (Onion Architecture)** e **DDD (Domain-Driven Design)**, garantindo desacoplamento e alta testabilidade:
+## Features
 
-*   **ClientManager.Api**: Camada de entrada, contém os Controllers, Middlewares de Exception Global e configurações de injeção de dependência.
-*   **ClientManager.Application**: Orquestração da lógica, mapeamento manual de DTOs (Extension Methods) e Validações de entrada (**FluentValidation**).
-*   **ClientManager.Domain**: Entidades de negócio ricas (**Rich Domain Model**) com encapsulamento de estado e suporte a **Soft Delete**.
-*   **ClientManager.Infrastructure**: Detalhes técnicos, persistência **assíncrona** no RavenDB com suporte a exclusão lógica e extensões.
-*   **Tests**: Projetos de testes unitários para cada camada lógica da aplicação.
+- **Customer management** (CRUD) with addresses, CPF/CNPJ validation
+- **Document management** with type categorization and expiration dates
+- **User authentication** with JWT tokens and refresh tokens
+- **Role-based authorization** (Admin, Manager, Viewer)
+- **File upload** with extension and size validation (IFileValidator)
+- **Soft Delete** on all main entities
+- **Client verification status** (Verified, Attention, Pending) based on documents
+- **Multi-profile support** for PF (individual) and PJ (company)
+- **Asynchronous email notifications** via RabbitMQ + Resend (production) or Mailtrap (development)
+- **Code quality infrastructure** with centralized build configuration and analyzers
+- **Comprehensive unit tests** (114 tests, 0 failures)
 
-## 🛠️ Tecnologias e Padrões Aplicados
+---
 
-*   **Framework:** .NET 9.0
-*   **Banco de Dados:** RavenDB (NoSQL com suporte a anexos).
-*   **Autenticação:** **JWT (JSON Web Token)** com geração e validação de tokens.
-*   **Autorização:** Sistema de roles com **Admin**, **Manager** e **Viewer**, com políticas de acesso por nível.
-*   **Hash de Senha:** **BCrypt** para armazenamento seguro de credenciais.
-*   **Mapeamento:** Mapeamento manual de DTOs para maior performance e controle.
-*   **Exclusão Lógica:** Implementação de **Soft Delete** em todas as entidades principais.
-*   **Operações Assíncronas:** Uso extensivo de `async/await` e `IAsyncDocumentSession` para alta performance.
-*   **Validação de Identidade:** Helpers de domínio para **CPF** e **CNPJ**.
-*   **Gestão de Documentos:** Categorização por tipo e controle de **Data de Expiração**.
-*   **Segurança de Upload:** Políticas de extensão e tamanho via `IFileValidator`.
-*   **Status de Verificação:** Lógica automática para classificar clientes como `Verified`, `Attention` ou `Pending` com base nos documentos.
-*   **Suporte Multi-perfil:** Tratamento diferenciado para **Pessoa Física (PF)** e **Pessoa Jurídica (PJ)**.
-*   **Mensageria:** Integração com **RabbitMQ (CloudAMQP)** para processamento assíncrono.
-*   **Envio de E-mail:** Suporte híbrido para **SendGrid** (Produção) e **SMTP/Mailtrap** (Desenvolvimento).
-*   **Documentação:** Swagger e Scalar (Modern API Docs).
-*   **Testes:** xUnit, Moq (Mocking) e FluentAssertions.
+## Architecture
 
-## 🚀 Como Rodar o Projeto
+The project follows **Onion Architecture** and **DDD (Domain-Driven Design)**:
 
-O projeto está configurado para utilizar **ambientes distintos**:
-- **Desenvolvimento (Localhost):** Utiliza **RabbitMQ via Docker** e SMTP local (Mailtrap) para testes.
-- **Produção (Deploy):** Utiliza serviços gerenciados na nuvem: **RavenDB Cloud**, **CloudAMQP (RabbitMQ)** e **SendGrid**.
+```
+ClientManager/
+├── src/
+│   ├── ClientManager.Api/              # Entry layer (Controllers, Middlewares, DI)
+│   ├── ClientManager.Application/      # Business orchestration (DTOs, FluentValidation, Mappers)
+│   ├── ClientManager.Domain/           # Rich Domain Model (Entities, Interfaces, Rules)
+│   ├── ClientManager.Infrastructure/   # Technical details (RavenDB, JWT, Email, RabbitMQ)
+│   └── ClientManager.Infrastructure.Messaging/  # RabbitMQ messaging layer
+└── tests/
+    ├── ClientManager.Domain.Tests/
+    ├── ClientManager.Application.Tests/
+    └── ClientManager.Infrastructure.Tests/
+```
 
-### 1. Pré-requisitos
-*   [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) instalado.
-*   **Docker Desktop** (ou Docker Engine) instalado.
-*   Conta no [CloudAMQP](https://www.cloudamqp.com/) (**Apenas para ambiente de Deploy/Produção**).
-*   Conta no [SendGrid](https://sendgrid.com/) (Produção) ou [Mailtrap](https://mailtrap.io/) (Desenvolvimento).
+### Key Design Decisions
 
-### 2. Configuração do Ambiente de Desenvolvimento
-1. Na raiz do projeto, suba os containers do **RavenDB** e do **RabbitMQ local**:
+- **Rich Domain Model** with encapsulated state and domain validation
+- **Manual DTO mapping** via Extension Methods (no AutoMapper)
+- **FluentValidation** for input validation
+- **Async operations** throughout with `IAsyncDocumentSession`
+- **BCrypt** for secure password hashing
+- **AES-256-GCM** encryption for sensitive tokens
+- **EditorConfig** + **Directory.Build.props** for centralized code style
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [.NET 9.0](https://dotnet.microsoft.com/) |
+| Database | [RavenDB](https://ravendb.net/) (NoSQL with attachments) |
+| Authentication | JWT (JSON Web Token) |
+| Authorization | Role-based (Admin, Manager, Viewer) |
+| Password Hashing | BCrypt |
+| Messaging | [RabbitMQ](https://www.rabbitmq.com/) (CloudAMQP in production) |
+| Email | Resend (production) / Mailtrap (development) |
+| Testing | xUnit, Moq, FluentAssertions |
+| Code Quality | .editorconfig, Directory.Build.props, NetAnalyzers |
+| CI/CD | GitHub Actions |
+| Deploy | [Render](https://render.com/) + Docker |
+
+---
+
+## Setup
+
+### Prerequisites
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Docker Desktop](https://www.docker.com/) (for local RabbitMQ)
+- RavenDB instance (local Docker or cloud)
+
+### 1. Start Local Services
+
 ```bash
+# Start RabbitMQ for development
 docker-compose up -d
 ```
-*Nota: O RabbitMQ local estará acessível em `localhost:5672`.*
 
-2. Configure as credenciais de desenvolvimento usando **User Secrets** (Recomendado):
+### 2. Configure Environment
+
+Set up user secrets for development:
+
 ```bash
-# No diretório src/ClientManager.Worker e src/ClientManager.Api
+# In src/ClientManager.Api directory
 dotnet user-secrets set "ConnectionStrings:RabbitMQ" "amqp://guest:guest@localhost:5672"
-dotnet user-secrets set "Smtp:Username" "seu_usuario_mailtrap"
-dotnet user-secrets set "Smtp:Password" "sua_senha_mailtrap"
+dotnet user-secrets set "Smtp:Username" "your_mailtrap_username"
+dotnet user-secrets set "Smtp:Password" "your_mailtrap_password"
 
-# Configuração JWT
-dotnet user-secrets set "Jwt:Key" "sua_chave_secreta_com_pelo_menos_32_caracteres"
+# JWT Configuration (generate a new secret: openssl rand -hex 32)
+dotnet user-secrets set "Jwt:Key" "$(openssl rand -hex 32)"
 dotnet user-secrets set "Jwt:Issuer" "ClientManager"
 dotnet user-secrets set "Jwt:Audience" "ClientManager"
 dotnet user-secrets set "Jwt:ExpireMinutes" "60"
 ```
 
-### 3. Configuração do Banco de Dados
-1.  Acesse o painel do RavenDB em `http://localhost:8080`.
-2.  Crie um novo banco de dados chamado: **`ClientManagementDB`**.
+### 3. Database Setup
 
-### 4. Execução do Projeto
-Você precisará rodar tanto a **API** quanto o **Worker** para o fluxo completo (Cadastro + Envio de E-mail):
+Create a database named **`ClientManagerDB`** in your RavenDB instance.
 
-**Rodar a API:**
+### 4. Run
+
 ```bash
+# Run the API
 dotnet run --project src/ClientManager.Api/ClientManager.Api.csproj
 ```
 
-**Rodar o Worker:**
+### 5. API Documentation
+
+With the API running:
+
+- **Swagger UI:** `https://localhost:7023/swagger`
+- **Scalar Docs:** `https://localhost:7023/api-docs`
+
+---
+
+## Authentication & Authorization
+
+The system uses **JWT** for authentication with three access levels:
+
+| Role | Description |
+|------|-------------|
+| Admin | Full access, including user management |
+| Manager | Create and edit customers and documents |
+| Viewer | Read-only access to customers and documents |
+
+### Auth Endpoints (`/api/auth`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/auth/register` | Register new user (requires Admin) |
+| POST | `/api/auth/login` | Login and get JWT token |
+| POST | `/api/auth/refresh` | Refresh expired token |
+
+### User Endpoints (`/api/user`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/user` | Admin | List all users |
+| GET | `/api/user/{id}` | Admin | Get user by ID |
+| PUT | `/api/user/{id}` | Admin | Update user |
+| DELETE | `/api/user/{id}` | Admin | Delete user |
+
+---
+
+## Tests
+
 ```bash
-dotnet run --project src/ClientManager.Worker/ClientManager.Worker.csproj
-```
-
-### 5. Configuração de Produção
-No ambiente de produção (`appsettings.json`), o sistema prioriza o **SendGrid** se a seção `Smtp` não estiver presente:
-- Configure `SendGrid:ApiKey` e `SendGrid:FromEmail`.
-- Configure `ConnectionStrings:RabbitMQ` com a URL do CloudAMQP.
-
-### 4. Acessando a Documentação
-Com a API rodando, você pode testar os endpoints através de:
-*   **Swagger UI:** `https://localhost:7023/swagger`
-*   **Scalar Docs:** `https://localhost:7023/api-docs` (Interface moderna)
-
-## 🔐 Autenticação e Autorização
-
-O sistema utiliza **JWT** para autenticação e possui três níveis de acesso:
-
-| Role    | Descrição                              |
-|---------|----------------------------------------|
-| Admin   | Acesso total, incluindo gerenciamento de usuários |
-| Manager | Cadastro e edição de clientes e documentos       |
-| Viewer  | Apenas leitura de clientes e documentos           |
-
-### Endpoints de Autenticação (`/api/auth`)
-
-*   **POST `/api/auth/register`** — Registra um novo usuário (requer role **Admin**).
-*   **POST `/api/auth/login`** — Autentica o usuário e retorna o token JWT.
-
-### Endpoints de Usuário (`/api/user`)
-
-*   **GET `/api/user`** — Lista todos os usuários (requer role **Admin**).
-*   **GET `/api/user/{id}`** — Busca um usuário por ID (requer role **Admin**).
-*   **PUT `/api/user/{id}`** — Atualiza os dados de um usuário (requer role **Admin**).
-*   **DELETE `/api/user/{id}`** — Remove um usuário (requer role **Admin**).
-
-## 🧪 Como Rodar os Testes
-
-Este projeto foi focado em testabilidade. Para rodar todos os testes unitários e verificar a integridade do sistema, use o comando:
-
-```bash
+# Run all tests
 dotnet test
 ```
 
-O projeto conta com **114 testes unitários** com **0 falhas**, cobrindo:
+**114 unit tests** covering:
 
-*   **Controllers:** Status codes, fluxo de retorno e autorização.
-*   **Application:** Mapeamento correto de DTOs e lógica de autenticação.
-*   **Domain Services:** Regras de negócio como validação de e-mail, ativação de cliente e gestão de usuários.
-*   **Models:** Integridade das entidades, incluindo a entidade `User`.
+- **Controllers:** Status codes, response flow, and authorization
+- **Application:** DTO mapping and authentication logic
+- **Domain Services:** Business rules (email validation, client activation, user management)
+- **Models:** Entity integrity including the User entity
 
 ---
-Desenvolvido para fins de estudo de arquitetura e qualidade de software.
 
+## Code Quality
+
+The project includes centralized code quality infrastructure:
+
+- **`.editorconfig`** - Standardizes formatting across all editors
+- **`Directory.Build.props`** - Centralizes .NET version and shared build settings
+- **NetAnalyzers** - Static analysis with `EnforceCodeStyleInBuild` enabled
+- **`TreatWarningsAsErrors`** in Release mode
+
+---
+
+## Production Configuration
+
+For production deployment (Render):
+
+```bash
+# Required environment variables
+ConnectionStrings__RavenDB      # RavenDB cloud URL
+ConnectionStrings__RabbitMQ     # CloudAMQP URL
+SendGrid__ApiKey                # Resend API key
+SendGrid__FromEmail             # Verified sender email
+Jwt__Key                        # JWT signing key
+```
+
+---
+
+## License
+
+MIT

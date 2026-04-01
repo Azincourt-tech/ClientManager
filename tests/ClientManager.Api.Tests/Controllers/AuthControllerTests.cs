@@ -70,10 +70,10 @@ namespace ClientManager.Api.Tests.Controllers
             okResult.Should().NotBeNull();
             okResult!.StatusCode.Should().Be(StatusCodes.Status200OK);
 
-            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<AuthResponseDto>>().Subject;
+            var apiResult = okResult.Value.Should().BeOfType<ApiOkResult<RegisterResponseDto>>().Subject;
             apiResult.Data.Should().NotBeNull();
-            apiResult.Data!.Token.Should().Be("jwt-token");
-            apiResult.Data.RefreshToken.Should().Be("refresh-token");
+            apiResult.Data!.User.Should().NotBeNull();
+            apiResult.Data.User.Username.Should().Be(userDto.Username);
 
             _authApplicationMock.Verify(a => a.RegisterAsync(userDto), Times.Once);
         }

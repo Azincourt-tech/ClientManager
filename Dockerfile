@@ -2,6 +2,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
+# Copiar Directory.Build.props primeiro (herda TargetFramework para todos os projetos)
+COPY ["Directory.Build.props", "./"]
+
 # Copiar todos os arquivos .csproj primeiro para restaurar as dependências
 COPY ["src/ClientManager.Api/ClientManager.Api.csproj", "src/ClientManager.Api/"]
 COPY ["src/ClientManager.Application/ClientManager.Application.csproj", "src/ClientManager.Application/"]
@@ -9,6 +12,8 @@ COPY ["src/ClientManager.Domain/ClientManager.Domain.csproj", "src/ClientManager
 COPY ["src/ClientManager.Domain.Core/ClientManager.Domain.Core.csproj", "src/ClientManager.Domain.Core/"]
 COPY ["src/ClientManager.Domain.Services/ClientManager.Domain.Services.csproj", "src/ClientManager.Domain.Services/"]
 COPY ["src/ClientManager.Infrastructure/ClientManager.Infrastructure.csproj", "src/ClientManager.Infrastructure/"]
+COPY ["src/ClientManager.Infrastructure.Messaging/ClientManager.Infrastructure.Messaging.csproj", "src/ClientManager.Infrastructure.Messaging/"]
+COPY ["ClientManager.sln", "./"]
 
 # Restaurar dependências
 RUN dotnet restore "src/ClientManager.Api/ClientManager.Api.csproj"
@@ -27,9 +32,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Render usa a porta 10000 por padrão para Web Services.
-# O ASP.NET Core lerá a variável PORT do Render automaticamente se configurarmos assim:
-ENV ASPNETCORE_HTTP_PORTS=10000
+# ASP.NET Core uses PORT env var in containers, fallback to 10000
+ENV ASPNETCORE_URLS=http://*:10000
 EXPOSE 10000
 
 ENTRYPOINT ["dotnet", "ClientManager.Api.dll"]

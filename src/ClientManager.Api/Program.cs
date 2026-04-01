@@ -1,6 +1,7 @@
-
 using ClientManager.Api;
+using ClientManager.Api.Consumers;
 using ClientManager.Api.Middlewares;
+using ClientManager.Api.Workers;
 using ClientManager.Infrastructure.Messaging.DependencyInjection;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
@@ -38,6 +39,13 @@ builder.Services.AddOpenApi(options =>
                 Description = "Enter your JWT token"
             }
         };
+
+        // Force HTTPS in server URL to avoid Mixed Content errors
+        document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
+        {
+            new() { Url = "https://clientmanager-ie0y.onrender.com/" }
+        };
+
         return Task.CompletedTask;
     });
 });
@@ -50,6 +58,16 @@ builder.Services.AddValidators();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddMessaging();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -68,13 +86,18 @@ localizationOptions.ApplyCurrentCultureToResponseHeaders = true;
 
 app.UseRequestLocalization(localizationOptions);
 
+app.UseCors("AllowAll");
+
+// Allow Scalar to work inside Render dashboard iframe
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Remove("X-Frame-Options");
+    context.Response.Headers["Content-Security-Policy"] = "frame-ancestors *;";
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 app.MapOpenApi();
-
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/openapi/v1.json", "ClientManager API v1");
-});
 
 app.MapScalarApiReference(options =>
 {
@@ -85,8 +108,6 @@ app.MapScalarApiReference(options =>
            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
            .HideDeveloperTools();
 });
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
