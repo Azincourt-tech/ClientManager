@@ -61,7 +61,7 @@ public class SmtpEmailService(IConfiguration configuration, ILogger<SmtpEmailSer
     public async Task SendWelcomeEmailToUserAsync(string email, string username)
     {
         var host = configuration["Smtp:Host"];
-        var port = int.Parse(configuration["Smtp:Port"] ?? "587");
+        var port = int.Parse(configuration["Smtp:Port"] ?? "587", CultureInfo.InvariantCulture);
         var username2 = configuration["Smtp:Username"];
         var password = configuration["Smtp:Password"];
         var fromEmail = configuration["Smtp:FromEmail"] ?? "no-reply@clientmanager.com";
