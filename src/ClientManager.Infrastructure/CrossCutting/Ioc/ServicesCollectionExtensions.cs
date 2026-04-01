@@ -7,7 +7,9 @@ using ClientManager.Infrastructure.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -151,8 +153,17 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection, IConfiguration configuration)
         {
             // Prioridade: Resend > Smtp (Mailtrap/dev) > SendGrid (fallback)
-            if (!string.IsNullOrEmpty(configuration["Resend:ApiKey"]))
+            var resendApiKey = configuration["Resend:ApiKey"];
+            if (!string.IsNullOrEmpty(resendApiKey))
             {
+                // Register official Resend SDK
+                servicesCollection.AddOptions();
+                servicesCollection.AddHttpClient<ResendClient>();
+                servicesCollection.Configure<ResendClientOptions>(o =>
+                {
+                    o.ApiToken = resendApiKey;
+                });
+                servicesCollection.AddTransient<IResend, ResendClient>();
                 servicesCollection.TryAddScoped<IEmailService, ResendEmailService>();
             }
             else if (configuration.GetSection("Smtp").Exists() && !string.IsNullOrEmpty(configuration["Smtp:Host"]))

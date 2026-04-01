@@ -1,18 +1,17 @@
-using System.Net;
-using System.Net.Mail;
 using ClientManager.Domain.Core.Interfaces.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Resend;
 
 namespace ClientManager.Infrastructure.Services;
 
-public class ResendEmailService(IConfiguration configuration, ILogger<ResendEmailService> logger) : IEmailService
+public class ResendEmailService(IResend resend, IConfiguration configuration, ILogger<ResendEmailService> logger) : IEmailService
 {
     public async Task SendWelcomeEmailAsync(string email, string name, byte[]? attachment = null, string? attachmentName = null)
     {
-        var apiKey = configuration["Resend:ApiKey"];
         var fromEmail = configuration["Resend:FromEmail"] ?? "onboarding@resend.dev";
         var fromName = configuration["Resend:FromName"] ?? "ClientManager";
+        var apiKey = configuration["Resend:ApiKey"];
 
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -22,48 +21,44 @@ public class ResendEmailService(IConfiguration configuration, ILogger<ResendEmai
 
         try
         {
-            // Resend aceita SMTP com a API key como password
-            using var client = new SmtpClient("smtp.resend.com", 465)
-            {
-                Credentials = new NetworkCredential("resend", apiKey),
-                EnableSsl = true
-            };
-
             var htmlContent = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;'>
                     <h1 style='color: #2c3e50;'>Bem-vindo, {name}!</h1>
-                    <p>Estamos muito felizes em ter voc como nosso cliente no <strong>ClientManager</strong>.</p>
-                    <p>Seu cadastro foi concludo e agora voc pode come\u00e7ar a gerenciar seus documentos com facilidade.</p>
-                    <p><strong>Em anexo, voc encontrar seu Kit de Boas-vindas em PDF.</strong></p>
+                    <p>Estamos muito felizes em ter você como nosso cliente no <strong>ClientManager</strong>.</p>
+                    <p>Seu cadastro foi concluído e agora você pode começar a gerenciar seus documentos com facilidade.</p>
+                    <p><strong>Em anexo, você encontrará seu Kit de Boas-vindas em PDF.</strong></p>
                     <div style='background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;'>
-                        <p style='margin: 0;'><strong>Prximos passos:</strong></p>
+                        <p style='margin: 0;'><strong>Próximos passos:</strong></p>
                         <ul>
-                            <li>Faa o upload dos seus documentos.</li>
-                            <li>Aguarde a verificao automtica.</li>
+                            <li>Faça o upload dos seus documentos.</li>
+                            <li>Aguarde a verificação automática.</li>
                             <li>Explore as funcionalidades da nossa plataforma.</li>
                         </ul>
                     </div>
-                    <p>Se tiver qualquer dvida, responda a este e-mail.</p>
+                    <p>Se tiver qualquer dúvida, responda a este e-mail.</p>
                     <p>Atenciosamente,<br>Equipe ClientManager</p>
                 </div>";
 
-            var mailMessage = new MailMessage
+            var message = new EmailMessage
             {
-                From = new MailAddress(fromEmail, fromName),
+                From = $"{fromName} <{fromEmail}>",
                 Subject = "Bem-vindo ao ClientManager!",
-                Body = htmlContent,
-                IsBodyHtml = true
+                HtmlBody = htmlContent
             };
-            mailMessage.To.Add(new MailAddress(email, name));
+            message.To.Add(email);
 
             if (attachment != null && !string.IsNullOrEmpty(attachmentName))
             {
-                var stream = new MemoryStream(attachment);
-                mailMessage.Attachments.Add(new Attachment(stream, attachmentName, "application/pdf"));
+                message.Attachments.Add(new EmailAttachment
+                {
+                    Content = attachment,
+                    ContentType = "application/pdf",
+                    Filename = attachmentName
+                });
                 logger.LogInformation("Added attachment {AttachmentName} to email for {Email}", attachmentName, email);
             }
 
-            await client.SendMailAsync(mailMessage);
+            await resend.EmailSendAsync(message);
             logger.LogInformation("Email sent successfully to {Email} via Resend", email);
         }
         catch (Exception ex)
@@ -74,9 +69,9 @@ public class ResendEmailService(IConfiguration configuration, ILogger<ResendEmai
 
     public async Task SendWelcomeEmailToUserAsync(string email, string username)
     {
-        var apiKey = configuration["Resend:ApiKey"];
         var fromEmail = configuration["Resend:FromEmail"] ?? "onboarding@resend.dev";
         var fromName = configuration["Resend:FromName"] ?? "ClientManager";
+        var apiKey = configuration["Resend:ApiKey"];
 
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -86,12 +81,6 @@ public class ResendEmailService(IConfiguration configuration, ILogger<ResendEmai
 
         try
         {
-            using var client = new SmtpClient("smtp.resend.com", 465)
-            {
-                Credentials = new NetworkCredential("resend", apiKey),
-                EnableSsl = true
-            };
-
             var htmlContent = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;'>
                     <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
@@ -118,16 +107,15 @@ public class ResendEmailService(IConfiguration configuration, ILogger<ResendEmai
                     </div>
                 </div>";
 
-            var mailMessage = new MailMessage
+            var message = new EmailMessage
             {
-                From = new MailAddress(fromEmail, fromName),
+                From = $"{fromName} <{fromEmail}>",
                 Subject = "Welcome to ClientManager!",
-                Body = htmlContent,
-                IsBodyHtml = true
+                HtmlBody = htmlContent
             };
-            mailMessage.To.Add(new MailAddress(email, username));
+            message.To.Add(email);
 
-            await client.SendMailAsync(mailMessage);
+            await resend.EmailSendAsync(message);
             logger.LogInformation("Welcome email sent successfully to {Email} via Resend", email);
         }
         catch (Exception ex)
