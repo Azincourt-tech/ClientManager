@@ -1,4 +1,5 @@
 using ClientManager.Application.Mappers;
+using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
 
@@ -8,6 +9,7 @@ namespace ClientManager.Application
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         private readonly IValidator<Dtos.User.CreateUserDto> _createUserValidator;
         private readonly IValidator<Dtos.User.LoginDto> _loginValidator;
 
@@ -17,11 +19,13 @@ namespace ClientManager.Application
         public AuthApplication(
             IUserService userService,
             ITokenService tokenService,
+            IEmailService emailService,
             IValidator<Dtos.User.CreateUserDto> createUserValidator,
             IValidator<Dtos.User.LoginDto> loginValidator)
         {
             _userService = userService;
             _tokenService = tokenService;
+            _emailService = emailService;
             _createUserValidator = createUserValidator;
             _loginValidator = loginValidator;
         }
@@ -48,6 +52,18 @@ namespace ClientManager.Application
             var user = userDto.ToModel(passwordHash);
 
             await _userService.AddUserAsync(user).ConfigureAwait(false);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(user.Email, user.Username).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // fire-and-forget: email failure should not block registration
+                }
+            });
 
             var token = _tokenService.GenerateToken(user.Id, user.Username, user.Email, user.Role);
             var refreshToken = _tokenService.GenerateRefreshToken();
