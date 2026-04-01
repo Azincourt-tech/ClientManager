@@ -2,6 +2,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
+# Copiar Directory.Build.props primeiro (herda TargetFramework para todos os projetos)
+COPY ["Directory.Build.props", "./"]
+
 # Copiar todos os arquivos .csproj primeiro para restaurar as dependências
 COPY ["src/ClientManager.Api/ClientManager.Api.csproj", "src/ClientManager.Api/"]
 COPY ["src/ClientManager.Application/ClientManager.Application.csproj", "src/ClientManager.Application/"]
@@ -10,9 +13,10 @@ COPY ["src/ClientManager.Domain.Core/ClientManager.Domain.Core.csproj", "src/Cli
 COPY ["src/ClientManager.Domain.Services/ClientManager.Domain.Services.csproj", "src/ClientManager.Domain.Services/"]
 COPY ["src/ClientManager.Infrastructure/ClientManager.Infrastructure.csproj", "src/ClientManager.Infrastructure/"]
 COPY ["src/ClientManager.Infrastructure.Messaging/ClientManager.Infrastructure.Messaging.csproj", "src/ClientManager.Infrastructure.Messaging/"]
+COPY ["ClientManager.sln", "./"]
 
 # Restaurar dependências
-RUN dotnet restore "src/ClientManager.Api/ClientManager.Api.csproj"
+RUN dotnet restore "ClientManager.Api.csproj"
 
 # Copiar o restante do código e compilar
 COPY . .
