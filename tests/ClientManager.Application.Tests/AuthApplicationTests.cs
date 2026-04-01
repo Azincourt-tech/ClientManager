@@ -5,6 +5,8 @@ using ClientManager.Domain.Model;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,6 +17,8 @@ namespace ClientManager.Application.Tests
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
         private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<IServiceScopeFactory> _scopeFactoryMock;
+        private readonly Mock<IServiceScope> _serviceScopeMock;
         private readonly Mock<IValidator<CreateUserDto>> _createUserValidatorMock;
         private readonly Mock<IValidator<LoginDto>> _loginValidatorMock;
         private readonly AuthApplication _authApplication;
@@ -24,13 +28,29 @@ namespace ClientManager.Application.Tests
             _userServiceMock = new Mock<IUserService>();
             _tokenServiceMock = new Mock<ITokenService>();
             _emailServiceMock = new Mock<IEmailService>();
+            _scopeFactoryMock = new Mock<IServiceScopeFactory>();
+            _serviceScopeMock = new Mock<IServiceScope>();
             _createUserValidatorMock = new Mock<IValidator<CreateUserDto>>();
             _loginValidatorMock = new Mock<IValidator<LoginDto>>();
+
+            // Setup the scope factory chain
+            _scopeFactoryMock.Setup(f => f.CreateScope()).Returns(_serviceScopeMock.Object);
+
+            // Mock IServiceProvider.GetRequiredService(Type) - the non-generic method
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(sp => sp.GetService(typeof(IEmailService)))
+                .Returns(_emailServiceMock.Object);
+            serviceProviderMock
+                .Setup(sp => sp.GetService(typeof(ILogger<AuthApplication>)))
+                .Returns(new Mock<ILogger<AuthApplication>>().Object);
+
+            _serviceScopeMock.Setup(s => s.ServiceProvider).Returns(serviceProviderMock.Object);
 
             _authApplication = new AuthApplication(
                 _userServiceMock.Object,
                 _tokenServiceMock.Object,
-                _emailServiceMock.Object,
+                _scopeFactoryMock.Object,
                 _createUserValidatorMock.Object,
                 _loginValidatorMock.Object
             );

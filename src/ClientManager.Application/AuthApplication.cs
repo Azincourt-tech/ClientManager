@@ -2,6 +2,8 @@ using ClientManager.Application.Mappers;
 using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ClientManager.Application
 {
@@ -9,7 +11,7 @@ namespace ClientManager.Application
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
-        private readonly IEmailService _emailService;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IValidator<Dtos.User.CreateUserDto> _createUserValidator;
         private readonly IValidator<Dtos.User.LoginDto> _loginValidator;
 
@@ -19,13 +21,13 @@ namespace ClientManager.Application
         public AuthApplication(
             IUserService userService,
             ITokenService tokenService,
-            IEmailService emailService,
+            IServiceScopeFactory scopeFactory,
             IValidator<Dtos.User.CreateUserDto> createUserValidator,
             IValidator<Dtos.User.LoginDto> loginValidator)
         {
             _userService = userService;
             _tokenService = tokenService;
-            _emailService = emailService;
+            _scopeFactory = scopeFactory;
             _createUserValidator = createUserValidator;
             _loginValidator = loginValidator;
         }
@@ -66,16 +68,21 @@ namespace ClientManager.Application
             };
 
             // Fire-and-forget: send welcome email without blocking the response
+            // Use IServiceScopeFactory to create a new scope since this runs outside the request scope
             _ = Task.Run(async () =>
             {
+                using var scope = _scopeFactory.CreateScope();
+                var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                 try
                 {
-                    await _emailService.SendWelcomeEmailAsync(user.Email, user.Username);
-                    await _emailService.SendWelcomeEmailToUserAsync(user.Email, user.Username);
+                    await emailService.SendWelcomeEmailAsync(user.Email, user.Username);
+                    await emailService.SendWelcomeEmailToUserAsync(user.Email, user.Username);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Silently ignore errors to not affect the registration response
+                    // Log error but don't block registration response
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<AuthApplication>>();
+                    logger.LogError(ex, "Failed to send welcome email to {Email}", user.Email);
                 }
             });
 
