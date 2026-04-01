@@ -1,8 +1,5 @@
 using ClientManager.Api;
-using ClientManager.Api.Consumers;
 using ClientManager.Api.Middlewares;
-using ClientManager.Api.Workers;
-using ClientManager.Infrastructure.Messaging.DependencyInjection;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
@@ -56,7 +53,6 @@ builder.Services.AddRepositories();
 builder.Services.AddApplicationServices();
 builder.Services.AddValidators();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddMessaging();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddCors(options =>

@@ -1,6 +1,5 @@
 using ClientManager.Application.Mappers;
-using ClientManager.Domain.Core.Events;
-using ClientManager.Domain.Core.Interfaces;
+using ClientManager.Domain.Core.Interfaces.Services;
 using ClientManager.Domain.Core.Responses;
 using FluentValidation;
 
@@ -11,14 +10,18 @@ namespace ClientManager.Application
         private readonly ICustomerService _customerService;
         private readonly IDocumentService _documentService;
         private readonly IValidator<CustomerBaseDto> _customerValidator;
-        private readonly IMessageBus _messageBus;
+        private readonly IWelcomeEmailHandler _welcomeEmailHandler;
 
-        public CustomerApplication(ICustomerService customerService, IDocumentService documentService, IValidator<CustomerBaseDto> customerValidator, IMessageBus messageBus)
+        public CustomerApplication(
+            ICustomerService customerService,
+            IDocumentService documentService,
+            IValidator<CustomerBaseDto> customerValidator,
+            IWelcomeEmailHandler welcomeEmailHandler)
         {
             _customerService = customerService;
             _documentService = documentService;
             _customerValidator = customerValidator;
-            _messageBus = messageBus;
+            _welcomeEmailHandler = welcomeEmailHandler;
         }
 
         public async Task<ServiceResponse<Guid>> AddCustomerAsync(CreateCustomerDto customerDto)
@@ -34,8 +37,19 @@ namespace ClientManager.Application
             var customer = customerDto.ToModel();
             await _customerService.AddCustomerAsync(customer).ConfigureAwait(false);
 
-            // Publish Welcome/Created event
-            await _messageBus.PublishAsync(new CustomerCreatedEvent(customer.Id, customer.Name, customer.Email, DateTime.UtcNow), "customer-created");
+            // Send welcome email synchronously (PDF generation + email send)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _welcomeEmailHandler.HandleCustomerCreatedAsync(
+                        customer.Id, customer.Name, customer.Email).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Fire-and-forget: email failure should not break the response
+                }
+            });
 
             return ServiceResponse<Guid>.Ok(customer.Id, "CustomerInserted");
         }

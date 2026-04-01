@@ -1,5 +1,4 @@
 using ClientManager.Domain.Core.Interfaces.Services;
-using ClientManager.Domain.Core.Interfaces;
 using ClientManager.Domain.Enums;
 using ClientManager.Domain.Model;
 using FluentAssertions;
@@ -17,7 +16,6 @@ namespace ClientManager.Application.Tests
         private readonly Mock<ICustomerService> _customerServiceMock;
         private readonly Mock<IFileValidator> _fileValidatorMock;
         private readonly Mock<IValidator<IFormFile>> _fluentValidatorMock;
-        private readonly Mock<IMessageBus> _messageBusMock;
         private readonly DocumentApplication _documentApplication;
 
         public DocumentApplicationTests()
@@ -26,14 +24,12 @@ namespace ClientManager.Application.Tests
             _customerServiceMock = new Mock<ICustomerService>();
             _fileValidatorMock = new Mock<IFileValidator>();
             _fluentValidatorMock = new Mock<IValidator<IFormFile>>();
-            _messageBusMock = new Mock<IMessageBus>();
 
             _documentApplication = new DocumentApplication(
                 _documentServiceMock.Object,
                 _customerServiceMock.Object,
                 _fileValidatorMock.Object,
-                _fluentValidatorMock.Object,
-                _messageBusMock.Object
+                _fluentValidatorMock.Object
             );
         }
 

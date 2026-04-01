@@ -14,7 +14,7 @@ A REST API for managing customers and their documents, built with .NET 9 followi
 - **Soft Delete** on all main entities
 - **Client verification status** (Verified, Attention, Pending) based on documents
 - **Multi-profile support** for PF (individual) and PJ (company)
-- **Asynchronous email notifications** via RabbitMQ + Resend (production) or Mailtrap (development)
+- **Email notifications** via Resend (production) or Mailtrap (development)
 - **Code quality infrastructure** with centralized build configuration and analyzers
 - **Comprehensive unit tests** (114 tests, 0 failures)
 
@@ -30,8 +30,7 @@ ClientManager/
 │   ├── ClientManager.Api/              # Entry layer (Controllers, Middlewares, DI)
 │   ├── ClientManager.Application/      # Business orchestration (DTOs, FluentValidation, Mappers)
 │   ├── ClientManager.Domain/           # Rich Domain Model (Entities, Interfaces, Rules)
-│   ├── ClientManager.Infrastructure/   # Technical details (RavenDB, JWT, Email, RabbitMQ)
-│   └── ClientManager.Infrastructure.Messaging/  # RabbitMQ messaging layer
+│   └── ClientManager.Infrastructure/   # Technical details (RavenDB, JWT, Email, PDF)
 └── tests/
     ├── ClientManager.Domain.Tests/
     ├── ClientManager.Application.Tests/
@@ -59,8 +58,7 @@ ClientManager/
 | Authentication | JWT (JSON Web Token) |
 | Authorization | Role-based (Admin, Manager, Viewer) |
 | Password Hashing | BCrypt |
-| Messaging | [RabbitMQ](https://www.rabbitmq.com/) (CloudAMQP in production) |
-| Email | Resend (production) / Mailtrap (development) |
+| Email | [Resend](https://resend.com/) (production) / Mailtrap (development) |
 | Testing | xUnit, Moq, FluentAssertions |
 | Code Quality | .editorconfig, Directory.Build.props, NetAnalyzers |
 | CI/CD | GitHub Actions |
@@ -73,15 +71,10 @@ ClientManager/
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Docker Desktop](https://www.docker.com/) (for local RabbitMQ)
+- [Docker Desktop](https://www.docker.com/) (optional, for local services)
 - RavenDB instance (local Docker or cloud)
 
 ### 1. Start Local Services
-
-```bash
-# Start RabbitMQ for development
-docker-compose up -d
-```
 
 ### 2. Configure Environment
 
@@ -89,7 +82,6 @@ Set up user secrets for development:
 
 ```bash
 # In src/ClientManager.Api directory
-dotnet user-secrets set "ConnectionStrings:RabbitMQ" "amqp://guest:guest@localhost:5672"
 dotnet user-secrets set "Smtp:Username" "your_mailtrap_username"
 dotnet user-secrets set "Smtp:Password" "your_mailtrap_password"
 
@@ -183,9 +175,8 @@ For production deployment (Render):
 ```bash
 # Required environment variables
 ConnectionStrings__RavenDB      # RavenDB cloud URL
-ConnectionStrings__RabbitMQ     # CloudAMQP URL
-SendGrid__ApiKey                # Resend API key
-SendGrid__FromEmail             # Verified sender email
+Resend__ApiKey                  # Resend API key
+Resend__FromEmail               # Verified sender email
 Jwt__Key                        # JWT signing key
 ```
 

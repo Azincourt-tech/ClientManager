@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClientManager.Infrastructure\ClientManager.Infrastructure.csproj" />
-    <ProjectReference Include="..\ClientManager.Infrastructure.Messaging\ClientManager.Infrastructure.Messaging.csproj" />
   </ItemGroup>
 
 </Project>
