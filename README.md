@@ -93,8 +93,8 @@ dotnet user-secrets set "ConnectionStrings:RabbitMQ" "amqp://guest:guest@localho
 dotnet user-secrets set "Smtp:Username" "your_mailtrap_username"
 dotnet user-secrets set "Smtp:Password" "your_mailtrap_password"
 
-# JWT Configuration
-dotnet user-secrets set "Jwt:Key" "your_secret_key_at_least_32_characters"
+# JWT Configuration (generate a new secret: openssl rand -hex 32)
+dotnet user-secrets set "Jwt:Key" "$(openssl rand -hex 32)"
 dotnet user-secrets set "Jwt:Issuer" "ClientManager"
 dotnet user-secrets set "Jwt:Audience" "ClientManager"
 dotnet user-secrets set "Jwt:ExpireMinutes" "60"
