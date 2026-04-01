@@ -16,7 +16,7 @@ COPY ["src/ClientManager.Infrastructure.Messaging/ClientManager.Infrastructure.M
 COPY ["ClientManager.sln", "./"]
 
 # Restaurar dependências
-RUN dotnet restore "ClientManager.Api.csproj"
+RUN dotnet restore "src/ClientManager.Api/ClientManager.Api.csproj"
 
 # Copiar o restante do código e compilar
 COPY . .
