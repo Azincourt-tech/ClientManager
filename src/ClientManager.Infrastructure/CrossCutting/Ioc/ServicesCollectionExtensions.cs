@@ -150,18 +150,14 @@ namespace ClientManager.Infrastructure.CrossCutting.Ioc
 
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection servicesCollection, IConfiguration configuration)
         {
-            // Prioridade: Resend > Smtp (Mailtrap/dev) > SendGrid (fallback)
+            // Prioridade: Resend (produção) > Smtp/Mailtrap (desenvolvimento)
             if (!string.IsNullOrEmpty(configuration["Resend:ApiKey"]))
             {
                 servicesCollection.TryAddScoped<IEmailService, ResendEmailService>();
             }
-            else if (configuration.GetSection("Smtp").Exists() && !string.IsNullOrEmpty(configuration["Smtp:Host"]))
-            {
-                servicesCollection.TryAddScoped<IEmailService, SmtpEmailService>();
-            }
             else
             {
-                servicesCollection.TryAddScoped<IEmailService, SendGridEmailService>();
+                servicesCollection.TryAddScoped<IEmailService, SmtpEmailService>();
             }
 
             servicesCollection.TryAddScoped<IPdfGenerator, QuestPdfGenerator>();

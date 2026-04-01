@@ -14,16 +14,5 @@ services:
     volumes:
       - ravendb_data:/opt/RavenDB/Server/RavenData
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: clientmanager-mq
-    restart: unless-stopped
-    ports:
-      - "5672:5672"   # Porta do Protocolo AMQP
-      - "15672:15672" # Porta da Interface de Gerenciamento (Management UI)
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-
 volumes:
   ravendb_data:
