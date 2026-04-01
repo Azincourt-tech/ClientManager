@@ -14,6 +14,7 @@ namespace ClientManager.Application.Tests
     {
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<ITokenService> _tokenServiceMock;
+        private readonly Mock<IEmailService> _emailServiceMock;
         private readonly Mock<IValidator<CreateUserDto>> _createUserValidatorMock;
         private readonly Mock<IValidator<LoginDto>> _loginValidatorMock;
         private readonly AuthApplication _authApplication;
@@ -22,12 +23,14 @@ namespace ClientManager.Application.Tests
         {
             _userServiceMock = new Mock<IUserService>();
             _tokenServiceMock = new Mock<ITokenService>();
+            _emailServiceMock = new Mock<IEmailService>();
             _createUserValidatorMock = new Mock<IValidator<CreateUserDto>>();
             _loginValidatorMock = new Mock<IValidator<LoginDto>>();
 
             _authApplication = new AuthApplication(
                 _userServiceMock.Object,
                 _tokenServiceMock.Object,
+                _emailServiceMock.Object,
                 _createUserValidatorMock.Object,
                 _loginValidatorMock.Object
             );

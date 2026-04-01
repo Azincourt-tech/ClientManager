@@ -8,6 +8,7 @@ namespace ClientManager.Application
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
         private readonly IValidator<Dtos.User.CreateUserDto> _createUserValidator;
         private readonly IValidator<Dtos.User.LoginDto> _loginValidator;
 
@@ -17,11 +18,13 @@ namespace ClientManager.Application
         public AuthApplication(
             IUserService userService,
             ITokenService tokenService,
+            IEmailService emailService,
             IValidator<Dtos.User.CreateUserDto> createUserValidator,
             IValidator<Dtos.User.LoginDto> loginValidator)
         {
             _userService = userService;
             _tokenService = tokenService;
+            _emailService = emailService;
             _createUserValidator = createUserValidator;
             _loginValidator = loginValidator;
         }
@@ -60,6 +63,19 @@ namespace ClientManager.Application
                 User = user.ToDto(),
                 ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(60)
             };
+
+            // Fire-and-forget: send welcome email without blocking the response
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailToUserAsync(user.Email, user.Username);
+                }
+                catch
+                {
+                    // Silently ignore errors to not affect the registration response
+                }
+            });
 
             return ServiceResponse<Dtos.User.AuthResponseDto>.Ok(authResponse, "UserRegistered");
         }
